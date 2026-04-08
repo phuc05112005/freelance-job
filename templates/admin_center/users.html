@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý người dùng{% endblock %}
+{% block content %}
+<section class="panel">
+    <div class="panel-head">
+        <div>
+            <p class="eyebrow">Admin Center</p>
+            <h1>Quản lý người dùng</h1>
+        </div>
+        <a class="button button-ghost button-sm" href="{% url 'admin_center' %}">Về tổng quan</a>
+    </div>
+    <form method="get" class="filters">
+        <input type="text" name="q" placeholder="Tìm username, email, họ tên..." value="{{ keyword }}">
+        <select name="role">
+            <option value="">Tất cả vai trò</option>
+            <option value="student" {% if role == 'student' %}selected{% endif %}>Sinh viên</option>
+            <option value="employer" {% if role == 'employer' %}selected{% endif %}>Nhà tuyển dụng</option>
+            <option value="admin" {% if role == 'admin' %}selected{% endif %}>Quản trị viên</option>
+        </select>
+        <button class="button button-sm" type="submit">Lọc</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tài khoản</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Lưu</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in users %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.username }}</td>
+                        <td>{{ item.email|default:"-" }}</td>
+                        <td>
+                            <form method="post" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ item.id }}">
+                                <select name="role">
+                                    <option value="student" {% if item.role == 'student' %}selected{% endif %}>Sinh viên</option>
+                                    <option value="employer" {% if item.role == 'employer' %}selected{% endif %}>Nhà tuyển dụng</option>
+                                    <option value="admin" {% if item.role == 'admin' %}selected{% endif %}>Quản trị viên</option>
+                                </select>
+                        </td>
+                        <td>
+                                <label class="inline-form">
+                                    <input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}>
+                                    Hoạt động
+                                </label>
+                        </td>
+                        <td>
+                                <button class="button button-sm" type="submit">Cập nhật</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="empty">Không có người dùng phù hợp.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+
+tại sao web nó cứ báo lỗi, sửa triệt để

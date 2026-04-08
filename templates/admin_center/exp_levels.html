@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý mức kinh nghiệm{% endblock %}
+{% block content %}
+<section class="panel">
+    <div class="panel-head">
+        <div>
+            <p class="eyebrow">Admin Center</p>
+            <h1>Quản lý mức kinh nghiệm</h1>
+        </div>
+        <a class="button button-ghost button-sm" href="{% url 'admin_center' %}">Về tổng quan</a>
+    </div>
+    <form method="post" class="form-grid">
+        {% csrf_token %}
+        <div class="grid-3" style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px;">
+            <label>Tên hiển thị {{ form.name }} {{ form.name.errors }}</label>
+            <label>Mã (code) {{ form.code }} {{ form.code.errors }}</label>
+            <label>Thứ tự ưu tiên {{ form.order }} {{ form.order.errors }}</label>
+        </div>
+        <div class="full" style="margin-top:12px;">
+            <button class="button button-sm" type="submit">Thêm mức mới</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tên hiển thị</th>
+                    <th>Mã (code)</th>
+                    <th>Thứ tự</th>
+                    <th>Số việc</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.code }}</td>
+                        <td>{{ item.order }}</td>
+                        <td>{{ item.total_jobs }}</td>
+                        <td>
+                            <form method="post" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ item.id }}">
+                                <button class="button button-danger button-sm" type="submit">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5" class="empty">Chưa có mức kinh nghiệm nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

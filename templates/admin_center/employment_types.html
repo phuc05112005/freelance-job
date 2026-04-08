@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý loại việc làm{% endblock %}
+{% block content %}
+<section class="panel">
+    <div class="panel-head">
+        <div>
+            <p class="eyebrow">Admin Center</p>
+            <h1>Quản lý loại việc làm</h1>
+        </div>
+        <a class="button button-ghost button-sm" href="{% url 'admin_center' %}">Về tổng quan</a>
+    </div>
+    <form method="post" class="form-grid two-col">
+        {% csrf_token %}
+        <label>Tên loại việc {{ form.name }} {{ form.name.errors }}</label>
+        <label>Mã (code) {{ form.code }} {{ form.code.errors }}</label>
+        <div class="full">
+            <button class="button button-sm" type="submit">Thêm loại mới</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tên loại việc</th>
+                    <th>Mã (code)</th>
+                    <th>Số việc</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.code }}</td>
+                        <td>{{ item.total_jobs }}</td>
+                        <td>
+                            <form method="post" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ item.id }}">
+                                <button class="button button-danger button-sm" type="submit">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="empty">Chưa có loại việc làm nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

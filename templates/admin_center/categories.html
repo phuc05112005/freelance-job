@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý lĩnh vực{% endblock %}
+{% block content %}
+<section class="panel">
+    <div class="panel-head">
+        <div>
+            <p class="eyebrow">Admin Center</p>
+            <h1>Quản lý lĩnh vực</h1>
+        </div>
+        <a class="button button-ghost button-sm" href="{% url 'admin_center' %}">Về tổng quan</a>
+    </div>
+    <form method="post" class="form-grid two-col">
+        {% csrf_token %}
+        <label>Tên lĩnh vực {{ form.name }} {{ form.name.errors }}</label>
+        <label>Slug {{ form.slug }} {{ form.slug.errors }}</label>
+        <div class="full">
+            <button class="button button-sm" type="submit">Thêm lĩnh vực</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tên lĩnh vực</th>
+                    <th>Slug</th>
+                    <th>Số việc đang dùng</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.slug }}</td>
+                        <td>{{ category.total_jobs }}</td>
+                        <td>
+                            <form method="post" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="category_id" value="{{ category.id }}">
+                                <button class="button button-danger button-sm" type="submit">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="empty">Chưa có lĩnh vực nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

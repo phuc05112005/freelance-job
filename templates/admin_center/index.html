@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Trung tâm quản trị{% endblock %}
+{% block content %}
+<section class="panel">
+    <p class="eyebrow">Admin Center</p>
+    <h1>Quản trị hệ thống</h1>
+    <p class="lead">Quản lý người dùng, việc làm, đơn ứng tuyển và lĩnh vực tuyển dụng ngay trên giao diện web.</p>
+    <div class="hero-actions">
+        <a class="button button-sm" href="{% url 'admin_users' %}">Người dùng</a>
+        <a class="button button-sm" href="{% url 'admin_jobs' %}">Việc làm</a>
+        <a class="button button-sm" href="{% url 'admin_applications' %}">Ứng tuyển</a>
+        <a class="button button-sm" href="{% url 'admin_categories' %}">Lĩnh vực</a>
+        <a class="button button-sm" href="{% url 'admin_exp_levels' %}">Kinh nghiệm</a>
+        <a class="button button-sm" href="{% url 'admin_work_modes' %}">Hình thức</a>
+        <a class="button button-sm" href="{% url 'admin_employment_types' %}">Loại việc</a>
+    </div>
+</section>
+
+<section class="grid-4">
+    <div class="stat-card"><strong>{{ total_users }}</strong><span>Tài khoản</span></div>
+    <div class="stat-card"><strong>{{ total_jobs }}</strong><span>Việc làm</span></div>
+    <div class="stat-card"><strong>{{ open_jobs }}</strong><span>Việc đang tuyển</span></div>
+    <div class="stat-card"><strong>{{ total_categories }}</strong><span>Lĩnh vực</span></div>
+</section>
+
+<section class="grid-2">
+    <div class="panel">
+        <h2>Việc mới đăng</h2>
+        {% for job in latest_jobs %}
+            <div class="list-row">
+                <div>
+                    <a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
+                    <p>{{ job.employer.username }} - {{ job.display_status_label }}</p>
+                </div>
+                <span class="badge">{{ job.work_mode_obj.name|default:"-" }}</span>
+            </div>
+        {% empty %}
+            <p class="empty">Chưa có dữ liệu việc làm.</p>
+        {% endfor %}
+    </div>
+    <div class="panel">
+        <h2>Đơn ứng tuyển mới</h2>
+        {% for app in latest_applications %}
+            <div class="list-row">
+                <div>
+                    <p><strong>{{ app.student.username }}</strong> ứng tuyển vào {{ app.job.title }}</p>
+                    <p>{{ app.applied_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                <span class="badge status-{{ app.status }}">{{ app.get_status_display }}</span>
+            </div>
+        {% empty %}
+            <p class="empty">Chưa có đơn ứng tuyển.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+
+

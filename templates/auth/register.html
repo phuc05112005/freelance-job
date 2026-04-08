@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Đăng ký{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+    <div class="auth-panel wide">
+        <h1>Tạo tài khoản mới</h1>
+        <p>Tham gia với vai trò sinh viên làm việc freelance hoặc nhà tuyển dụng.</p>
+        <form method="post" enctype="multipart/form-data" class="form-grid two-col">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <label>Tên đăng nhập* {{ form.username }} {{ form.username.errors }}</label>
+            <label>Email* {{ form.email }} {{ form.email.errors }}</label>
+            <label>Họ* {{ form.first_name }} {{ form.first_name.errors }}</label>
+            <label>Tên* {{ form.last_name }} {{ form.last_name.errors }}</label>
+            <label>Vai trò* {{ form.role }} {{ form.role.errors }}</label>
+            <label>Trường {{ form.university }} {{ form.university.errors }}</label>
+            <label>Chuyên ngành {{ form.major }} {{ form.major.errors }}</label>
+            <label>Năm học {{ form.academic_year }} {{ form.academic_year.errors }}</label>
+            <label class="full">Kỹ năng {{ form.skills }} {{ form.skills.errors }}</label>
+            <label class="full">CV mặc định (tuỳ chọn) {{ form.default_cv }} {{ form.default_cv.errors }}</label>
+            <label>Mật khẩu* {{ form.password1 }} {{ form.password1.errors }}</label>
+            <label>Xác nhận mật khẩu* {{ form.password2 }} {{ form.password2.errors }}</label>
+            <div class="full">
+                <button type="submit" class="button">Đăng ký</button>
+            </div>
+        </form>
+        <p class="auth-help">Đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập</a>.</p>
+    </div>
+</section>
+{% endblock %}
+
+

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}{% if mode == 'edit' %}Chỉnh sửa việc{% else %}Đăng việc{% endif %}{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1>{% if mode == 'edit' %}Chỉnh sửa việc{% else %}Đăng việc mới{% endif %}</h1>
+    <form method="post" class="form-grid two-col">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label class="full">Tiêu đề {{ form.title }} {{ form.title.errors }}</label>
+        <label class="full">Mô tả chi tiết {{ form.description }} {{ form.description.errors }}</label>
+        <div class="full field-block">
+            <p class="field-title">Các lĩnh vực liên quan</p>
+            {{ form.categories }}
+            {{ form.categories.errors }}
+        </div>
+        <label class="full">Yêu cầu ứng viên {{ form.required_skills }} {{ form.required_skills.errors }}</label>
+
+        <label>Loại việc {{ form.employment_type_obj }} {{ form.employment_type_obj.errors }}</label>
+        <label>Mức kinh nghiệm {{ form.experience_level_obj }} {{ form.experience_level_obj.errors }}</label>
+        <label>Hình thức làm việc {{ form.work_mode_obj }} {{ form.work_mode_obj.errors }}</label>
+        <label>Số lượng tuyển {{ form.vacancies }} {{ form.vacancies.errors }}</label>
+        <label>Tỉnh/Thành phố {{ form.city }} {{ form.city.errors }}</label>
+        <label>Địa chỉ cụ thể {{ form.address }} {{ form.address.errors }}</label>
+
+        <label>Kiểu lương {{ form.salary_type }} {{ form.salary_type.errors }}</label>
+        <label>Lương tối thiểu {{ form.salary_min }} {{ form.salary_min.errors }}</label>
+        <label>Lương tối đa {{ form.salary_max }} {{ form.salary_max.errors }}</label>
+        <label>Hạn nhận hồ sơ {{ form.deadline }} {{ form.deadline.errors }}</label>
+        <label>Trạng thái {{ form.status }} {{ form.status.errors }}</label>
+
+        <div class="full panel soft">
+            <strong>Lưu ý:</strong> Chọn “Thỏa thuận” nếu không muốn hiển thị lương cụ thể.
+            Nếu chọn “Lương cố định”, hệ thống dùng giá trị ở ô “Lương tối thiểu”.
+        </div>
+
+        <div class="full">
+            <button type="submit" class="button">
+                {% if mode == 'edit' %}Lưu thay đổi{% else %}Đăng việc{% endif %}
+            </button>
+        </div>
+    </form>
+</section>
+{% endblock %}

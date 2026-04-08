@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Đơn ứng tuyển{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Đơn ứng tuyển</h1>
+    <p class="lead">Theo dõi và quản lý đơn ứng tuyển dễ dàng hơn.</p>
+
+    <div class="table-wrap modern-table">
+        <table class="application-table">
+            <thead>
+                <tr>
+                    <th>Công việc</th>
+                    <th>Sinh viên</th>
+                    <th>Lương</th>
+                    <th>Thời gian</th>
+                    <th>CV</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for app in applications %}
+                <tr>
+
+                    <!-- Job đẹp -->
+                    <td>
+                        <a href="{% url 'job_detail' app.job.pk %}" class="job-link">
+                            {{ app.job.title }}
+                        </a>
+                    </td>
+
+                    <!-- User -->
+                    <td class="text-strong">{{ app.student.username }}</td>
+
+                    <!-- Salary -->
+                    <td>
+                        {% if app.expected_salary %}
+                            <span class="salary">
+                                {{ app.expected_salary|floatformat:0 }} VNĐ
+                            </span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <!-- Time -->
+                    <td>
+                        {% if app.estimated_days %}
+                            ⏱ {{ app.estimated_days }} ngày
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <!-- CV + Portfolio gộp -->
+                    <td>
+                        <div class="doc-links">
+                            {% if app.cv_file %}
+                                <a href="{{ app.cv_file.url }}" target="_blank" class="doc-btn">
+                                    📄 CV
+                                </a>
+                            {% endif %}
+
+                            {% if app.portfolio_url %}
+                                <a href="{{ app.portfolio_url }}" target="_blank" class="doc-btn ghost">
+                                    🌐 Portfolio
+                                </a>
+                            {% endif %}
+
+                            {% if not app.cv_file and not app.portfolio_url %}
+                                <span class="empty">Không có</span>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                        <span class="badge status-{{ app.status }}">
+                            {{ app.get_status_display }}
+                        </span>
+                    </td>
+
+                    <!-- Date -->
+                    <td>
+                        {{ app.applied_at|date:"d/m/Y H:i" }}
+                    </td>
+
+                    <!-- Action -->
+                    <td>
+                        {% if user == app.job.employer or user.role == 'admin' %}
+                        <form method="post"
+                              action="{% url 'application_status_update' app.pk %}"
+                              class="inline-form action-group">
+                            {% csrf_token %}
+                            <select name="status" class="select-sm">
+                                <option value="accepted">✔ Chấp nhận</option>
+                                <option value="rejected">✖ Từ chối</option>
+                            </select>
+                            <button class="button button-sm">Lưu</button>
+                        </form>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="empty">
+                        Không có đơn ứng tuyển nào
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

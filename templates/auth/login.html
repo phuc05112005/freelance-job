@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Đăng nhập{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+    <div class="auth-panel">
+        <h1>Chào mừng quay lại</h1>
+        <p>Đăng nhập để quản lý việc làm và đơn ứng tuyển của bạn.</p>
+        <form method="post" class="form-grid">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <label>
+                Tên đăng nhập
+                {{ form.username }}
+                {{ form.username.errors }}
+            </label>
+            <label>
+                Mật khẩu
+                {{ form.password }}
+                {{ form.password.errors }}
+            </label>
+            <button type="submit" class="button">Đăng nhập</button>
+        </form>
+        <p class="auth-help">Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký tại đây</a>.</p>
+    </div>
+</section>
+{% endblock %}
