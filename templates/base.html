@@ -74,5 +74,51 @@
         {% endif %}
         {% block content %}{% endblock %}
     </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <section class="footer-col">
+                <h3>Về chúng tôi</h3>
+                <p>Nền tảng kết nối nhà tuyển dụng và sinh viên theo chuyên môn thực tế.</p>
+                <p>Hỗ trợ quy trình tuyển dụng minh bạch, nhanh chóng và phù hợp nhu cầu.</p>
+                <div class="footer-contact">
+                    <p><strong>Trụ sở chính:</strong> TP. Hồ Chí Minh</p>
+                    <p><strong>Email:</strong> support@sanvieclam.vn</p>
+                    <p><strong>Hotline:</strong> 1900 1234</p>
+                </div>
+            </section>
+
+            <section class="footer-col footer-links">
+                <h3>Thông tin</h3>
+                <a href="{% url 'home' %}">Trang chủ</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'application_list' %}">Thông tin ứng tuyển</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Đăng nhập</a>
+                {% endif %}
+                {% if user.role == 'admin' or user.is_staff or user.is_superuser %}
+                    <a href="{% url 'admin_center' %}">Quản trị hệ thống</a>
+                {% endif %}
+            </section>
+
+            <section class="footer-col">
+                <h3>Liên kết mạng xã hội</h3>
+                <div class="social-row">
+                    <a href="https://www.instagram.com/" class="social-icon" aria-label="Instagram">
+                        <img src="{% static 'icon/ig.png' %}" alt="Instagram">
+                    </a>
+                    <a href="https://www.facebook.com/" class="social-icon" aria-label="Facebook">
+                        <img src="{% static 'icon/fb.png' %}" alt="Facebook">
+                    </a>
+                    <a href="https://www.tiktok.com/" class="social-icon" aria-label="TikTok">
+                        <img src="{% static 'icon/tt.png' %}" alt="TikTok">
+                    </a>
+                    <a href="https://www.youtube.com/" class="social-icon" aria-label="YouTube">
+                        <img src="{% static 'icon/yt.png' %}" alt="YouTube">
+                    </a>
+                </div>
+            </section>
+        </div>
+    </footer>
 </body>
 </html>

@@ -23,6 +23,8 @@ body {
     color: var(--ink);
     background: var(--bg);
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .bg-layer {
@@ -47,6 +49,7 @@ body {
     background: rgba(248, 251, 255, 0.86);
     border-bottom: 1px solid rgba(223, 230, 241, 0.8);
     z-index: 30;
+    flex-shrink: 0;
 }
 
 .nav-wrap {
@@ -145,6 +148,103 @@ body {
 }
 .page {
     padding: 32px 0 48px;
+    flex: 1 0 auto;
+}
+
+.site-footer {
+    margin-top: auto;
+    background: linear-gradient(180deg, #2f3136 0%, #25272b 100%);
+    color: #e5e7eb;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 28px;
+    padding: 26px 0 20px;
+}
+
+.footer-col h3 {
+    margin: 0 0 10px;
+    font-family: "Sora", sans-serif;
+    font-size: 1.06rem;
+    color: #ffffff;
+}
+
+.footer-col p {
+    margin: 0 0 9px;
+    color: #d3d7de;
+    font-size: 0.93rem;
+    line-height: 1.45;
+    max-width: 520px;
+}
+
+.footer-col > p {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+    padding-bottom: 6px;
+}
+
+.footer-contact {
+    margin-top: 14px;
+}
+
+.footer-contact p {
+    margin: 0 0 4px;
+    border-bottom: 0 !important;
+}
+
+.footer-contact strong {
+    color: #ffffff;
+}
+
+.footer-links {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+}
+
+.footer-links a {
+    color: #dbe1ea;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+    padding-bottom: 6px;
+    width: fit-content;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+}
+
+.social-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: transform .2s, box-shadow .2s, opacity .2s;
+}
+
+.social-icon img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.social-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    opacity: 0.88;
 }
 
 .hero {
@@ -755,6 +855,11 @@ th {
 
     .application-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
     }
 }
 
