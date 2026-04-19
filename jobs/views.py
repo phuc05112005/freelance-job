@@ -98,6 +98,10 @@ class ApplyJobView(generics.CreateAPIView):
             raise ValidationError('Vui lòng tải CV để ứng tuyển.')
 
         saved_application = serializer.save(student=self.request.user, job=job)
+        if not saved_application.candidate_email:
+            saved_application.candidate_email = self.request.user.email or ''
+        if not saved_application.candidate_phone:
+            saved_application.candidate_phone = getattr(self.request.user, 'phone', '') or ''
         if not saved_application.cv_file and self.request.user.default_cv:
             saved_application.cv_file = self.request.user.default_cv
-            saved_application.save(update_fields=['cv_file'])
+        saved_application.save(update_fields=['candidate_email', 'candidate_phone', 'cv_file'])

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}Thông tin tài khoản{% endblock %}
+
+{% block content %}
+<section class="panel account-shell">
+    <div class="account-header-bar">
+        <a class="back-pill" href="{% url 'home' %}">&larr; Quay lại</a>
+        <h1>Thông tin tài khoản</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="account-profile-form">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="profile">
+        {{ profile_form.non_field_errors }}
+
+        <div class="account-fields-panel compact-account-panel">
+            <div class="field-row avatar-inline-row">
+                <label>Ảnh đại diện</label>
+                <div class="avatar-inline-control">
+                    <div class="avatar-inline-preview">
+                        {% if user.avatar_url %}
+                            <img class="account-avatar" src="{{ user.avatar_url }}" alt="Ảnh đại diện">
+                        {% else %}
+                            <div class="account-avatar avatar-empty-default"></div>
+                        {% endif %}
+                    </div>
+                    <div class="avatar-inline-actions">
+                        {{ profile_form.avatar_upload }}
+                        {{ profile_form.avatar_upload.errors }}
+                        {% if user.avatar_url %}
+                            <label class="remove-avatar-option">
+                                {{ profile_form.remove_avatar }}
+                                Xóa ảnh hiện tại
+                            </label>
+                        {% endif %}
+                        <p class="upload-hint">Hỗ trợ JPG, PNG, WEBP, GIF. Tối đa 5MB.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="{{ profile_form.username.id_for_label }}">Tên đăng nhập</label>
+                <div class="field-control">
+                    {{ profile_form.username }}
+                    {{ profile_form.username.errors }}
+                </div>
+            </div>
+
+            <div class="field-row split-row">
+                <div>
+                    <label for="{{ profile_form.first_name.id_for_label }}">Họ</label>
+                    <div class="field-control">
+                        {{ profile_form.first_name }}
+                        {{ profile_form.first_name.errors }}
+                    </div>
+                </div>
+                <div>
+                    <label for="{{ profile_form.last_name.id_for_label }}">Tên</label>
+                    <div class="field-control">
+                        {{ profile_form.last_name }}
+                        {{ profile_form.last_name.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="{{ profile_form.phone.id_for_label }}">Số điện thoại</label>
+                <div class="field-control">
+                    {{ profile_form.phone }}
+                    {{ profile_form.phone.errors }}
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="{{ profile_form.email.id_for_label }}">Email</label>
+                <div class="field-control">
+                    {{ profile_form.email }}
+                    {{ profile_form.email.errors }}
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label>Vai trò</label>
+                <div class="role-pills">
+                    <span class="role-pill active">
+                        {% if user.role == 'student' %}
+                            Sinh viên
+                        {% elif user.role == 'employer' %}
+                            Nhà tuyển dụng
+                        {% else %}
+                            Quản trị viên
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="save-row">
+                <button type="submit" class="save-btn">Lưu thông tin</button>
+            </div>
+        </div>
+    </form>
+
+    <hr class="account-divider">
+
+    <div class="password-block">
+        <h2>Đổi mật khẩu đăng nhập</h2>
+        <form method="post" class="password-form">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="password">
+            {{ password_form.non_field_errors }}
+
+            <div class="field-row">
+                <label for="{{ password_form.old_password.id_for_label }}">Mật khẩu hiện tại</label>
+                <div class="field-control">
+                    {{ password_form.old_password }}
+                    {{ password_form.old_password.errors }}
+                </div>
+            </div>
+
+            <div class="field-row split-row">
+                <div>
+                    <label for="{{ password_form.new_password1.id_for_label }}">Mật khẩu mới</label>
+                    <div class="field-control">
+                        {{ password_form.new_password1 }}
+                        {{ password_form.new_password1.errors }}
+                    </div>
+                </div>
+                <div>
+                    <label for="{{ password_form.new_password2.id_for_label }}">Nhập lại mật khẩu mới</label>
+                    <div class="field-control">
+                        {{ password_form.new_password2 }}
+                        {{ password_form.new_password2.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="save-row">
+                <button type="submit" class="save-btn">Cập nhật mật khẩu</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

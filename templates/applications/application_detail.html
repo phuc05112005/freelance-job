@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Chi tiết ứng tuyển{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Chi tiết ứng tuyển</h1>
+
+    <p><strong>Ứng viên:</strong> {{ app.student.username }}</p>
+    <p><strong>Email liên hệ:</strong> {{ app.candidate_email|default:app.student.email|default:"-" }}</p>
+    <p><strong>Số điện thoại:</strong> {{ app.candidate_phone|default:app.student.phone|default:"-" }}</p>
+    <p><strong>Công việc:</strong> {{ app.job.title }}</p>
+
+    <hr>
+
+    <p><strong>Thư giới thiệu:</strong></p>
+    <p>{{ app.cover_letter|default:"Không có"|linebreaks }}</p>
+
+    <p><strong>Ngày có thể đi làm:</strong> {{ app.available_date|default:"Không có" }}</p>
+
+    <p><strong>CV:</strong>
+        {% if app.cv_file %}
+            <a href="{{ app.cv_file.url }}" target="_blank">Xem CV</a>
+        {% else %}
+            Không có
+        {% endif %}
+    </p>
+
+    <p><strong>Trạng thái:</strong>
+        <span class="badge status-{{ app.status }}">{{ app.get_status_display }}</span>
+    </p>
+</section>
+{% endblock %}

@@ -3,8 +3,8 @@
 {% block content %}
 <section class="auth-wrap">
     <div class="auth-panel">
-        <h1>Chào mừng quay lại</h1>
-        <p>Đăng nhập để quản lý việc làm và đơn ứng tuyển của bạn.</p>
+        <h1>Đăng nhập</h1>
+        <p>Đăng nhập để có thể quản lý việc làm và đơn ứng tuyển của bạn.</p>
         <form method="post" class="form-grid">
             {% csrf_token %}
             {{ form.non_field_errors }}
@@ -15,7 +15,24 @@
             </label>
             <label>
                 Mật khẩu
-                {{ form.password }}
+                <div class="pw-wrap">
+                    {{ form.password }}
+                    <button type="button" class="pw-toggle" aria-label="Hiện/ẩn mật khẩu">
+                        <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <svg class="eye-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
+                    </button>
+                </div>
                 {{ form.password.errors }}
             </label>
             <button type="submit" class="button">Đăng nhập</button>
@@ -23,4 +40,59 @@
         <p class="auth-help">Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký tại đây</a>.</p>
     </div>
 </section>
+
+<style>
+.pw-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* input password kế thừa style từ CSS gốc, chỉ thêm padding-right */
+.pw-wrap input {
+    padding-right: 2.6rem;
+}
+
+.pw-toggle {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--muted);        /* dùng biến CSS gốc */
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: color .2s ease, background .2s ease;
+}
+
+.pw-toggle:hover {
+    color: var(--accent);       /* dùng biến CSS gốc */
+    background: rgba(0, 109, 119, 0.08);
+}
+
+.pw-toggle svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.querySelector('.pw-toggle');
+    if (!btn) return;
+    const input = btn.closest('.pw-wrap').querySelector('input');
+    const eyeOn  = btn.querySelector('.eye-on');
+    const eyeOff = btn.querySelector('.eye-off');
+
+    btn.addEventListener('click', function () {
+        const show = input.type === 'password';
+        input.type     = show ? 'text' : 'password';
+        eyeOn.style.display  = show ? 'none' : '';
+        eyeOff.style.display = show ? ''     : 'none';
+    });
+});
+</script>
 {% endblock %}

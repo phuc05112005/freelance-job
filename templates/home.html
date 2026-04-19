@@ -10,7 +10,7 @@
             {% if user.is_authenticated and user.role != 'student' %}
                 <a href="{% url 'job_create' %}" class="button">Đăng bài tuyển dụng</a>
             {% elif user.is_authenticated %}
-                <a href="{% url 'register' %}" class="button">Tạo tài khoản</a>
+                <a href="{% url 'register' %}" class="button">Thông tin ứng tuyển</a>
             {% endif %}
             <a href="{% url 'application_list' %}" class="button button-ghost">Xem đơn ứng tuyển</a>
         </div>
@@ -55,9 +55,6 @@
             <option value="">Tất cả trạng thái</option>
             <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
             <option value="expired" {% if status == 'expired' %}selected{% endif %}>Hết hạn</option>
-            <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>Đang thực hiện</option>
-            <option value="completed" {% if status == 'completed' %}selected{% endif %}>Đã hoàn thành</option>
-            <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Đã hủy</option>
         </select>
         <button class="button button-sm" type="submit">Tìm</button>
     </form>
@@ -106,3 +103,6 @@
 </div>
 {% endif %}
 {% endblock %}
+
+
+

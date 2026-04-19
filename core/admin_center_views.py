@@ -214,6 +214,8 @@ def admin_applications(request):
             Q(student__username__icontains=keyword)
             | Q(job__title__icontains=keyword)
             | Q(job__employer__username__icontains=keyword)
+            | Q(candidate_email__icontains=keyword)
+            | Q(candidate_phone__icontains=keyword)
         )
     if status in {'pending', 'accepted', 'rejected', 'withdrawn'}:
         applications = applications.filter(status=status)

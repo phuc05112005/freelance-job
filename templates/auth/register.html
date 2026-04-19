@@ -3,23 +3,63 @@
 {% block content %}
 <section class="auth-wrap">
     <div class="auth-panel wide">
-        <h1>Tạo tài khoản mới</h1>
-        <p>Tham gia với vai trò sinh viên làm việc freelance hoặc nhà tuyển dụng.</p>
+        <h1>Tạo tài khoản</h1>
+        <p>Tham gia với vai trò sinh viên tìm việc làm hoặc nhà tuyển dụng.</p>
         <form method="post" enctype="multipart/form-data" class="form-grid two-col">
             {% csrf_token %}
             {{ form.non_field_errors }}
-            <label>Tên đăng nhập* {{ form.username }} {{ form.username.errors }}</label>
-            <label>Email* {{ form.email }} {{ form.email.errors }}</label>
-            <label>Họ* {{ form.first_name }} {{ form.first_name.errors }}</label>
-            <label>Tên* {{ form.last_name }} {{ form.last_name.errors }}</label>
-            <label>Vai trò* {{ form.role }} {{ form.role.errors }}</label>
-            <label>Trường {{ form.university }} {{ form.university.errors }}</label>
-            <label>Chuyên ngành {{ form.major }} {{ form.major.errors }}</label>
-            <label>Năm học {{ form.academic_year }} {{ form.academic_year.errors }}</label>
-            <label class="full">Kỹ năng {{ form.skills }} {{ form.skills.errors }}</label>
-            <label class="full">CV mặc định (tuỳ chọn) {{ form.default_cv }} {{ form.default_cv.errors }}</label>
-            <label>Mật khẩu* {{ form.password1 }} {{ form.password1.errors }}</label>
-            <label>Xác nhận mật khẩu* {{ form.password2 }} {{ form.password2.errors }}</label>
+            <label>Tên đăng nhập {{ form.username }} {{ form.username.errors }}</label>
+            <label>Email {{ form.email }} {{ form.email.errors }}</label>
+            <label>Họ {{ form.first_name }} {{ form.first_name.errors }}</label>
+            <label>Tên {{ form.last_name }} {{ form.last_name.errors }}</label>
+            <label>Vai trò {{ form.role }} {{ form.role.errors }}</label>
+
+            <label>
+                Mật khẩu
+                <div class="pw-wrap">
+                    {{ form.password1 }}
+                    <button type="button" class="pw-toggle" aria-label="Hiện/ẩn mật khẩu">
+                        <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <svg class="eye-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
+                    </button>
+                </div>
+                {{ form.password1.errors }}
+            </label>
+
+            <label>
+                Xác nhận mật khẩu
+                <div class="pw-wrap">
+                    {{ form.password2 }}
+                    <button type="button" class="pw-toggle" aria-label="Hiện/ẩn mật khẩu">
+                        <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <svg class="eye-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
+                    </button>
+                </div>
+                {{ form.password2.errors }}
+            </label>
+
             <div class="full">
                 <button type="submit" class="button">Đăng ký</button>
             </div>
@@ -27,6 +67,58 @@
         <p class="auth-help">Đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập</a>.</p>
     </div>
 </section>
+
+<style>
+.pw-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pw-wrap input {
+    padding-right: 2.6rem;
+}
+
+.pw-toggle {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: color .2s ease, background .2s ease;
+}
+
+.pw-toggle:hover {
+    color: var(--accent);
+    background: rgba(0, 109, 119, 0.08);
+}
+
+.pw-toggle svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.pw-toggle').forEach(function (btn) {
+        const input  = btn.closest('.pw-wrap').querySelector('input');
+        const eyeOn  = btn.querySelector('.eye-on');
+        const eyeOff = btn.querySelector('.eye-off');
+
+        btn.addEventListener('click', function () {
+            const show = input.type === 'password';
+            input.type           = show ? 'text' : 'password';
+            eyeOn.style.display  = show ? 'none' : '';
+            eyeOff.style.display = show ? ''     : 'none';
+        });
+    });
+});
+</script>
 {% endblock %}
-
-

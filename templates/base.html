@@ -23,14 +23,9 @@
                 <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Việc làm</a>
 
                 {% if user.is_authenticated %}
-
                     {% if user.role != 'admin' %}
-                        <a href="{% url 'dashboard' %}" class="{% if 'dashboard' in request.path %}active{% endif %}">
-                            Thông tin đăng tuyển
-                        </a>
-
                         <a href="{% url 'application_list' %}" class="{% if 'applications' in request.path %}active{% endif %}">
-                            Quản lý ứng tuyển
+                            Quản lý thông tin ứng tuyển
                         </a>
                     {% endif %}
 
@@ -39,13 +34,28 @@
                             Quản trị hệ thống
                         </a>
                     {% endif %}
+
                     {% if user.role == 'employer' or user.role == 'admin' %}
                         <a href="{% url 'job_create' %}" class="button button-sm">Đăng bài</a>
                     {% endif %}
+
+                    
+
                     <form method="post" action="{% url 'logout' %}" class="inline-form">
                         {% csrf_token %}
                         <button type="submit" class="button button-ghost">Đăng xuất</button>
                     </form>
+                    <a
+                        href="{% url 'account_profile' %}"
+                        class="account-nav {% if 'accounts/profile' in request.path %}active{% endif %}"
+                    >
+                        {% if user.avatar_url %}
+                            <img class="nav-avatar nav-avatar-img" src="{{ user.avatar_url }}" alt="Ảnh đại diện">
+                        {% else %}
+                            <span class="nav-avatar">{{ user.username|first|upper }}</span>
+                        {% endif %}
+                        Tài khoản
+                    </a>
                 {% else %}
                     <a href="{% url 'login' %}">Đăng nhập</a>
                     <a href="{% url 'register' %}" class="button button-sm">Đăng ký</a>

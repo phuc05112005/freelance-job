@@ -30,7 +30,7 @@
         </div>
         <div class="panel soft">
             <h3>Thông tin tuyển dụng</h3>
-            <p><strong>Mức kinh nghiệm:</strong> {{ job.experience_level_obj.name }}</p>
+            <p><strong>Yêu cầu kinh nghiệm:</strong> {{ job.experience_level_obj.name }}</p>
             <p><strong>Số lượng tuyển:</strong> {{ job.vacancies }}</p>
             <p><strong>Địa điểm:</strong>
                 {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}
@@ -38,14 +38,15 @@
             </p>
             <p><strong>Mức lương:</strong> {{ job.display_salary }}</p>
             <p><strong>Hạn nộp hồ sơ:</strong> {{ job.deadline|default:"Chưa cập nhật" }}</p>
-            <p><strong>Kỹ năng:</strong> {{ job.required_skills|default:"Chưa cập nhật" }}</p>
+            <p><strong>Kỹ năng yêu cầu:</strong> {{ job.required_skills|default:"Chưa cập nhật" }}</p>
             <p><strong>Số đơn ứng tuyển:</strong> {{ applications_count }}</p>
         </div>
     </div>
+
     {% if can_edit %}
         <div class="actions-row">
             <a href="{% url 'job_edit' job.pk %}" class="button button-sm">Chỉnh sửa</a>
-            <a href="{% url 'job_delete' job.pk %}?next=/dashboard/" class="button button-danger button-sm">Xóa</a>
+            <a href="{% url 'job_delete' job.pk %}?next=/" class="button button-danger button-sm">Xóa</a>
         </div>
     {% endif %}
 </section>
@@ -54,14 +55,20 @@
 <section class="panel">
     <h2>Ứng tuyển vào việc này</h2>
     {% if existing_application %}
-        <p class="empty">Bạn đã ứng tuyển. Trạng thái hiện tại: <span class="badge status-{{ existing_application.status }}">{{ existing_application.get_status_display }}</span></p>
+        <p class="empty">
+            Bạn đã ứng tuyển. Trạng thái hiện tại:
+            <span class="badge status-{{ existing_application.status }}">{{ existing_application.get_status_display }}</span>
+        </p>
     {% elif apply_form %}
         <form method="post" action="{% url 'job_apply' job.pk %}" enctype="multipart/form-data" class="form-grid">
             {% csrf_token %}
-            <label>Thư giới thiệu {{ apply_form.cover_letter }} {{ apply_form.cover_letter.errors }}</label>
-            <label>Mức lương mong muốn (VND) {{ apply_form.expected_salary }} {{ apply_form.expected_salary.errors }}</label>
-            <label>Thời gian dự kiến hoàn thành (ngày) {{ apply_form.estimated_days }} {{ apply_form.estimated_days.errors }}</label>
-            <label>Link portfolio/GitHub {{ apply_form.portfolio_url }} {{ apply_form.portfolio_url.errors }}</label>
+            <label>Giới thiệu bản thân {{ apply_form.cover_letter }} {{ apply_form.cover_letter.errors }}</label>
+            <label>Email liên hệ {{ apply_form.candidate_email }} {{ apply_form.candidate_email.errors }}</label>
+            <label>Số điện thoại liên hệ {{ apply_form.candidate_phone }} {{ apply_form.candidate_phone.errors }}</label>
+            <label>Ngày có thể bắt đầu công việc
+                {{ apply_form.available_date }}
+                {{ apply_form.available_date.errors }}
+            </label>
             <label>CV (PDF/DOC) {{ apply_form.cv_file }} {{ apply_form.cv_file.errors }}</label>
             {% if request.user.default_cv %}
                 <p class="job-meta">Bạn đã có CV mặc định trong hồ sơ, có thể bỏ trống mục tải CV.</p>
