@@ -817,16 +817,35 @@ th {
 }
 
 .pagination {
-    margin-top: 14px;
+    margin-top: 30px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
 }
 
 .pagination a {
     text-decoration: none;
     color: var(--accent);
     font-weight: 700;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.pagination span {
+    color: var(--muted);
+    font-weight: 600;
 }
 
 .empty {
