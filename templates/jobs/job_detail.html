@@ -89,4 +89,27 @@
     </div>
 </section>
 {% endif %}
+<section class="panel">
+    <h2 class="section-title">Việc làm tương tự có thể bạn quan tâm</h2>
+    <div class="related-job-grid">
+        {% for r_job in related_jobs %}
+            <div class="related-job-card" onclick="window.location='{% url 'job_detail' r_job.pk %}'">
+                <div class="related-job-header">
+                    <h4>{{ r_job.title }}</h4>
+                </div>
+                
+                <p class="job-meta">
+                    <strong>{{ r_job.employer.username }}</strong><br>
+                    <small>{{ r_job.city|default:"Toàn quốc" }} • {{ r_job.display_salary }}</small>
+                </p>
+
+                <div class="tag-row">
+                    {% for cat in r_job.categories.all|slice:":2" %}
+                        <span class="tag tag-sm">{{ cat.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}
