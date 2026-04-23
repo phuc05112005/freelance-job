@@ -79,5 +79,14 @@
         <p class="empty">Việc này hiện không mở ứng tuyển.</p>
     {% endif %}
 </section>
+{% elif not user.is_authenticated %}
+<section class="panel">
+    <h2>Ứng tuyển vào việc này</h2>
+    <div class="empty">
+        <p>Bạn cần đăng nhập với tài khoản Sinh viên để có thể ứng tuyển vào công việc này.</p>
+        <a href="{% url 'login' %}?next={{ request.path }}" class="button">Ứng tuyển ngay</a>
+        <p class="job-meta" style="margin-top: 10px;">Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký ngay</a></p>
+    </div>
+</section>
 {% endif %}
 {% endblock %}

@@ -391,7 +391,7 @@ body {
 .application-summary {
     margin-top: 14px;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     gap: 10px;
 }
 
@@ -414,6 +414,12 @@ body {
     font-size: 1.08rem;
 }
 
+.summary-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .summary-item.pending {
     background: rgba(185, 133, 0, 0.08);
     border-color: rgba(185, 133, 0, 0.25);
@@ -429,7 +435,10 @@ body {
     background: rgba(209, 67, 67, 0.08);
     border-color: rgba(209, 67, 67, 0.25);
 }
-
+.summary-item.jobs {
+    background: rgba(0, 109, 119, 0.08);
+    border-color: rgba(0, 109, 119, 0.25);
+}
 .result-meta {
     margin: 10px 0 0;
     color: var(--muted);
@@ -676,6 +685,12 @@ textarea {
 .button-sm {
     padding: 8px 12px;
     font-size: 0.85rem;
+}
+
+.button-xs {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 8px;
 }
 
 .button-ghost {

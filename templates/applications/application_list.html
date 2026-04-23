@@ -49,6 +49,17 @@
     </form>
 
     <div class="application-summary">
+        {% if user.role != 'student' %}
+        <article class="summary-item jobs">
+            <span>Tổng công việc</span>
+            <div class="summary-footer">
+                <strong>{{ total_jobs }}</strong>
+                {% if user.role == 'employer' %}
+                    <a href="{% url 'employer_job_list' %}" class="button button-xs button-ghost">Quản lý</a>
+                {% endif %}
+            </div>
+        </article>
+        {% endif %}
         <article class="summary-item">
             <span>Tổng hồ sơ</span>
             <strong>{{ status_totals.all|default:0 }}</strong>
@@ -154,3 +165,4 @@
     {% endif %}
 </section>
 {% endblock %}
+
