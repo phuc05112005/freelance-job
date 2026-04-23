@@ -112,6 +112,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = '2eaab2ab0711a4'
+EMAIL_HOST_PASSWORD = '71d3f6f38f182c'  # Lưu ý: Bạn phải thay **** bằng mật khẩu thật của mình
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = 'WebTuyenDung <noreply@webtuyendung.com>'
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 

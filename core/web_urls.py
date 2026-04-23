@@ -1,11 +1,14 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 
 from . import admin_center_views
 from . import web_views
+from users.forms import CustomPasswordResetForm
 
 urlpatterns = [
     path('', web_views.home, name='home'),
     path('accounts/register/', web_views.register_view, name='register'),
+    path('accounts/activate/<uidb64>/<token>/', web_views.activate, name='activate'),
     path('accounts/login/', web_views.login_view, name='login'),
     path('accounts/logout/', web_views.logout_view, name='logout'),
     path('accounts/profile/', web_views.account_profile, name='account_profile'),
@@ -49,4 +52,23 @@ urlpatterns = [
         admin_center_views.admin_employment_types,
         name='admin_employment_types',
     ),
+
+    # Quên mật khẩu
+    path('accounts/password-reset/', 
+         auth_views.PasswordResetView.as_view(
+             template_name='auth/password_reset.html',
+             email_template_name='auth/password_reset_email.html',
+             subject_template_name='auth/password_reset_subject.txt',
+             form_class=CustomPasswordResetForm
+         ), 
+         name='password_reset'),
+    path('accounts/password-reset/done/', 
+         auth_views.PasswordResetDoneView.as_view(template_name='auth/password_reset_done.html'), 
+         name='password_reset_done'),
+    path('accounts/password-reset-confirm/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(template_name='auth/password_reset_confirm.html'), 
+         name='password_reset_confirm'),
+    path('accounts/password-reset-complete/', 
+         auth_views.PasswordResetCompleteView.as_view(template_name='auth/password_reset_complete.html'), 
+         name='password_reset_complete'),
 ]

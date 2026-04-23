@@ -38,7 +38,10 @@
             </label>
             <button type="submit" class="button">Đăng nhập</button>
         </form>
-        <p class="auth-help">Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký tại đây</a>.</p>
+        <p class="auth-help">
+            <a href="{% url 'password_reset' %}">Quên mật khẩu?</a> | 
+            Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký tại đây</a>.
+        </p>
     </div>
 </section>
 
