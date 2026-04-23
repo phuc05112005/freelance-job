@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
-{% block title %}Quản lý việc làm{% endblock %}
+{% block title %}Quản lý việc làm đã đăng{% endblock %}
 {% block content %}
 <section class="panel">
     <div class="panel-head">
         <div>
-            <p class="eyebrow">Admin Center</p>
-            <h1>Quản lý việc làm</h1>
+            <h1>Việc làm đã đăng</h1>
+            <p class="lead">Quản lý các công việc bạn đã đăng và theo dõi trạng thái tuyển dụng.</p>
         </div>
-        <a class="button button-ghost button-sm" href="{% url 'admin_center' %}">Về tổng quan</a>
+        <div class="action-group">
+            <a class="button button-sm" href="{% url 'job_create' %}">Đăng việc mới</a>
+            <a class="button button-ghost button-sm" href="{% url 'application_list' %}">Xem đơn ứng tuyển</a>
+        </div>
     </div>
+    
     <form method="get" class="filters">
-        <input type="text" name="q" placeholder="Tìm theo tiêu đề, nhà tuyển dụng..." value="{{ keyword }}">
+        <input type="text" name="q" placeholder="Tìm theo tiêu đề..." value="{{ keyword }}">
         <select name="status">
             <option value="">Tất cả trạng thái</option>
             <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
@@ -24,15 +28,14 @@
 </section>
 
 <section class="panel">
-    <div class="table-wrap">
+    <div class="table-wrap modern-table">
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Tiêu đề</th>
-                    <th>Nhà tuyển dụng</th>
                     <th>Lĩnh vực</th>
                     <th>Hình thức</th>
+                    <th>Hết hạn</th>
                     <th>Đơn ứng tuyển</th>
                     <th>Trạng thái</th>
                     <th>Thao tác</th>
@@ -41,9 +44,10 @@
             <tbody>
                 {% for job in jobs %}
                     <tr>
-                        <td>{{ job.id }}</td>
-                        <td><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></td>
-                        <td>{{ job.employer.username }}</td>
+                        <td>
+                            <a href="{% url 'job_detail' job.pk %}" class="job-link"><strong>{{ job.title }}</strong></a>
+                            <div class="text-muted" style="font-size: 0.85rem;">Ngày đăng: {{ job.created_at|date:"d/m/Y" }}</div>
+                        </td>
                         <td>
                             {% for category in job.categories.all %}
                                 <span class="tag">{{ category.name }}</span>
@@ -58,15 +62,28 @@
                                 -
                             {% endif %}
                         </td>
-                        <td>{{ job.total_applications }}</td>
-                        <td><span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span></td>
                         <td>
-                            <a class="text-link" href="{% url 'job_edit' job.pk %}">Sửa</a> |
-                            <a class="text-link" href="{% url 'job_delete' job.pk %}?next={{ request.get_full_path|urlencode }}">Xóa</a>
+                            {% if job.deadline %}
+                                <span class="{% if job.is_expired %}text-danger{% endif %}">{{ job.deadline|date:"d/m/Y" }}</span>
+                            {% else %}
+                                <span class="text-muted">Không có</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'application_list' %}?job={{ job.id }}" class="badge">{{ job.total_applications }} đơn</a>
+                        </td>
+                        <td>
+                            <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                        </td>
+                        <td class="action-cell">
+                            <div class="action-group compact">
+                                <a class="button button-sm button-ghost" href="{% url 'job_edit' job.pk %}">Sửa</a>
+                                <a class="button button-sm button-ghost text-danger" href="{% url 'job_delete' job.pk %}?next={{ request.get_full_path|urlencode }}">Xóa</a>
+                            </div>
                         </td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="8" class="empty">Không có việc phù hợp.</td></tr>
+                    <tr><td colspan="7" class="empty">Bạn chưa đăng công việc nào hoặc không tìm thấy kết quả phù hợp.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

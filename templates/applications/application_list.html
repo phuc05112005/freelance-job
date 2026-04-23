@@ -49,6 +49,12 @@
     </form>
 
     <div class="application-summary">
+        {% if user.role != 'student' %}
+        <article class="summary-item jobs">
+            <span>Tổng công việc</span>
+            <strong>{{ total_jobs }}</strong>
+        </article>
+        {% endif %}
         <article class="summary-item">
             <span>Tổng hồ sơ</span>
             <strong>{{ status_totals.all|default:0 }}</strong>
@@ -144,13 +150,14 @@
     {% if applications.paginator.num_pages > 1 %}
         <div class="pagination">
             {% if applications.has_previous %}
-                <a href="?page={{ applications.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang trước</a>
+                <a href="?page={{ applications.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trước</a>
             {% endif %}
             <span>Trang {{ applications.number }} / {{ applications.paginator.num_pages }}</span>
             {% if applications.has_next %}
-                <a href="?page={{ applications.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang sau</a>
+                <a href="?page={{ applications.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Sau</a>
             {% endif %}
         </div>
     {% endif %}
 </section>
 {% endblock %}
+

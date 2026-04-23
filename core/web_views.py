@@ -32,7 +32,11 @@ def has_admin_permission(user):
 
 def _get_safe_next_url(request, default='home'):
     next_url = request.POST.get('next') or request.GET.get('next')
-    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+    if not next_url:
+        return default
+    if next_url.startswith('/') and not next_url.startswith('//'):
+        return next_url
+    if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
         return next_url
     return default
 
@@ -81,7 +85,7 @@ def home(request):
     if city:
         jobs = jobs.filter(city__icontains=city)
 
-    paginator = Paginator(jobs.distinct(), 9)
+    paginator = Paginator(jobs.distinct(), 2)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     query_data = request.GET.copy()
@@ -167,17 +171,19 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
 
+    next_url = _get_safe_next_url(request)
+
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
             messages.success(request, 'Đăng nhập thành công.')
-            return redirect('home')
+            return redirect(next_url)
         messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng.')
     else:
         form = AuthenticationForm(request)
 
-    return render(request, 'auth/login.html', {'form': form})
+    return render(request, 'auth/login.html', {'form': form, 'next': next_url})
 
 
 @login_required
@@ -430,6 +436,50 @@ def applications_view(request):
             'filtered_total': filtered_total,
             'filters_query': filters_query,
             'has_active_filters': has_active_filters,
+            'total_jobs': Job.objects.filter(employer=user).count() if user.role == 'employer' else Job.objects.count(),
+        },
+    )
+
+
+@login_required
+def employer_jobs(request):
+    if request.user.role != 'employer' and not has_admin_permission(request.user):
+        messages.error(request, 'Chỉ nhà tuyển dụng mới có thể quản lý danh sách việc làm.')
+        return redirect('home')
+
+    keyword = request.GET.get('q', '').strip()
+    status = request.GET.get('status', '').strip()
+    today = timezone.localdate()
+    
+    jobs = Job.objects.filter(employer=request.user).select_related('employer').prefetch_related('categories').annotate(
+        total_applications=Count('applications')
+    )
+    
+    if keyword:
+        jobs = jobs.filter(Q(title__icontains=keyword))
+    
+    if status == 'open':
+        jobs = jobs.filter(status='open').filter(Q(deadline__isnull=True) | Q(deadline__gte=today))
+    elif status == 'expired':
+        jobs = jobs.filter(status='open', deadline__lt=today)
+    elif status in {'in_progress', 'completed', 'cancelled'}:
+        jobs = jobs.filter(status=status)
+
+    paginator = Paginator(jobs.order_by('-created_at'), 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    query_data = request.GET.copy()
+    query_data.pop('page', None)
+    filters_query = query_data.urlencode()
+
+    return render(
+        request,
+        'jobs/employer_job_list.html',
+        {
+            'jobs': page_obj,
+            'keyword': keyword,
+            'status': status,
+            'filters_query': filters_query,
         },
     )
 

@@ -7,6 +7,7 @@
         <p>Đăng nhập để có thể quản lý việc làm và đơn ứng tuyển của bạn.</p>
         <form method="post" class="form-grid">
             {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
             {{ form.non_field_errors }}
             <label>
                 Tên đăng nhập

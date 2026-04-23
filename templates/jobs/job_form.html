@@ -10,9 +10,6 @@
         <label class="full">Mô tả chi tiết {{ form.description }} {{ form.description.errors }}</label>
         <div class="full field-block">
             <p class="field-title">Các lĩnh vực liên quan</p>
-            <div style="margin-bottom: 10px;">
-                <input type="text" id="category-search" placeholder="Tìm kiếm lĩnh vực..." style="margin-bottom: 5px;">
-            </div>
             {{ form.categories }}
             {{ form.categories.errors }}
         </div>
@@ -45,41 +42,3 @@
 </section>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('category-search');
-        const categoriesContainer = document.getElementById('id_categories');
-        
-        if (searchInput && categoriesContainer) {
-            const labels = categoriesContainer.getElementsByTagName('label');
-            
-            // Function to remove Vietnamese accents
-            const removeAccents = (str) => {
-                return str.normalize('NFD')
-                          .replace(/[\u0300-\u036f]/g, '')
-                          .replace(/đ/g, 'd').replace(/Đ/g, 'D');
-            };
-            
-            searchInput.addEventListener('input', function() {
-                const filter = removeAccents(searchInput.value.toLowerCase());
-                
-                for (let i = 0; i < labels.length; i++) {
-                    const label = labels[i];
-                    const text = label.textContent || label.innerText;
-                    const normalizedText = removeAccents(text.toLowerCase());
-                    const listItem = label.closest('li') || label.closest('div');
-                    
-                    if (normalizedText.indexOf(filter) > -1) {
-                        if (listItem) listItem.style.display = "";
-                        else label.style.display = "";
-                    } else {
-                        if (listItem) listItem.style.display = "none";
-                        else label.style.display = "none";
-                    }
-                }
-            });
-        }
-    });
-</script>
-{% endblock %}
