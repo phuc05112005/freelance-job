@@ -40,23 +40,19 @@
                         <td>{{ item.id }}</td>
                         <td>{{ item.username }}</td>
                         <td>{{ item.email|default:"-" }}</td>
-                        <td>
-                            <form method="post" class="inline-form">
+                        <td colspan="3">
+                            <form method="post" class="inline-form" style="display: flex; gap: 10px; align-items: center; justify-content: space-between; width: 100%;">
                                 {% csrf_token %}
                                 <input type="hidden" name="user_id" value="{{ item.id }}">
-                                <select name="role">
+                                <select name="role" style="flex: 1;">
                                     <option value="student" {% if item.role == 'student' %}selected{% endif %}>Sinh viên</option>
                                     <option value="employer" {% if item.role == 'employer' %}selected{% endif %}>Nhà tuyển dụng</option>
                                     <option value="admin" {% if item.role == 'admin' %}selected{% endif %}>Quản trị viên</option>
                                 </select>
-                        </td>
-                        <td>
-                                <label class="inline-form">
-                                    <input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}>
+                                <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                    <input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %} style="width: auto;">
                                     Hoạt động
                                 </label>
-                        </td>
-                        <td>
                                 <button class="button button-sm" type="submit">Cập nhật</button>
                             </form>
                         </td>
@@ -67,6 +63,18 @@
             </tbody>
         </table>
     </div>
+
+    {% if users.paginator.num_pages > 1 %}
+    <div class="pagination">
+        {% if users.has_previous %}
+            <a href="?page={{ users.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang trước</a>
+        {% endif %}
+        <span>Trang {{ users.number }} / {{ users.paginator.num_pages }}</span>
+        {% if users.has_next %}
+            <a href="?page={{ users.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang sau</a>
+        {% endif %}
+    </div>
+    {% endif %}
 </section>
 {% endblock %}
 

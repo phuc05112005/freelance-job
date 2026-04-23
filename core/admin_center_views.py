@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -157,10 +158,22 @@ def admin_users(request):
     if role in {'student', 'employer', 'admin'}:
         users = users.filter(role=role)
 
+    paginator = Paginator(users, 50)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    query_data = request.GET.copy()
+    query_data.pop('page', None)
+    filters_query = query_data.urlencode()
+
     return render(
         request,
         'admin_center/users.html',
-        {'users': users[:120], 'keyword': keyword, 'role': role},
+        {
+            'users': page_obj,
+            'keyword': keyword,
+            'role': role,
+            'filters_query': filters_query,
+        },
     )
 
 
@@ -181,10 +194,22 @@ def admin_jobs(request):
     elif status in {'in_progress', 'completed', 'cancelled'}:
         jobs = jobs.filter(status=status)
 
+    paginator = Paginator(jobs.order_by('-created_at'), 50)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    query_data = request.GET.copy()
+    query_data.pop('page', None)
+    filters_query = query_data.urlencode()
+
     return render(
         request,
         'admin_center/jobs.html',
-        {'jobs': jobs.order_by('-created_at')[:150], 'keyword': keyword, 'status': status},
+        {
+            'jobs': page_obj,
+            'keyword': keyword,
+            'status': status,
+            'filters_query': filters_query,
+        },
     )
 
 
@@ -220,13 +245,21 @@ def admin_applications(request):
     if status in {'pending', 'accepted', 'rejected', 'withdrawn'}:
         applications = applications.filter(status=status)
 
+    paginator = Paginator(applications.order_by('-applied_at'), 50)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    query_data = request.GET.copy()
+    query_data.pop('page', None)
+    filters_query = query_data.urlencode()
+
     return render(
         request,
         'admin_center/applications.html',
         {
-            'applications': applications.order_by('-applied_at')[:200],
+            'applications': page_obj,
             'keyword': keyword,
             'status': status,
+            'filters_query': filters_query,
         },
     )
 

@@ -94,11 +94,11 @@
 {% if page_obj.paginator.num_pages > 1 %}
 <div class="pagination">
     {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&status={{ status }}&mode={{ mode }}&category={{ category_id }}&employment={{ employment }}&salary_type={{ salary_type }}&city={{ city }}">Trang trước</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang trước</a>
     {% endif %}
     <span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&status={{ status }}&mode={{ mode }}&category={{ category_id }}&employment={{ employment }}&salary_type={{ salary_type }}&city={{ city }}">Trang sau</a>
+        <a href="?page={{ page_obj.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang sau</a>
     {% endif %}
 </div>
 {% endif %}

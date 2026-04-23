@@ -79,6 +79,10 @@ def home(request):
     paginator = Paginator(jobs.distinct(), 9)
     page_obj = paginator.get_page(request.GET.get('page'))
 
+    query_data = request.GET.copy()
+    query_data.pop('page', None)
+    filters_query = query_data.urlencode()
+
     stats = {
         'jobs': Job.objects.count(),
         'open_jobs': Job.objects.filter(status='open').filter(
@@ -101,6 +105,7 @@ def home(request):
         'stats': stats,
         'work_modes': WorkMode.objects.all(),
         'employment_types': EmploymentType.objects.all(),
+        'filters_query': filters_query,
     }
     return render(request, 'home.html', context)
 
