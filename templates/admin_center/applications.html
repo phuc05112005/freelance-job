@@ -84,7 +84,7 @@
         </table>
     </div>
 
-    {% if applications.paginator.num_pages > 1 %}
+    {% if applications.has_other_pages %}
     <div class="pagination">
         {% if applications.has_previous %}
             <a href="?page={{ applications.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trước</a>
@@ -97,3 +97,4 @@
     {% endif %}
 </section>
 {% endblock %}
+

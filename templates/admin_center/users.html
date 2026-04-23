@@ -64,7 +64,6 @@
         </table>
     </div>
 
-    {% if users.paginator.num_pages > 1 %}
     <div class="pagination">
         {% if users.has_previous %}
             <a href="?page={{ users.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang trước</a>
@@ -74,7 +73,6 @@
             <a href="?page={{ users.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang sau</a>
         {% endif %}
     </div>
-    {% endif %}
 </section>
 {% endblock %}
 

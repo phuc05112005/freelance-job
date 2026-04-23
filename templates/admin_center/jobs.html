@@ -72,7 +72,6 @@
         </table>
     </div>
 
-    {% if jobs.paginator.num_pages > 1 %}
     <div class="pagination">
         {% if jobs.has_previous %}
             <a href="?page={{ jobs.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang trước</a>
@@ -82,6 +81,5 @@
             <a href="?page={{ jobs.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang sau</a>
         {% endif %}
     </div>
-    {% endif %}
 </section>
 {% endblock %}
