@@ -9,7 +9,12 @@ from django.db.models import Count, Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import EmailMessage
+from django.contrib.auth.tokens import default_token_generator
 from jobs.models import Job, JobCategory, WorkMode, EmploymentType
 
 from applications.forms import ApplicationForm, ApplicationStatusForm
@@ -117,14 +122,45 @@ def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Chào mừng! Tài khoản của bạn đã được tạo thành công.')
-            return redirect('home')
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            
+            current_site = get_current_site(request)
+            mail_subject = 'Kích hoạt tài khoản của bạn trên Web Tuyển Dụng'
+            message = render_to_string('auth/email_activation.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            to_email = form.cleaned_data.get('email')
+            email = EmailMessage(
+                mail_subject, message, to=[to_email]
+            )
+            email.content_subtype = 'html'
+            email.send()
+            
+            return render(request, 'auth/verify_email_sent.html')
     else:
         form = RegisterForm()
 
     return render(request, 'auth/register.html', {'form': form})
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Tài khoản của bạn đã được xác thực thành công. Vui lòng đăng nhập.')
+        return redirect('login')
+    else:
+        messages.error(request, 'Link xác thực không hợp lệ hoặc đã hết hạn!')
+        return redirect('home')
 
 
 def login_view(request):

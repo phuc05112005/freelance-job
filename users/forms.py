@@ -3,7 +3,7 @@ import uuid
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm, PasswordResetForm
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 
@@ -125,3 +125,11 @@ class AccountPasswordChangeForm(PasswordChangeForm):
         self.fields['new_password2'].widget.attrs.update(
             {'placeholder': 'Nhập lại mật khẩu mới'}
         )
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not User.objects.filter(email=email).exists():
+            raise ValidationError("Email này không tồn tại trong hệ thống.")
+        return email
