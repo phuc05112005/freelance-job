@@ -9,6 +9,7 @@
     <p><strong>Email liên hệ:</strong> {{ app.candidate_email|default:app.student.email|default:"-" }}</p>
     <p><strong>Số điện thoại:</strong> {{ app.candidate_phone|default:app.student.phone|default:"-" }}</p>
     <p><strong>Công việc:</strong> {{ app.job.title }}</p>
+    <p><strong>Mô tả công việc:</strong> {{ app.job.description|linebreaks }}</p>
 
     <hr>
 

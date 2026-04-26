@@ -8,6 +8,7 @@ class JobForm(forms.ModelForm):
         model = Job
         fields = (
             'title',
+            'brand_image',
             'description',
             'categories',
             'required_skills',
@@ -24,6 +25,7 @@ class JobForm(forms.ModelForm):
             'status',
         )
         widgets = {
+            'brand_image': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
             'description': forms.Textarea(attrs={'rows': 6}),
             'categories': forms.CheckboxSelectMultiple(),
             'required_skills': forms.Textarea(

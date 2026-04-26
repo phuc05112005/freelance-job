@@ -9,7 +9,6 @@ from applications.serializers import ApplicationSerializer
 from .models import Job, JobCategory
 from .serializers import JobCategorySerializer, JobSerializer
 
-
 class JobCategoryListView(generics.ListAPIView):
     queryset = JobCategory.objects.all()
     serializer_class = JobCategorySerializer
@@ -105,3 +104,5 @@ class ApplyJobView(generics.CreateAPIView):
         if not saved_application.cv_file and self.request.user.default_cv:
             saved_application.cv_file = self.request.user.default_cv
         saved_application.save(update_fields=['candidate_email', 'candidate_phone', 'cv_file'])
+
+    

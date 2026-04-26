@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{% static 'css/site.css' %}?v=2">
 </head>
 <body>   
-    <div class="bg-layer"></div>
+    <div class="bg-mouse"></div>
     <header class="site-header">
         <div class="container nav-wrap">
             <a class="brand" href="{% url 'home' %}">
@@ -121,6 +121,29 @@
         </div>
     </footer>
     {% block extra_js %}{% endblock %}
+<script>
+let mouseX = 50;
+let mouseY = 50;
+let currentX = 50;
+let currentY = 50;
+
+document.addEventListener("mousemove", (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 100;
+    mouseY = (e.clientY / window.innerHeight) * 100;
+});
+
+function animate() {
+    currentX += (mouseX - currentX) * 0.08;
+    currentY += (mouseY - currentY) * 0.08;
+
+    document.documentElement.style.setProperty('--x', currentX + '%');
+    document.documentElement.style.setProperty('--y', currentY + '%');
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+</script>
 </body>
 </html>
 

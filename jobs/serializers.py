@@ -23,6 +23,7 @@ class JobSerializer(serializers.ModelSerializer):
             'employer',
             'employer_username',
             'title',
+            'brand_image',
             'description',
             'categories',
             'category_names',

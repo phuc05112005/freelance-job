@@ -85,7 +85,7 @@ def home(request):
     if city:
         jobs = jobs.filter(city__icontains=city)
 
-    paginator = Paginator(jobs.distinct(), 2)
+    paginator = Paginator(jobs.distinct(), 3)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     query_data = request.GET.copy()
@@ -262,7 +262,7 @@ def job_create(request):
         return redirect('home')
 
     if request.method == 'POST':
-        form = JobForm(request.POST)
+        form = JobForm(request.POST, request.FILES)
         if form.is_valid():
             job = form.save(commit=False)
             job.employer = request.user
@@ -283,7 +283,7 @@ def job_edit(request, pk):
         return HttpResponseForbidden('Bạn không có quyền sửa việc này.')
 
     if request.method == 'POST':
-        form = JobForm(request.POST, instance=job)
+        form = JobForm(request.POST, request.FILES, instance=job)
         if form.is_valid():
             form.save()
             messages.success(request, 'Cập nhật việc thành công.')

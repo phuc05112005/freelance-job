@@ -70,6 +70,12 @@ class Job(models.Model):
         User, on_delete=models.CASCADE, related_name='posted_jobs'
     )
     title = models.CharField(max_length=255)
+    brand_image = models.FileField(
+        upload_to='jobs/brands/',
+        blank=True,
+        null=True,
+        help_text='Anh thuong hieu/cong ty (khong bat buoc)',
+    )
     description = models.TextField(default='', blank=True)
     categories = models.ManyToManyField(JobCategory, related_name='jobs', blank=True)
     required_skills = models.TextField(

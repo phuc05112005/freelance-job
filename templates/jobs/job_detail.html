@@ -1,20 +1,36 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}{{ job.title }}{% endblock %}
 {% block content %}
-<section class="panel">
-    <div class="panel-head">
-        <div>
-            <p class="eyebrow">Chi tiết việc</p>
-            <h1>{{ job.title }}</h1>
-            <p class="lead">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
-        </div>
-        <div class="actions-row">
-            <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
-            <span class="badge">{{ job.work_mode_obj.name }}</span>
-            <span class="badge">{{ job.employment_type_obj.name }}</span>
+
+<div style="margin-bottom: 16px;">
+    <a href="{% url 'home' %}" class="back-pill">← Danh sách việc</a>
+</div>
+
+<!-- Banner ảnh -->
+<div class="job-detail-banner">
+    <img
+        src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
+        alt="Ảnh {{ job.employer.username }}"
+        class="job-detail-banner-img"
+    >
+    <div class="job-detail-banner-overlay">
+        <div class="job-detail-banner-inner">
+            <div class="actions-row" style="justify-content:flex-start; gap:6px; margin-bottom:10px;">
+                <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+                {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
+            </div>
+            <h1 style="font-family:'Sora',sans-serif; color:#fff; margin:0 0 6px; font-size:clamp(1.5rem,3vw,2.2rem); text-shadow:0 2px 8px rgba(0,0,0,0.45);">{{ job.title }}</h1>
+            <p style="color:rgba(255,255,255,0.82); margin:0; font-size:0.92rem;">
+                Đăng bởi <strong>{{ job.employer.username }}</strong> &nbsp;·&nbsp; {{ job.created_at|date:"d M Y" }}
+            </p>
         </div>
     </div>
+</div>
 
+<!-- Tags lĩnh vực -->
+<div class="panel" style="padding:12px 20px; margin-bottom:16px;">
     <div class="tag-row">
         {% for category in job.categories.all %}
             <span class="tag">{{ category.name }}</span>
@@ -22,35 +38,41 @@
             <span class="tag">Chưa gắn lĩnh vực</span>
         {% endfor %}
     </div>
+</div>
 
+<!-- Nội dung chính -->
+<section class="panel">
     <div class="detail-grid">
         <div>
             <h3>Mô tả công việc</h3>
-            <p>{{ job.description|linebreaks }}</p>
+            <div style="line-height:1.75; color:#2d3748;">
+                {{ job.description|linebreaks }}
+            </div>
         </div>
         <div class="panel soft">
-            <h3>Thông tin tuyển dụng</h3>
-            <p><strong>Yêu cầu kinh nghiệm:</strong> {{ job.experience_level_obj.name }}</p>
+            <h3 style="margin-top:0;">Thông tin tuyển dụng</h3>
+            <p><strong>Kinh nghiệm:</strong> {{ job.experience_level_obj.name|default:"Chưa cập nhật" }}</p>
             <p><strong>Số lượng tuyển:</strong> {{ job.vacancies }}</p>
             <p><strong>Địa điểm:</strong>
                 {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}
-                {% if job.address %} - {{ job.address }}{% endif %}
+                {% if job.address %} – {{ job.address }}{% endif %}
             </p>
-            <p><strong>Mức lương:</strong> {{ job.display_salary }}</p>
+            <p><strong>Mức lương:</strong> <span style="color:#059669; font-weight:700;">{{ job.display_salary }}</span></p>
             <p><strong>Hạn nộp hồ sơ:</strong> {{ job.deadline|default:"Chưa cập nhật" }}</p>
             <p><strong>Kỹ năng yêu cầu:</strong> {{ job.required_skills|default:"Chưa cập nhật" }}</p>
-            <p><strong>Số đơn ứng tuyển:</strong> {{ applications_count }}</p>
+            <p style="margin-bottom:0;"><strong>Số đơn ứng tuyển:</strong> {{ applications_count }}</p>
         </div>
     </div>
 
     {% if can_edit %}
-        <div class="actions-row">
+        <div class="actions-row" style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
             <a href="{% url 'job_edit' job.pk %}" class="button button-sm">Chỉnh sửa</a>
             <a href="{% url 'job_delete' job.pk %}?next=/" class="button button-danger button-sm">Xóa</a>
         </div>
     {% endif %}
 </section>
 
+<!-- Ứng tuyển -->
 {% if can_apply %}
 <section class="panel">
     <h2>Ứng tuyển vào việc này</h2>
@@ -60,56 +82,64 @@
             <span class="badge status-{{ existing_application.status }}">{{ existing_application.get_status_display }}</span>
         </p>
     {% elif apply_form %}
-        <form method="post" action="{% url 'job_apply' job.pk %}" enctype="multipart/form-data" class="form-grid">
+        <form method="post" action="{% url 'job_apply' job.pk %}" enctype="multipart/form-data" class="form-grid two-col">
             {% csrf_token %}
-            <label>Giới thiệu bản thân {{ apply_form.cover_letter }} {{ apply_form.cover_letter.errors }}</label>
+            <label class="full">Giới thiệu bản thân {{ apply_form.cover_letter }} {{ apply_form.cover_letter.errors }}</label>
             <label>Email liên hệ {{ apply_form.candidate_email }} {{ apply_form.candidate_email.errors }}</label>
             <label>Số điện thoại liên hệ {{ apply_form.candidate_phone }} {{ apply_form.candidate_phone.errors }}</label>
-            <label>Ngày có thể bắt đầu công việc
-                {{ apply_form.available_date }}
-                {{ apply_form.available_date.errors }}
-            </label>
+            <label>Ngày có thể bắt đầu {{ apply_form.available_date }} {{ apply_form.available_date.errors }}</label>
             <label>CV (PDF/DOC) {{ apply_form.cv_file }} {{ apply_form.cv_file.errors }}</label>
             {% if request.user.default_cv %}
-                <p class="job-meta">Bạn đã có CV mặc định trong hồ sơ, có thể bỏ trống mục tải CV.</p>
+                <p class="job-meta full">Bạn đã có CV mặc định trong hồ sơ, có thể bỏ trống mục tải CV.</p>
             {% endif %}
-            <button type="submit" class="button">Gửi đơn ứng tuyển</button>
+            <div class="full">
+                <button type="submit" class="button">Gửi đơn ứng tuyển</button>
+            </div>
         </form>
     {% else %}
         <p class="empty">Việc này hiện không mở ứng tuyển.</p>
     {% endif %}
 </section>
+
 {% elif not user.is_authenticated %}
 <section class="panel">
     <h2>Ứng tuyển vào việc này</h2>
-    <div class="empty">
-        <p>Bạn cần đăng nhập với tài khoản Sinh viên để có thể ứng tuyển vào công việc này.</p>
-        <a href="{% url 'login' %}?next={{ request.path }}" class="button">Ứng tuyển ngay</a>
-        <p class="job-meta" style="margin-top: 10px;">Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký ngay</a></p>
+    <p>Bạn cần đăng nhập với tài khoản Sinh viên để ứng tuyển vào công việc này.</p>
+    <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+        <a href="{% url 'login' %}?next={{ request.path }}" class="button">Đăng nhập & Ứng tuyển</a>
+        <a href="{% url 'register' %}" class="button button-ghost">Đăng ký tài khoản</a>
     </div>
 </section>
 {% endif %}
-<section class="panel">
-    <h2 class="section-title">Việc làm tương tự có thể bạn quan tâm</h2>
-    <div class="related-job-grid">
-        {% for r_job in related_jobs %}
-            <div class="related-job-card" onclick="window.location='{% url 'job_detail' r_job.pk %}'">
-                <div class="related-job-header">
-                    <h4>{{ r_job.title }}</h4>
-                </div>
-                
-                <p class="job-meta">
-                    <strong>{{ r_job.employer.username }}</strong><br>
-                    <small>{{ r_job.city|default:"Toàn quốc" }} • {{ r_job.display_salary }}</small>
-                </p>
 
-                <div class="tag-row">
-                    {% for cat in r_job.categories.all|slice:":2" %}
-                        <span class="tag tag-sm">{{ cat.name }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</section>
+<style>
+.job-detail-banner {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+}
+.job-detail-banner-img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+}
+.job-detail-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,20,35,0.75) 0%, rgba(10,20,35,0.2) 55%, transparent 100%);
+    display: flex;
+    align-items: flex-end;
+}
+.job-detail-banner-inner {
+    padding: 22px 26px;
+    width: 100%;
+}
+@media (max-width: 980px) {
+    .job-detail-banner-img { height: 200px; }
+}
+</style>
+
 {% endblock %}

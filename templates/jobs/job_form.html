@@ -3,9 +3,10 @@
 {% block content %}
 <section class="panel">
     <h1>{% if mode == 'edit' %}Chỉnh sửa việc{% else %}Đăng việc mới{% endif %}</h1>
-    <form method="post" class="form-grid two-col">
+    <form method="post" enctype="multipart/form-data" class="form-grid two-col">
         {% csrf_token %}
         {{ form.non_field_errors }}
+        <label class='full'>Ảnh thương hiệu/Công ty (không bắt buộc) {{ form.brand_image }} {{ form.brand_image.errors }}</label>
         <label class="full">Tiêu đề {{ form.title }} {{ form.title.errors }}</label>
         <label class="full">Mô tả chi tiết {{ form.description }} {{ form.description.errors }}</label>
         <div class="full field-block">
@@ -29,8 +30,8 @@
         <label>Trạng thái {{ form.status }} {{ form.status.errors }}</label>
 
         <div class="full panel soft">
-            <strong>Lưu ý:</strong> Chọn “Thỏa thuận” nếu không muốn hiển thị lương cụ thể.
-            Nếu chọn “Lương cố định”, hệ thống dùng giá trị ở ô “Lương tối thiểu”.
+            <strong>Lưu ý:</strong> Chọn "Thỏa thuận" nếu không muốn hiển thị lương cụ thể.
+            Nếu chọn "Lương cố định", hệ thống dùng giá trị ở ô "Lương tối thiểu".
         </div>
 
         <div class="full">
@@ -41,4 +42,3 @@
     </form>
 </section>
 {% endblock %}
-

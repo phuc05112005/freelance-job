@@ -21,7 +21,7 @@ body {
     margin: 0;
     font-family: "Manrope", sans-serif;
     color: var(--ink);
-    background: var(--bg);
+    background: transparent;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -560,15 +560,19 @@ textarea {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
+    align-items: stretch;
 }
 
 .job-card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    min-height: 320px; /* chỉnh theo ý bạn */
     padding: 16px;
-    box-shadow: var(--shadow);
-    transition: transform .2s ease, box-shadow .2s ease;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
 }
 
 .job-card:hover {
@@ -576,38 +580,77 @@ textarea {
     box-shadow: 0 18px 40px rgba(16, 37, 58, 0.12);
 }
 
+.job-brand-link {
+    display: block;
+    margin: -16px -16px 10px;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    background: #f4f8ff;
+}
+
+.job-brand-image {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+}
+
 .job-card h3 {
+    font-size: 18px;
+    line-height: 1.4;
     margin: 8px 0;
-    font-family: "Sora", sans-serif;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .job-card h3 a {
     color: var(--ink);
     text-decoration: none;
 }
+.job-card p {
+    font-size: 14px;
+    line-height: 1.5;
+}
 
+.job-card p:nth-of-type(2) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 .job-card-top {
     display: flex;
     gap: 8px;
 }
 
 .job-meta {
-    color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .job-foot {
-    margin-top: 14px;
+    margin-top: auto;
     display: flex;
     justify-content: space-between;
     color: var(--muted);
+    align-items: flex-start;
 }
-
+.job-foot a {
+    white-space: nowrap;
+    flex-shrink: 0; /* KHÔNG co lại */
+}
 .tag-row {
     display: flex;
-    gap: 8px;
     flex-wrap: wrap;
-    margin: 10px 0 6px;
+    gap: 6px;
+    max-height: 50px;
+    overflow: hidden;
 }
 
 .tag {
@@ -1068,6 +1111,13 @@ th {
 .salary {
     font-weight: 600;
     color: #059669;
+    flex: 1;
+    line-height: 1.4;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
 }
 .doc-links {
     display: flex;
@@ -1815,16 +1865,48 @@ th {
     margin: 0;
 }
 
-@media (max-width: 700px) {
-    .avatar-inline-control {
-        align-items: flex-start;
-    }
+.bg-mouse {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
 
-    .avatar-inline-actions {
-        min-width: 100%;
+    background:
+        radial-gradient(circle at var(--x, 50%) var(--y, 50%),
+            rgba(34, 197, 94, 0.25),   /* xanh lá nhẹ */
+            rgba(16, 185, 129, 0.18),
+            transparent 30%
+        ),
+        radial-gradient(circle at calc(var(--x, 50%) + 200px) calc(var(--y, 50%) - 150px),
+            rgba(59, 130, 246, 0.15), /* xanh dương nhẹ */
+            transparent 70%
+        ),
+        linear-gradient(180deg, #ffffff, #f5f9ff); /* nền trắng */
+}
+.bg-mouse::before {
+    content: "";
+    position: absolute;
+    inset: -100px;
+
+    background:
+        radial-gradient(circle at var(--x, 50%) var(--y, 50%),
+            rgba(34, 197, 94, 0.2),
+            transparent 60%
+        );
+
+    filter: blur(100px);
+    opacity: 0.6;
+}
+@keyframes bgShift {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(30deg);
     }
 }
 
+<<<<<<< Updated upstream
 .section-title {
     margin-bottom: 20px;
 }
@@ -1867,3 +1949,98 @@ th {
     font-size: 0.7rem;
     padding: 2px 8px;
 }
+=======
+.hero-modern {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 30px;
+    align-items: center;
+}
+
+/* LEFT */
+.hero-left h1 {
+    font-family: "Sora", sans-serif;
+    font-size: 3rem;
+    line-height: 1.1;
+    margin-bottom: 14px;
+}
+
+/* mini stats */
+.hero-mini-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.hero-mini-stats div {
+    background: #fff;
+    padding: 12px 16px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.hero-mini-stats strong {
+    display: block;
+    font-size: 1.2rem;
+    color: var(--accent);
+}
+
+/* RIGHT */
+.hero-right {
+    position: relative;
+    min-height: 320px;
+}
+
+/* main banner */
+.hero-banner {
+    background: linear-gradient(135deg, #006d77, #0ea5e9);
+    color: #fff;
+    padding: 22px;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.hero-banner h3 {
+    margin: 0 0 8px;
+}
+.status-expired {
+    background: rgba(209, 67, 67, 0.15);
+    color: #b52f2f;
+}
+.pill {
+    display: inline-block;
+    margin-top: 10px;
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+/* floating cards */
+.floating-card {
+    position: absolute;
+    background: #fff;
+    padding: 14px 16px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    animation: float 3s ease-in-out infinite;
+}
+
+.card-1 { top: -10px; right: 10px; }
+.card-2 { bottom: 20px; left: -10px; }
+.card-3 { bottom: -10px; right: 40px; }
+
+.floating-card strong {
+    display: block;
+    font-size: 1.2rem;
+    color: var(--accent);
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+>>>>>>> Stashed changes
