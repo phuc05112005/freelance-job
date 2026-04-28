@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
+{% load jobs_rich_text %}
 {% block title %}Chi tiết ứng tuyển{% endblock %}
 
 {% block content %}
@@ -9,7 +10,11 @@
     <p><strong>Email liên hệ:</strong> {{ app.candidate_email|default:app.student.email|default:"-" }}</p>
     <p><strong>Số điện thoại:</strong> {{ app.candidate_phone|default:app.student.phone|default:"-" }}</p>
     <p><strong>Công việc:</strong> {{ app.job.title }}</p>
-    <p><strong>Mô tả công việc:</strong> {{ app.job.description|linebreaks }}</p>
+
+    <p><strong>Mô tả công việc:</strong></p>
+    <div style="line-height:1.65; margin-bottom: 10px;">
+        {{ app.job.description|render_rich_text }}
+    </div>
 
     <hr>
 

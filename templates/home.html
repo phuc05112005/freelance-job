@@ -1,6 +1,7 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 {% block title %}Sàn Việc Làm Cho Sinh Viên{% endblock %}
+
 {% block content %}
 <section class="hero hero-animated">
     <div>
@@ -17,7 +18,7 @@
         </div>
     </div>
     <div class="stat-grid">
-        <div class="stat-card"><strong>{{ stats.jobs }}</strong><span>All jobs</span></div>
+        <div class="stat-card"><strong>{{ stats.jobs }}</strong><span>Tổng việc làm</span></div>
         <div class="stat-card"><strong>{{ stats.open_jobs }}</strong><span>Việc đang tuyển</span></div>
         <div class="stat-card"><strong>{{ stats.students }}</strong><span>Sinh viên</span></div>
         <div class="stat-card"><strong>{{ stats.employers }}</strong><span>Nhà tuyển dụng</span></div>
@@ -61,28 +62,31 @@
     </form>
 </section>
 
-<section class="job-grid">
+<section class="job-grid job-grid-home">
     {% for job in page_obj %}
-        <article class="job-card">
-            <a class="job-brand-link" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiet {{ job.title }}">
-                <img
-                    class="job-brand-image"
-                    src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
-                    alt="Ảnh thương hiệu {{ job.employer.username }}"
-                    loading="lazy"
-                >
-            </a>
+        <article class="job-card job-card-home">
+            <div class="job-card-home-top">
+                <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
+                    <img
+                        class="job-brand-image job-brand-image-square"
+                        src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
+                        alt="Ảnh thương hiệu {{ job.employer.username }}"
+                        loading="lazy"
+                    >
+                </a>
+                <div class="job-card-home-head">
+                    <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
+                    <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
+                </div>
+            </div>
+            <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+
             <div class="job-card-top">
                 <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
                 {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
                 {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
             </div>
-            <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
-            <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
-            <p>{{ job.description|truncatechars:140 }}</p>
-            <p class="job-meta">
-                {% if job.city %}📍 {{ job.city }}{% else %}📍 Chưa cập nhật địa điểm{% endif %}
-            </p>
+
             <div class="tag-row">
                 {% for category in job.categories.all %}
                     <span class="tag">{{ category.name }}</span>
@@ -102,11 +106,11 @@
 
 <div class="pagination">
     {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trước</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">⬅</a>
     {% endif %}
     <span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Sau</a>
+        <a href="?page={{ page_obj.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">➡</a>
     {% endif %}
 </div>
 {% endblock %}

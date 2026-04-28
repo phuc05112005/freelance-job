@@ -31,7 +31,8 @@
                     <th>Email</th>
                     <th>Vai trò</th>
                     <th>Trạng thái</th>
-                    <th>Lưu</th>
+                    <th>Cập nhật</th>
+                    <th>Xóa</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,25 +41,42 @@
                         <td>{{ item.id }}</td>
                         <td>{{ item.username }}</td>
                         <td>{{ item.email|default:"-" }}</td>
-                        <td colspan="3">
-                            <form method="post" class="inline-form" style="display: flex; gap: 10px; align-items: center; justify-content: space-between; width: 100%;">
+                        <td>
+                            <form method="post" class="inline-form" id="form-{{ item.id }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="user_id" value="{{ item.id }}">
-                                <select name="role" style="flex: 1;">
+                                <select name="role">
                                     <option value="student" {% if item.role == 'student' %}selected{% endif %}>Sinh viên</option>
                                     <option value="employer" {% if item.role == 'employer' %}selected{% endif %}>Nhà tuyển dụng</option>
                                     <option value="admin" {% if item.role == 'admin' %}selected{% endif %}>Quản trị viên</option>
                                 </select>
-                                <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
-                                    <input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %} style="width: auto;">
-                                    Hoạt động
-                                </label>
-                                <button class="button button-sm" type="submit">Cập nhật</button>
                             </form>
+                        </td>
+                        <td>
+                            <label style="display:flex; align-items:center; gap:5px; white-space:nowrap;">
+                                <input type="checkbox" name="is_active" form="form-{{ item.id }}"
+                                    {% if item.is_active %}checked{% endif %} style="width:auto;">
+                                Hoạt động
+                            </label>
+                        </td>
+                        <td>
+                            <button class="button button-sm" type="submit" form="form-{{ item.id }}">
+                                Cập nhật
+                            </button>
+                        </td>
+                        <td>
+                            {% if item != request.user %}
+                            <button class="button button-sm" type="submit" form="form-{{ item.id }}"
+                                name="action" value="delete"
+                                style="background:#e53e3e; border-color:#e53e3e;"
+                                onclick="return confirm('Xóa tài khoản {{ item.username }}?')">
+                                Xóa tài khoản
+                            </button>
+                            {% endif %}
                         </td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="6" class="empty">Không có người dùng phù hợp.</td></tr>
+                    <tr><td colspan="7" class="empty">Không có người dùng phù hợp.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -75,6 +93,3 @@
     </div>
 </section>
 {% endblock %}
-
-
-tại sao web nó cứ báo lỗi, sửa triệt để

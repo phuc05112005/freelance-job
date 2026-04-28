@@ -1,6 +1,7 @@
 from django import forms
 
 from .models import EmploymentType, ExperienceLevel, Job, JobCategory, WorkMode
+from .rich_text import sanitize_rich_text
 
 
 class JobForm(forms.ModelForm):
@@ -26,14 +27,30 @@ class JobForm(forms.ModelForm):
         )
         widgets = {
             'brand_image': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
-            'description': forms.Textarea(attrs={'rows': 6}),
+            'description': forms.Textarea(
+                attrs={
+                    'rows': 8,
+                    'class': 'js-rich-text-source',
+                    'data-placeholder': 'Mô tả công việc, trách nhiệm, quyền lợi...',
+                }
+            ),
             'categories': forms.CheckboxSelectMultiple(),
             'required_skills': forms.Textarea(
-                attrs={'rows': 3}
+                attrs={
+                    'rows': 6,
+                    'class': 'js-rich-text-source',
+                    'data-placeholder': 'Yêu cầu ứng viên, kỹ năng bắt buộc, kỹ năng ưu tiên...',
+                }
             ),
             'deadline': forms.DateInput(attrs={'type': 'date'}),
             'address': forms.TextInput(attrs={'placeholder': 'Ví dụ: 268 Lý Thường Kiệt, Quận 10'}),
             'city': forms.TextInput(attrs={'placeholder': 'Ví dụ: TP Hồ Chí Minh'}),
+            'salary_min': forms.NumberInput(attrs={
+                'placeholder': 'Có thể để trống nếu lương: Thỏa thuận'
+            }),
+            'salary_max': forms.NumberInput(attrs={
+                'placeholder': 'Có thể để trống nếu lương: Thỏa thuận'
+            }),
         }
     
     def __init__(self, *args, **kwargs):
@@ -79,6 +96,12 @@ class JobForm(forms.ModelForm):
             self.add_error('city', 'Vui lòng nhập địa điểm làm việc cho hình thức này.')
 
         return cleaned_data
+
+    def clean_description(self):
+        return sanitize_rich_text(self.cleaned_data.get('description'))
+
+    def clean_required_skills(self):
+        return sanitize_rich_text(self.cleaned_data.get('required_skills'))
 
 
 class JobCategoryForm(forms.ModelForm):

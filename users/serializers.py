@@ -53,6 +53,14 @@ class RegisterSerializer(serializers.ModelSerializer):
             'default_cv',
         )
 
+    def validate_email(self, value):
+        email = (value or '').strip().lower()
+        if not email:
+            raise serializers.ValidationError('Vui lòng nhập email.')
+        if User.objects.filter(email__iexact=email).exists():
+            raise serializers.ValidationError('Email này đã tồn tại. Vui lòng dùng email khác.')
+        return email
+
     def create(self, validated_data):
         password = validated_data.pop('password')
         user = User(**validated_data)

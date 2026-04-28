@@ -1,9 +1,9 @@
-import os
+﻿import os
 import uuid
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm, PasswordResetForm
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 
@@ -37,6 +37,14 @@ class RegisterForm(UserCreationForm):
         self.fields['email'].required = True
         self.fields['skills'].widget = forms.Textarea(attrs={'rows': 3})
 
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip().lower()
+        if not email:
+            raise ValidationError('Vui lòng nhập email.')
+        if User.objects.filter(email__iexact=email).exists():
+            raise ValidationError('Email này đã tồn tại. Vui lòng dùng email khác.')
+        return email
+
 
 class ProfileUpdateForm(forms.ModelForm):
     avatar_upload = forms.FileField(
@@ -60,6 +68,19 @@ class ProfileUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].required = True
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip().lower()
+        if not email:
+            raise ValidationError('Vui lòng nhập email.')
+
+        duplicate_qs = User.objects.filter(email__iexact=email)
+        if self.instance and self.instance.pk:
+            duplicate_qs = duplicate_qs.exclude(pk=self.instance.pk)
+
+        if duplicate_qs.exists():
+            raise ValidationError('Email này đã được dùng cho tài khoản khác.')
+        return email
 
     def clean_avatar_upload(self):
         avatar = self.cleaned_data.get('avatar_upload')
@@ -128,8 +149,42 @@ class AccountPasswordChangeForm(PasswordChangeForm):
 
 
 class CustomPasswordResetForm(PasswordResetForm):
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if not User.objects.filter(email=email).exists():
-            raise ValidationError("Email này không tồn tại trong hệ thống.")
-        return email
+    username = forms.CharField(
+        required=True,
+        label='Tên đăng nhập',
+        max_length=150,
+        widget=forms.TextInput(attrs={'placeholder': 'Nhập tên đăng nhập'}),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = (cleaned_data.get('email') or '').strip().lower()
+        username = (cleaned_data.get('username') or '').strip()
+
+        if not email or not username:
+            return cleaned_data
+
+        user = User.objects.filter(username__iexact=username).first()
+        if user is None:
+            self.add_error('email', 'Tên đăng nhập và email không khớp. Vui lòng kiểm tra lại.')
+            return cleaned_data
+
+        user_email = (user.email or '').strip().lower()
+        if user_email != email:
+            self.add_error('email', 'Tên đăng nhập và email không khớp. Vui lòng kiểm tra lại.')
+            return cleaned_data
+
+        self.user_cache = user
+        cleaned_data['email'] = email
+        cleaned_data['username'] = username
+        return cleaned_data
+
+    def get_users(self, email):
+        user = getattr(self, 'user_cache', None)
+        if user is None:
+            return []
+        if not user.is_active:
+            return []
+        if not user.has_usable_password():
+            return []
+        return [user]

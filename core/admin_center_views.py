@@ -131,19 +131,29 @@ def admin_users(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
         target = get_object_or_404(User, pk=user_id)
+
+        # Thêm đoạn này
+        if request.POST.get('action') == 'delete':
+            if target == request.user:
+                messages.error(request, 'Bạn không thể xóa chính mình.')
+                return redirect('admin_users')
+            target.delete()
+            messages.success(request, f'Đã xóa tài khoản {target.username}.')
+            return redirect('admin_users')
+
+        # Phần cũ giữ nguyên
         new_role = request.POST.get('role')
         is_active = request.POST.get('is_active') == 'on'
-
         if target == request.user and new_role != 'admin':
             messages.error(request, 'Bạn không thể tự hạ quyền tài khoản admin của chính mình.')
             return redirect('admin_users')
-
         if new_role in {'student', 'employer', 'admin'}:
             target.role = new_role
         target.is_active = is_active
         target.save(update_fields=['role', 'is_active'])
         messages.success(request, 'Cập nhật người dùng thành công.')
         return redirect('admin_users')
+    # ... phần GET giữ nguyên
 
     keyword = request.GET.get('q', '').strip()
     role = request.GET.get('role', '').strip()

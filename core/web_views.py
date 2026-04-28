@@ -5,6 +5,7 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.paginator import Paginator
+from django.db import IntegrityError
 from django.db.models import Count, Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
@@ -85,7 +86,7 @@ def home(request):
     if city:
         jobs = jobs.filter(city__icontains=city)
 
-    paginator = Paginator(jobs.distinct(), 3)
+    paginator = Paginator(jobs.distinct(), 8)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     query_data = request.GET.copy()
@@ -128,7 +129,11 @@ def register_view(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.is_active = False
-            user.save()
+            try:
+                user.save()
+            except IntegrityError:
+                form.add_error('email', 'Email này đã tồn tại. Vui lòng dùng email khác.')
+                return render(request, 'auth/register.html', {'form': form})
             
             current_site = get_current_site(request)
             mail_subject = 'Kích hoạt tài khoản của bạn trên Web Tuyển Dụng'

@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from users.models import User
+from .rich_text import sanitize_rich_text
 
 
 class JobCategory(models.Model):
@@ -114,6 +115,11 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        self.description = sanitize_rich_text(self.description)
+        self.required_skills = sanitize_rich_text(self.required_skills)
+        super().save(*args, **kwargs)
 
     @property
     def is_expired(self):

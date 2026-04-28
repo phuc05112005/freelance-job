@@ -472,10 +472,26 @@ textarea {
 .form-grid {
     display: grid;
     gap: 12px;
+    align-items: start;
 }
 
 .two-col {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+}
+.field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ql-container {
+    border-radius: 12px;
+    min-height: 150px;
+}
+
+.ql-editor {
+    min-height: 120px;
+    line-height: 1.5;
 }
 
 .form-grid label {
@@ -517,7 +533,8 @@ textarea {
     padding: 12px;
     max-height: 320px;
     overflow: auto;
-    max-width: 560px;
+    width: 100%; /* 🔥 QUAN TRỌNG */
+    max-width: 100%; /* bỏ giới hạn */
 }
 
 #id_categories li,
@@ -563,6 +580,11 @@ textarea {
     align-items: stretch;
 }
 
+.job-grid-home {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
 .job-card {
     display: flex;
     flex-direction: column;
@@ -573,6 +595,51 @@ textarea {
     border-radius: 12px;
     background: #fff;
     overflow: hidden;
+}
+
+.job-card-home {
+    min-height: 250px;
+    padding: 14px;
+    border: 1px solid #dbe5f2;
+    border-radius: 14px;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+}
+
+.job-card-home-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.job-card-home-head {
+    min-width: 0;
+    flex: 1;
+}
+
+.job-card-home-head h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.job-brand-link-square {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    border: 1px solid #dbe4f1;
+    flex: 0 0 64px;
+    background: #f4f8ff;
+}
+
+.job-brand-image-square {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .job-card:hover {
@@ -609,6 +676,19 @@ textarea {
     color: var(--ink);
     text-decoration: none;
 }
+.job-card-home h3 {
+    margin: 0;
+}
+
+.job-card-home .job-card-home-head h3 {
+    font-size: 1.02rem;
+    line-height: 1.35;
+    margin: 0 0 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 .job-card p {
     font-size: 14px;
     line-height: 1.5;
@@ -624,6 +704,11 @@ textarea {
     gap: 8px;
 }
 
+.job-card-home .job-card-top {
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
 .job-meta {
     font-size: 13px;
     color: #666;
@@ -632,6 +717,58 @@ textarea {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.job-card-home .job-meta {
+    margin: 0 0 8px;
+    font-size: 0.94rem;
+    color: #5a6678;
+    line-height: 1.45;
+}
+
+.job-card-home .badge {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.job-card-home .tag-row {
+    gap: 8px;
+    max-height: 64px;
+    margin-top: 2px;
+}
+
+.job-card-home .tag {
+    font-size: 0.76rem;
+    padding: 5px 10px;
+    font-weight: 600;
+}
+
+.job-card-home .job-foot {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #d9e2ef;
+    align-items: center;
+    gap: 10px;
+}
+
+.job-card-home .job-foot span {
+    font-weight: 700;
+    color: #42526b;
+    line-height: 1.35;
+}
+
+.job-card-home .text-link {
+    background: #2563eb;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 0.88rem;
+}
+
+.job-card-home .text-link:hover {
+    background: #1d4ed8;
 }
 
 .job-foot {
@@ -660,6 +797,25 @@ textarea {
     color: #21507d;
     font-size: 0.78rem;
     font-weight: 700;
+}
+
+/* Ensure home cards always keep square logo, overriding generic banner-style image rules */
+.job-card-home .job-brand-link {
+    margin: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dbe4f1;
+    background: #f4f8ff;
+    flex: 0 0 64px;
+}
+
+.job-card-home .job-brand-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .detail-grid,
@@ -937,6 +1093,24 @@ th {
     .footer-grid {
         grid-template-columns: 1fr;
         gap: 18px;
+    }
+}
+
+@media (max-width: 1280px) {
+    .job-grid-home {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 980px) {
+    .job-grid-home {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .job-grid-home {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -1905,8 +2079,6 @@ th {
         filter: hue-rotate(30deg);
     }
 }
-
-<<<<<<< Updated upstream
 .section-title {
     margin-bottom: 20px;
 }
@@ -1949,7 +2121,6 @@ th {
     font-size: 0.7rem;
     padding: 2px 8px;
 }
-=======
 .hero-modern {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
@@ -2043,4 +2214,3 @@ th {
     50% { transform: translateY(-8px); }
 }
 
->>>>>>> Stashed changes
