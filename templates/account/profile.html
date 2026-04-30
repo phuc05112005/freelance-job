@@ -4,7 +4,6 @@
 {% block content %}
 <section class="panel account-shell">
     <div class="account-header-bar">
-        <a class="back-pill" href="{% url 'home' %}">&larr; Quay lại</a>
         <h1>Thông tin tài khoản</h1>
     </div>
 
@@ -79,8 +78,70 @@
                 </div>
             </div>
 
+            {% if user.role == 'employer' %}
+                <div class="field-row">
+                    <label for="{{ profile_form.bio.id_for_label }}">Giới thiệu công ty</label>
+                    <div class="field-control">
+                        {{ profile_form.bio }}
+                        {{ profile_form.bio.errors }}
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <label for="{{ profile_form.company_name.id_for_label }}">Tên công ty</label>
+                    <div class="field-control">
+                        {{ profile_form.company_name }}
+                        {{ profile_form.company_name.errors }}
+                    </div>
+                </div>
+                <div class="field-row">
+                    <label for="{{ profile_form.company_tax_code.id_for_label }}">Mã số thuế</label>
+                    <div class="field-control">
+                        {{ profile_form.company_tax_code }}
+                        {{ profile_form.company_tax_code.errors }}
+                    </div>
+                </div>
+                <div class="field-row">
+                    <label for="{{ profile_form.company_website.id_for_label }}">Website công ty</label>
+                    <div class="field-control">
+                        {{ profile_form.company_website }}
+                        {{ profile_form.company_website.errors }}
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <label for="{{ profile_form.province.id_for_label }}">Tỉnh/Thành phố</label>
+                    <div class="field-control">
+                        {{ profile_form.province }}
+                        {{ profile_form.province.errors }}
+                    </div>
+                </div>
+                <div class="field-row">
+                    <label for="{{ profile_form.district.id_for_label }}">Quận/Huyện</label>
+                    <div class="field-control">
+                        {{ profile_form.district }}
+                        {{ profile_form.district.errors }}
+                    </div>
+                </div>
+                <div class="field-row">
+                    <label for="{{ profile_form.ward.id_for_label }}">Phường/Xã</label>
+                    <div class="field-control">
+                        {{ profile_form.ward }}
+                        {{ profile_form.ward.errors }}
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <label for="{{ profile_form.company_address.id_for_label }}">Địa chỉ chi tiết</label>
+                    <div class="field-control">
+                        {{ profile_form.company_address }}
+                        {{ profile_form.company_address.errors }}
+                    </div>
+                </div>
+            {% endif %}
+
             <div class="field-row">
-                <label>Tài khoản</label>
+                <label>Loại tài khoản</label>
                 <div class="role-pills">
                     <span class="role-pill active">
                         {% if user.role == 'student' %}
@@ -140,4 +201,136 @@
         </form>
     </div>
 </section>
+
+<style>
+    /* -------------------------------------
+       NÚT QUAY LẠI (ĐÃ LÀM ĐẸP)
+       ------------------------------------- */
+    .btn-back-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: #ffffff;
+        color: #475569;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    .btn-back-modern:hover {
+        background-color: #f8fafc;
+        color: #0f172a;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .btn-back-modern svg {
+        transition: transform 0.2s ease;
+    }
+    .btn-back-modern:hover svg {
+        transform: translateX(-4px); /* Hiệu ứng icon trượt nhẹ về sau */
+    }
+</style>
+
+{% if user.role == 'employer' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.querySelector('select[name="province"]');
+    const districtSelect = document.querySelector('select[name="district"]');
+    const wardSelect = document.querySelector('select[name="ward"]');
+
+    const currentProvince = "{{ user.province }}";
+    const currentDistrict = "{{ user.district }}";
+    const currentWard = "{{ user.ward }}";
+
+    function loadDistricts(provinceCode, selectedDistrict = null) {
+        if (!districtSelect) return Promise.resolve();
+        districtSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
+        if (wardSelect) wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        
+        if (provinceCode) {
+            return fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
+                .then(response => response.json())
+                .then(data => {
+                    data.districts.forEach(district => {
+                        const option = new Option(district.name, district.name);
+                        option.dataset.code = district.code;
+                        if (district.name === selectedDistrict) {
+                            option.selected = true;
+                        }
+                        districtSelect.add(option);
+                    });
+                    return data;
+                });
+        }
+        return Promise.resolve();
+    }
+
+    function loadWards(districtCode, selectedWard = null) {
+        if (!wardSelect) return Promise.resolve();
+        wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        
+        if (districtCode) {
+            return fetch(`https://provinces.open-api.vn/api/p/d/${districtCode}?depth=2`)
+                .then(response => response.json())
+                .then(data => {
+                    data.wards.forEach(ward => {
+                        const option = new Option(ward.name, ward.name);
+                        if (ward.name === selectedWard) {
+                            option.selected = true;
+                        }
+                        wardSelect.add(option);
+                    });
+                });
+        }
+        return Promise.resolve();
+    }
+
+    if (provinceSelect) {
+        fetch('https://provinces.open-api.vn/api/p/')
+            .then(response => response.json())
+            .then(data => {
+                provinceSelect.innerHTML = '<option value="">Chọn Tỉnh/Thành phố</option>';
+                let initialProvinceCode = null;
+                data.forEach(province => {
+                    const option = new Option(province.name, province.name);
+                    option.dataset.code = province.code;
+                    if (province.name === currentProvince) {
+                        option.selected = true;
+                        initialProvinceCode = province.code;
+                    }
+                    provinceSelect.add(option);
+                });
+
+                if (initialProvinceCode) {
+                    loadDistricts(initialProvinceCode, currentDistrict).then(data => {
+                        if (data && data.districts) {
+                            const selectedDistrictObj = data.districts.find(d => d.name === currentDistrict);
+                            if (selectedDistrictObj) {
+                                loadWards(selectedDistrictObj.code, currentWard);
+                            }
+                        }
+                    });
+                }
+            });
+
+        provinceSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            loadDistricts(selectedOption.dataset.code);
+        });
+    }
+
+    if (districtSelect) {
+        districtSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            loadWards(selectedOption.dataset.code);
+        });
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

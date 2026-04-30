@@ -9,39 +9,40 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=4">
 </head>
 <body>
     <div class="bg-mouse"></div>
     <header class="site-header">
         <div class="container nav-wrap">
             <div class="nav-left">
-                <a class="brand" href="{% url 'home' %}">
+                <a class="brand" href="{% if user.is_authenticated and user.role == 'employer' %}{% url 'employer_home' %}{% else %}{% url 'home' %}{% endif %}">
                     <span class="brand-mark">2026</span>
-                    <span class="brand-text">Sàn Việc Làm</span>
+                    <span class="brand-text">{% if user.is_authenticated and user.role == 'employer' %}Nhà Tuyển Dụng{% else %}Sàn Việc Làm{% endif %}</span>
                 </a>
                 <nav class="main-nav nav-links-left">
-                    <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Việc làm</a>
-                    <a href="{% url 'blog' %}" class="{% if 'blog' in request.path %}active{% endif %}">Blog</a>
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'favorite_jobs' %}" class="{% if 'jobs/favorites' in request.path %}active{% endif %}">
-                            Yêu thích
-                            <span id="favorite-count" class="nav-count">{{ request.user.favorite_jobs.count }}</span>
-                        </a>
+                    {% if user.is_authenticated and user.role == 'employer' %}
+                        <a href="{% url 'employer_home' %}" class="{% if 'employer' in request.path %}active{% endif %}">Cổng thông tin tuyển dụng</a>
+                    {% else %}
+                        <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Việc làm</a>
+                        <a href="{% url 'blog' %}" class="{% if 'blog' in request.path %}active{% endif %}">Blog</a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'favorite_jobs' %}" class="{% if 'jobs/favorites' in request.path %}active{% endif %}">
+                                Yêu thích
+                                <span id="favorite-count" class="nav-count">{{ request.user.favorite_jobs.count }}</span>
+                            </a>
+                        {% endif %}
                     {% endif %}
                 </nav>
             </div>
 
             <div class="main-nav nav-actions-right">
                 {% if user.is_authenticated %}
-                    {% if user.role != 'admin' %}
-                        <a href="{% url 'application_list' %}" class="{% if 'applications' in request.path %}active{% endif %}">
-                            Quản lý thông tin ứng tuyển
-                        </a>
-                    {% endif %}
-
-                    {% if user.role == 'employer' or user.role == 'admin' %}
+                    {% if user.role == 'employer' %}
                         <a href="{% url 'job_create' %}" class="button button-sm">+ Đăng tuyển</a>
+                        <a href="{% url 'employer_job_list' %}" class="{% if 'jobs/my' in request.path %}active{% endif %}">Tin đã đăng</a>
+                    {% elif user.role != 'admin' %}
+                        <a href="{% url 'application_list' %}" class="{% if 'applications' in request.path %}active{% endif %}">Quản lý thông tin ứng tuyển</a>
                     {% endif %}
 
                     <form method="post" action="{% url 'logout' %}" class="inline-form">
@@ -72,6 +73,10 @@
             </div>
         </div>
     </header>
+
+    {% if not user.is_authenticated or user.role != 'employer' %}
+    <a class="floating-employer-cta" href="{% url 'employer_home' %}">Bạn là nhà tuyển dụng? Đăng tin ngay</a>
+    {% endif %}
 
     <main class="container page wide-page">
         {% if messages %}
@@ -106,7 +111,7 @@
                 <h4>Công ty</h4>
                 <a href="{% url 'about_us' %}">Giới thiệu về chúng tôi</a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'application_list' %}">Quản lý thông tin ứng tuyển</a>
+                    <a href="{% url 'application_list' %}">Quản lý ứng tuyển</a>
                 {% else %}
                     <a href="{% url 'login' %}">Đăng nhập</a>
                 {% endif %}

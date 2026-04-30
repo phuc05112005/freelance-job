@@ -1,18 +1,59 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static jobs_rich_text %}
 {% block title %}{{ job.title }}{% endblock %}
 {% block content %}
 
-<div style="margin-bottom: 16px;">
-    <a href="{% url 'home' %}" class="back-pill">← Quay về trang chủ</a>
+<div class="breadcrumb-nav">
+    {% if user.role == 'employer' %}
+        <a href="{% url 'employer_job_list' %}" class="btn-back-modern">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Quay lại danh sách
+        </a>
+    {% else %}
+        <a href="{% url 'home' %}" class="btn-back-modern">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Quay về trang chủ
+        </a>
+    {% endif %}
 </div>
 
+{% if can_edit %}
+<div class="employer-dashboard-header panel">
+    <div class="dashboard-stats">
+        <div class="stat-box">
+            <span class="stat-label">Tổng số đơn ứng tuyển</span>
+            <span class="stat-value">{{ applications_count }}</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Trạng thái tin</span>
+            <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+        </div>
+    </div>
+    <div class="dashboard-actions">
+        <a href="{% url 'application_list' %}?job={{ job.id }}" class="button button-modern">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Quản lý ứng viên
+        </a>
+        <a href="{% url 'job_edit' job.pk %}" class="button button-ghost">Sửa tin</a>
+        <a href="{% url 'job_delete' job.pk %}?next=/" class="button button-danger-ghost">Xóa</a>
+    </div>
+</div>
+{% endif %}
+
 <div class="job-detail-banner">
-    <img
-        src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
-        alt="Ảnh {{ job.employer.username }}"
-        class="job-detail-banner-img"
-    >
+    <div class="banner-image-container">
+        <img
+            src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
+            alt="Ảnh {{ job.employer.username }}"
+            class="job-detail-banner-img"
+        >
+    </div>
     <div class="job-detail-banner-overlay">
         <div class="job-detail-banner-inner">
             <div class="actions-row" style="justify-content:flex-start; gap:6px; margin-bottom:10px;">
@@ -20,210 +61,262 @@
                 {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
                 {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
             </div>
-            <h1 style="font-family:'Sora',sans-serif; color:#fff; margin:0 0 6px; font-size:clamp(1.5rem,3vw,2.2rem); text-shadow:0 2px 8px rgba(0,0,0,0.45);">{{ job.title }}</h1>
-            <p style="color:rgba(255,255,255,0.82); margin:0; font-size:0.92rem;">
+            <h1 class="job-main-title">{{ job.title }}</h1>
+            <p class="job-main-subtitle">
                 Đăng bởi <strong>{{ job.employer.username }}</strong> &nbsp;·&nbsp; {{ job.created_at|date:"d M Y" }}
             </p>
         </div>
     </div>
 </div>
 
-<div class="panel" style="padding:12px 20px; margin-bottom:16px;">
-    <div class="tag-row">
-        {% for category in job.categories.all %}
-            <span class="tag">{{ category.name }}</span>
-        {% empty %}
-            <span class="tag">Chưa gắn lĩnh vực</span>
-        {% endfor %}
-    </div>
-</div>
-
-<section class="panel">
-    <div class="detail-grid">
-        <div>
-            <h3>Mô tả công việc</h3>
-            <div style="line-height:1.75; color:#2d3748;">
+<div class="job-content-layout">
+    <div class="job-main-content">
+        <section class="panel">
+            <h3 class="panel-title">Mô tả công việc</h3>
+            <div class="rich-text-content">
                 {{ job.description|render_rich_text }}
             </div>
-        </div>
-        <div class="panel soft">
-            <h3 style="margin-top:0;">Thông tin tuyển dụng</h3>
-            <p><strong>Kinh nghiệm:</strong> {{ job.experience_level_obj.name|default:"Chưa cập nhật" }}</p>
-            <p><strong>Số lượng tuyển:</strong> {{ job.vacancies }}</p>
-            <p><strong>Địa điểm:</strong>
-                {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}
-                {% if job.address %} – {{ job.address }}{% endif %}
-            </p>
-            <p><strong>Mức lương:</strong> <span style="color:#059669; font-weight:700;">{{ job.display_salary }}</span></p>
-            <p><strong>Hạn nộp hồ sơ:</strong> {{ job.deadline|default:"Chưa cập nhật" }}</p>
-            <div>
-                <strong>Kỹ năng yêu cầu:</strong>
-                <div style="margin-top:6px; line-height:1.65;">
-                    {% if job.required_skills %}
-                        {{ job.required_skills|render_rich_text }}
-                    {% else %}
-                        Chưa cập nhật
-                    {% endif %}
-                </div>
+        </section>
+
+        <section class="panel">
+            <h3 class="panel-title">Yêu cầu ứng viên</h3>
+            <div class="rich-text-content">
+                {% if job.required_skills %}
+                    {{ job.required_skills|render_rich_text }}
+                {% else %}
+                    <p class="text-muted">Chưa cập nhật yêu cầu chi tiết.</p>
+                {% endif %}
             </div>
-            <p style="margin-bottom:0;"><strong>Số đơn ứng tuyển:</strong> {{ applications_count }}</p>
-        </div>
+        </section>
     </div>
 
-    {% if can_edit %}
-        <div class="actions-row" style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
-            <a href="{% url 'job_edit' job.pk %}" class="button button-sm">Chỉnh sửa</a>
-            <a href="{% url 'job_delete' job.pk %}?next=/" class="button button-danger button-sm">Xóa</a>
+    <aside class="job-sidebar">
+        <div class="panel soft sidebar-info">
+            <h3 class="sidebar-title">Thông tin chung</h3>
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="info-label">Yêu cầu kinh nghiệm:</span>
+                    <span class="info-value">{{ job.experience_level_obj.name|default:"Không yêu cầu" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Số lượng tuyển:</span>
+                    <span class="info-value">{{ job.vacancies }} người</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Hình thức:</span>
+                    <span class="info-value">{{ job.employment_type_obj.name|default:"-- " }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Mức lương:</span>
+                    <span class="info-value salary-highlight">{{ job.display_salary }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Hạn nộp hồ sơ:</span>
+                    <span class="info-value">{{ job.deadline|default:"Không có thời hạn" }}</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-location">
+                <span class="info-label">Địa điểm làm việc:</span>
+                <span class="info-value">
+                    {% if job.city %}{{ job.city }}{% else %}Toàn quốc{% endif %}
+                    {% if job.address %}<br><small>{{ job.address }}</small>{% endif %}
+                </span>
+            </div>
         </div>
-    {% endif %}
-</section>
+
+        {% if can_apply and not existing_application %}
+        <div class="apply-cta-box">
+            <a href="#apply-form-section" class="button button-full button-lg">Ứng tuyển ngay</a>
+        </div>
+        {% elif not user.is_authenticated %}
+        <div class="apply-cta-box">
+            <a href="{% url 'login' %}?next={{ request.path }}" class="button button-full button-lg">Ứng tuyển ngay</a>
+            <p class="cta-hint">Dành cho tài khoản ứng viên</p>
+        </div>
+        {% endif %}
+    </aside>
+</div>
 
 {% if can_apply %}
-<section class="panel">
-    <h2>Ứng tuyển vào việc này</h2>
+<section class="panel" id="apply-form-section">
+    <h2 class="section-title">Điền thông tin ứng tuyển</h2>
     {% if existing_application %}
-        <p class="empty">
-            Bạn đã ứng tuyển công việc này. Trạng thái:
-            <span class="badge status-{{ existing_application.status }}">{{ existing_application.get_status_display }}</span>
-        </p>
+        <div class="applied-status-box">
+            <p>Bạn đã ứng tuyển công việc này.</p>
+            <div class="status-wrap">
+                Trạng thái hiện tại: <span class="badge status-{{ existing_application.status }}">{{ existing_application.get_status_display }}</span>
+            </div>
+        </div>
     {% elif apply_form %}
-        <form method="post" action="{% url 'job_apply' job.pk %}" enctype="multipart/form-data" class="form-grid two-col">
+        <form method="post" action="{% url 'job_apply' job.pk %}" enctype="multipart/form-data" class="form-grid two-col modern-form">
             {% csrf_token %}
-            <label class="full">Giới thiệu bản thân {{ apply_form.cover_letter }} {{ apply_form.cover_letter.errors }}</label>
-            <label>Email liên hệ {{ apply_form.candidate_email }} {{ apply_form.candidate_email.errors }}</label>
-            <label>Số điện thoại liên hệ {{ apply_form.candidate_phone }} {{ apply_form.candidate_phone.errors }}</label>
-            <label>Ngày có thể bắt đầu {{ apply_form.available_date }} {{ apply_form.available_date.errors }}</label>
-            <label>CV (PDF/DOC) {{ apply_form.cv_file }} {{ apply_form.cv_file.errors }}</label>
+            <div class="field-block full">
+                <label>Thư giới thiệu</label>
+                {{ apply_form.cover_letter }}
+                <p class="field-hint">Hãy cho nhà tuyển dụng biết tại sao bạn phù hợp.</p>
+            </div>
+            <label>Email liên hệ {{ apply_form.candidate_email }}</label>
+            <label>Số điện thoại {{ apply_form.candidate_phone }}</label>
+            <label>Ngày có thể bắt đầu {{ apply_form.available_date }}</label>
+            <label>Tải CV (PDF/DOC) {{ apply_form.cv_file }}</label>
+            
             {% if request.user.default_cv %}
-                <p class="job-meta full">Bạn đã có CV mặc định trong hồ sơ, có thể bỏ trống mục tải CV.</p>
+            <div class="full cv-notice">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Hệ thống sẽ sử dụng CV mặc định trong hồ sơ của bạn nếu bạn không tải file mới.
+            </div>
             {% endif %}
-            <div class="full">
-                <button type="submit" class="button">Gửi đơn ứng tuyển</button>
+
+            <div class="full form-actions">
+                <button type="submit" class="button button-lg">Gửi hồ sơ ứng tuyển</button>
             </div>
         </form>
-    {% else %}
-        <p class="empty">Việc này hiện không mở ứng tuyển.</p>
     {% endif %}
 </section>
+{% endif %}
 
-{% elif not user.is_authenticated %}
-<section class="panel">
-    <h2>Ứng tuyển ngay</h2>
-    <p>Bạn cần đăng nhập với tài khoản Sinh viên để ứng tuyển vào công việc này.</p>
-    <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
-        <a href="{% url 'login' %}?next={{ request.path }}" class="button">Đăng nhập & Ứng tuyển</a>
-        <a href="{% url 'register' %}" class="button button-ghost">Đăng ký tài khoản</a>
+{% if user.role != 'employer' %}
+<section class="panel related-jobs-section">
+    <h2 class="section-title">Việc làm tương tự</h2>
+    <div class="related-jobs-carousel-wrap">
+        <button class="related-nav related-nav-prev" type="button">‹</button>
+        <div class="related-jobs-carousel" id="related-jobs-carousel">
+                {% for r_job in related_jobs %}
+                <a href="{% url 'job_detail' r_job.pk %}" class="related-job-card">
+                    <div class="related-job-card-top">
+                        <span class="related-job-brand">
+                            <img class="related-job-brand-image" src="{% if r_job.brand_image %}{{ r_job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Logo">
+                        </span>
+                        <div class="related-job-header">
+                            <h4>{{ r_job.title }}</h4>
+                            </div>
+                    </div>
+                    <p class="job-meta">
+                        <span class="company-name">{{ r_job.employer.username }}</span><br>
+                        <span class="job-loc-salary">{{ r_job.city|default:"Toàn quốc" }} • {{ r_job.display_salary }}</span>
+                    </p>
+                </a>
+                {% endfor %}
+            </div>
+        <button class="related-nav related-nav-next" type="button">›</button>
     </div>
 </section>
 {% endif %}
 
-<section class="panel">
-    <h2 class="section-title">Việc làm liên quan có thể bạn quan tâm</h2>
-    <div class="related-jobs-carousel-wrap">
-        <button class="related-nav related-nav-prev" type="button" aria-label="Xem việc trước">‹</button>
-        <div class="related-jobs-carousel" id="related-jobs-carousel">
-            {% for r_job in related_jobs %}
-                <a href="{% url 'job_detail' r_job.pk %}" class="related-job-card">
-                    <div class="related-job-card-top">
-                        <span class="related-job-brand">
-                            <img
-                                class="related-job-brand-image"
-                                src="{% if r_job.brand_image %}{{ r_job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
-                                alt="Ảnh thương hiệu {{ r_job.employer.username }}"
-                                loading="lazy"
-                            >
-                        </span>
-                        <div class="related-job-header">
-                            <h4>{{ r_job.title }}</h4>
-                        </div>
-                    </div>
-                    <p class="job-meta">
-                        <strong>{{ r_job.employer.username }}</strong><br>
-                        <small>{{ r_job.city|default:"Toàn quốc" }} • {{ r_job.display_salary }}</small>
-                    </p>
-                    <div class="tag-row">
-                        {% for cat in r_job.categories.all|slice:":2" %}
-                            <span class="tag tag-sm">{{ cat.name }}</span>
-                        {% endfor %}
-                    </div>
-                </a>
-            {% empty %}
-                <p class="empty">Chưa có việc liên quan lúc này.</p>
-            {% endfor %}
-        </div>
-        <button class="related-nav related-nav-next" type="button" aria-label="Xem việc tiếp theo">›</button>
-    </div>
-    <script>
-        (function () {
-            const track = document.getElementById('related-jobs-carousel');
-            if (!track) return;
-            const prev = track.parentElement.querySelector('.related-nav-prev');
-            const next = track.parentElement.querySelector('.related-nav-next');
-            const step = () => Math.max(track.clientWidth * 0.86, 260);
-            if (prev) {
-                prev.addEventListener('click', function () {
-                    track.scrollBy({ left: -step(), behavior: 'smooth' });
-                });
-            }
-            if (next) {
-                next.addEventListener('click', function () {
-                    track.scrollBy({ left: step(), behavior: 'smooth' });
-                });
-            }
-        })();
-    </script>
-</section>
-
 <style>
-    a.related-job-card {
-        display: block;
+    /* Reset & Layout */
+    .breadcrumb-nav { margin-bottom: 20px; }
+    .job-content-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+    
+    /* -------------------------------------
+       NÚT QUAY LẠI TRANG CHỦ (ĐÃ LÀM ĐẸP)
+       ------------------------------------- */
+    .btn-back-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: #ffffff;
+        color: #475569;
+        font-size: 0.9rem;
+        font-weight: 600;
         text-decoration: none;
-        color: inherit;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
     }
-    .job-detail-banner-inner .status-expired {
-        background: rgba(220, 56, 56, 0.767);
-        color: #ffffff;
-        border: 1px solid rgba(209, 67, 67, 0.7);
+    .btn-back-modern:hover {
+        background-color: #f8fafc;
+        color: #0f172a;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-    .job-detail-banner-inner .status-open {
-        background: rgba(31, 157, 85, 0.55);
-        color: #ffffff;
-        border-color: rgba(0, 221, 96, 0.886);
+    .btn-back-modern svg {
+        transition: transform 0.2s ease;
     }
+    .btn-back-modern:hover svg {
+        transform: translateX(-4px); /* Hiệu ứng icon trượt nhẹ về sau */
+    }
+
+    /* Employer Dashboard */
+    .employer-dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        color: #fff;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 0;
+    }
+    .dashboard-stats { display: flex; gap: 40px; }
+    .stat-box { display: flex; flex-direction: column; gap: 4px; }
+    .stat-label { font-size: 0.85rem; color: #94a3b8; font-weight: 600; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; font-family: 'Sora', sans-serif; }
+    .dashboard-actions { display: flex; gap: 10px; }
+    .button-modern { background: #3b82f6; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .button-danger-ghost { background: transparent; border: 1px solid #ef4444; color: #ef4444; }
+    
+    /* Banner & Image Handling */
     .job-detail-banner {
         position: relative;
-        border-radius: 18px;
+        border-radius: 24px;
         overflow: hidden;
-        margin-bottom: 16px;
-        box-shadow: var(--shadow);
-        background: #edf3fb;
+        margin-bottom: 24px;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        height: 300px;
+    }
+    .banner-image-container {
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
     }
     .job-detail-banner-img {
-        width: 100%;
-        height: clamp(190px, 27vw, 260px);
+        max-width: 100%;
+        max-height: 100%;
         object-fit: contain;
-        object-position: center;
-        background: radial-gradient(circle at 15% 18%, #f8fbff 0%, #edf3fb 65%, #e7eef8 100%);
-        padding: 14px;
-        display: block;
+        filter: drop-shadow(0 10px 15px rgba(0,0,0,0.08));
     }
     .job-detail-banner-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(10,20,35,0.75) 0%, rgba(10,20,35,0.2) 55%, transparent 100%);
+        background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.4) 60%, rgba(15, 23, 42, 0.1) 100%);
         display: flex;
         align-items: flex-end;
     }
-    .job-detail-banner-inner {
-        padding: 22px 26px;
-        width: 100%;
-    }
-    .detail-grid {
-        align-items: start;
-    }
+    .job-detail-banner-inner { padding: 32px; width: 100%; }
+    
+    /* Content */
+    .job-main-title { font-family:'Sora',sans-serif; color:#fff; margin:0 0 8px; font-size:clamp(1.8rem, 4vw, 2.6rem); text-shadow:0 2px 10px rgba(0,0,0,0.5); font-weight: 800; }
+    .job-main-subtitle { color:rgba(255,255,255,0.9); margin:0; font-size:1.1rem; }
+    
+    /* Sidebar */
+    .sidebar-info { padding: 24px; border-radius: 20px; border: 1px solid #f1f5f9; }
+    .sidebar-title { font-size: 1.2rem; margin-bottom: 20px; font-family: 'Sora', sans-serif; }
+    .info-list { display: grid; gap: 16px; margin-bottom: 24px; }
+    .info-item { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #f8fafc; padding-bottom: 12px; }
+    .info-label { color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+    .info-value { color: #1e293b; font-weight: 700; font-size: 1.05rem; }
+    .salary-highlight { color: #059669; font-size: 1.2rem; }
+    
+    .apply-cta-box { margin-top: 20px; text-align: center; }
+    .cta-hint { font-size: 0.85rem; color: #64748b; margin-top: 10px; }
+    
+    .button-full { width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; }
+    
     @media (max-width: 980px) {
-        .job-detail-banner-img { height: 200px; }
+        .job-content-layout { grid-template-columns: 1fr; }
+        .sidebar-info { position: static; }
+        .job-detail-banner { height: 250px; }
+        .banner-image-container { padding: 20px; }
     }
 </style>
-
 {% endblock %}

@@ -1,38 +1,181 @@
-﻿{% extends 'base.html' %}
-{% load jobs_rich_text %}
-{% block title %}Chi tiết ứng tuyển{% endblock %}
-
+{% extends 'base.html' %}
+{% block title %}Chi tiết hồ sơ ứng tuyển{% endblock %}
 {% block content %}
-<section class="panel">
-    <h1>Chi tiết ứng tuyển</h1>
 
-    <p><strong>Ứng viên:</strong> {{ app.student.username }}</p>
-    <p><strong>Email liên hệ:</strong> {{ app.candidate_email|default:app.student.email|default:"-" }}</p>
-    <p><strong>Số điện thoại:</strong> {{ app.candidate_phone|default:app.student.phone|default:"-" }}</p>
-    <p><strong>Công việc:</strong> {{ app.job.title }}</p>
+<div class="breadcrumb-nav">
+    <a href="{% url 'application_list' %}" class="back-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Quay lại danh sách
+    </a>
+</div>
 
-    <p><strong>Mô tả công việc:</strong></p>
-    <div style="line-height:1.65; margin-bottom: 10px;">
-        {{ app.job.description|render_rich_text }}
+<section class="application-detail-grid">
+    <div class="main-column">
+        <div class="panel candidate-profile-panel">
+            <div class="candidate-header">
+                <div class="candidate-avatar-large">
+                    {% if app.student.avatar_url %}
+                        <img src="{{ app.student.avatar_url }}" alt="Avatar">
+                    {% else %}
+                        <span>{{ app.student.username|first|upper }}</span>
+                    {% endif %}
+                </div>
+                <div class="candidate-basic-info">
+                    <h1>{{ app.student.get_full_name|default:app.student.username }}</h1>
+                    <p class="username">@{{ app.student.username }}</p>
+                    <div class="candidate-badges">
+                        <span class="badge">Sinh viên</span>
+                        {% if app.student.university %}
+                            <span class="badge">{{ app.student.university }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="application-section">
+                <h3 class="section-title">Thư giới thiệu</h3>
+                <div class="rich-text-content cover-letter">
+                    {{ app.cover_letter|default:"Không có thư giới thiệu."|linebreaks }}
+                </div>
+            </div>
+
+            <div class="application-section">
+                <h3 class="section-title">Hồ sơ năng lực (CV)</h3>
+                <div class="cv-preview-box">
+                    <div class="cv-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <div>
+                            <strong>Tệp tin đính kèm</strong>
+                            <p>Định dạng PDF/DOCX</p>
+                        </div>
+                    </div>
+                    <a href="{{ app.cv_file.url }}" target="_blank" class="button button-cv">Xem & Tải xuống</a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <hr>
+    <aside class="side-column">
+        <div class="panel soft application-info-panel">
+            <h3 class="panel-title">Thông tin nộp đơn</h3>
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="lbl">Công việc:</span>
+                    <span class="val"><a href="{% url 'job_detail' app.job.pk %}" class="job-link">{{ app.job.title }}</a></span>
+                </div>
+                <div class="info-item">
+                    <span class="lbl">Ngày nộp:</span>
+                    <span class="val">{{ app.applied_at|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="lbl">Ngày có thể bắt đầu:</span>
+                    <span class="val">{{ app.available_date|date:"d/m/Y"|default:"Liên hệ" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="lbl">Trạng thái:</span>
+                    <span class="status-pill status-{{ app.status }} badge">{{ app.get_status_display }}</span>
+                </div>
+            </div>
 
-    <p><strong>Thư giới thiệu:</strong></p>
-    <p>{{ app.cover_letter|default:"Không có"|linebreaks }}</p>
+            <hr class="divider">
 
-    <p><strong>Ngày có thể đi làm:</strong> {{ app.available_date|default:"Không có" }}</p>
+            <h3 class="panel-title">Thông tin liên hệ</h3>
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="lbl">Email:</span>
+                    <span class="val">{{ app.candidate_email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="lbl">Điện thoại:</span>
+                    <span class="val">{{ app.candidate_phone }}</span>
+                </div>
+            </div>
+        </div>
 
-    <p><strong>CV:</strong>
-        {% if app.cv_file %}
-            <a href="{{ app.cv_file.url }}" target="_blank">Xem CV</a>
-        {% else %}
-            Không có
+        {% if status_form %}
+        <div class="panel action-panel">
+            <h3 class="panel-title">Cập nhật trạng thái</h3>
+            <form method="post" action="{% url 'application_status_update' app.pk %}" class="status-action-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <select name="status" class="modern-select">
+                    {% for code, label in status_choices %}
+                        <option value="{{ code }}" {% if app.status == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="button button-full">Lưu thay đổi</button>
+            </form>
+        </div>
         {% endif %}
-    </p>
-
-    <p><strong>Trạng thái:</strong>
-        <span class="badge status-{{ app.status }}">{{ app.get_status_display }}</span>
-    </p>
+    </aside>
 </section>
+
+<style>
+    /* BREADCRUMB */
+    .breadcrumb-nav { margin-bottom: 24px; }
+    .back-pill { display: inline-flex; align-items: center; padding: 8px 16px; background: #fff; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 0.9rem; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .back-pill:hover { background: #f8fafc; color: var(--accent); border-color: var(--accent); transform: translateX(-4px); }
+
+    /* LAYOUT CHÍNH */
+    .application-detail-grid { display: grid; grid-template-columns: 1fr 350px; gap: 32px; align-items: start; }
+    .candidate-profile-panel { padding: 32px; }
+
+    /* HEADER ỨNG VIÊN */
+    .candidate-header { display: flex; gap: 24px; align-items: center; margin-bottom: 36px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+    .candidate-avatar-large { width: 110px; height: 110px; flex-shrink: 0; border-radius: 24px; overflow: hidden; background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border: 4px solid #fff; box-shadow: 0 12px 24px rgba(16, 37, 58, 0.08); display: flex; align-items: center; justify-content: center; }
+    .candidate-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+    .candidate-avatar-large span { font-size: 3.5rem; font-weight: 700; color: #6366f1; }
+    
+    .candidate-basic-info { display: flex; flex-direction: column; gap: 8px; }
+    .candidate-basic-info h1 { margin: 0; font-family: 'Sora', sans-serif; font-size: 1.85rem; color: var(--ink); line-height: 1.2; }
+    .candidate-basic-info .username { color: var(--muted); margin: 0; font-size: 1rem; }
+    .candidate-badges { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+    /* CÁC SECTION NỘI DUNG */
+    .application-section { margin-bottom: 40px; }
+    .application-section:last-child { margin-bottom: 0; }
+    
+    .section-title { font-size: 1.15rem; color: var(--ink); margin: 0 0 16px 0; display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .section-title::before { content: ""; display: block; width: 4px; height: 20px; background: var(--accent); border-radius: 4px; }
+    
+    .cover-letter { background: #f8fbff; padding: 24px; border-radius: 16px; border: 1px solid var(--line); color: #334155; line-height: 1.8; font-size: 0.98rem; }
+    .cover-letter p:first-child { margin-top: 0; }
+    .cover-letter p:last-child { margin-bottom: 0; }
+    
+    .cv-preview-box { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--line); padding: 20px 24px; border-radius: 16px; transition: box-shadow 0.2s ease, border-color 0.2s ease; }
+    .cv-preview-box:hover { box-shadow: 0 8px 24px rgba(16, 37, 58, 0.05); border-color: #cbd5e1; }
+    .cv-info { display: flex; gap: 16px; align-items: center; }
+    .cv-info svg { flex-shrink: 0; color: var(--accent); }
+    .cv-info strong { display: block; color: var(--ink); font-size: 1.05rem; margin-bottom: 4px; }
+    .cv-info p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+
+    /* CỘT SIDEBAR */
+    .application-info-panel, .action-panel { padding: 28px 24px; }
+    .panel-title { font-size: 1.1rem; color: var(--ink); margin: 0 0 20px 0; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-weight: 700; }
+    
+    .info-list { display: flex; flex-direction: column; gap: 18px; }
+    .info-item { display: flex; flex-direction: column; gap: 6px; }
+    .info-item .lbl { font-size: 0.8rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-item .val { font-weight: 600; color: var(--ink); word-break: break-word; line-height: 1.5; font-size: 0.95rem; }
+    .info-item .job-link { color: var(--accent); text-decoration: none; display: inline-block; transition: color 0.2s; }
+    .info-item .job-link:hover { text-decoration: underline; }
+    
+    .divider { margin: 28px 0; border: 0; border-top: 1px dashed #cbd5e1; }
+    
+    .status-action-form { display: flex; flex-direction: column; gap: 16px; }
+    .modern-select { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 1rem top 50%; background-size: 0.65rem auto; padding-right: 2.5rem; cursor: pointer; }
+    .button-full { width: 100%; text-align: center; }
+
+    /* RESPONSIVE MÀN HÌNH NHỎ */
+    @media (max-width: 980px) {
+        .application-detail-grid { grid-template-columns: 1fr; gap: 24px; }
+        .side-column { order: -1; } /* Đẩy thông tin liên hệ và trạng thái lên trên cùng */
+        
+        .candidate-header { flex-direction: column; text-align: center; gap: 16px; }
+        .candidate-badges { justify-content: center; }
+        
+        .cv-preview-box { flex-direction: column; align-items: flex-start; gap: 20px; }
+        .button-cv { width: 100%; text-align: center; }
+    }
+</style>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Quản lý người dùng{% endblock %}
 {% block content %}
 <section class="panel">
@@ -31,6 +31,7 @@
                     <th>Email</th>
                     <th>Vai trò</th>
                     <th>Trạng thái</th>
+                    <th>Xác thực NTD</th>
                     <th>Cập nhật</th>
                     <th>Xóa</th>
                 </tr>
@@ -54,29 +55,34 @@
                         </td>
                         <td>
                             <label style="display:flex; align-items:center; gap:5px; white-space:nowrap;">
-                                <input type="checkbox" name="is_active" form="form-{{ item.id }}"
-                                    {% if item.is_active %}checked{% endif %} style="width:auto;">
+                                <input type="checkbox" name="is_active" form="form-{{ item.id }}" {% if item.is_active %}checked{% endif %} style="width:auto;">
                                 Hoạt động
                             </label>
                         </td>
                         <td>
-                            <button class="button button-sm" type="submit" form="form-{{ item.id }}">
-                                Cập nhật
-                            </button>
+                            {% if item.role == 'employer' %}
+                                <label style="display:flex; align-items:center; gap:5px; white-space:nowrap;">
+                                    <input type="checkbox" name="employer_verified" form="form-{{ item.id }}" {% if item.employer_verified %}checked{% endif %} style="width:auto;">
+                                    Đã xác thực
+                                </label>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="button button-sm" type="submit" form="form-{{ item.id }}">Cập nhật</button>
+                            {% if item.role == 'employer' and not item.employer_verified %}
+                            <button class="button button-sm" type="submit" form="form-{{ item.id }}" name="action" value="verify_employer">Duyệt NTD</button>
+                            {% endif %}
                         </td>
                         <td>
                             {% if item != request.user %}
-                            <button class="button button-sm" type="submit" form="form-{{ item.id }}"
-                                name="action" value="delete"
-                                style="background:#e53e3e; border-color:#e53e3e;"
-                                onclick="return confirm('Xóa tài khoản {{ item.username }}?')">
-                                Xóa tài khoản
-                            </button>
+                            <button class="button button-sm" type="submit" form="form-{{ item.id }}" name="action" value="delete" style="background:#e53e3e; border-color:#e53e3e;" onclick="return confirm('Xóa tài khoản {{ item.username }}?')">Xóa tài khoản</button>
                             {% endif %}
                         </td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="7" class="empty">Không có người dùng phù hợp.</td></tr>
+                    <tr><td colspan="8" class="empty">Không có người dùng phù hợp.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

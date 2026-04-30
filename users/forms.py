@@ -1,4 +1,4 @@
-﻿import os
+import os
 import uuid
 
 from django import forms
@@ -18,24 +18,14 @@ class RegisterForm(UserCreationForm):
             'email',
             'first_name',
             'last_name',
-            'role',
-            'university',
-            'major',
-            'academic_year',
-            'skills',
-            'default_cv',
+            'phone',
             'password1',
             'password2',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['role'].choices = (
-            ('student', 'Sinh viên'),
-            ('employer', 'Nhà tuyển dụng/Khách hàng'),
-        )
         self.fields['email'].required = True
-        self.fields['skills'].widget = forms.Textarea(attrs={'rows': 3})
 
     def clean_email(self):
         email = (self.cleaned_data.get('email') or '').strip().lower()
@@ -44,6 +34,63 @@ class RegisterForm(UserCreationForm):
         if User.objects.filter(email__iexact=email).exists():
             raise ValidationError('Email này đã tồn tại. Vui lòng dùng email khác.')
         return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = 'student'
+        if commit:
+            user.save()
+        return user
+
+
+class EmployerRegisterForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'phone',
+            'company_name',
+            'company_tax_code',
+            'province',
+            'district',
+            'ward',
+            'company_address',
+            'password1',
+            'password2',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].required = True
+        self.fields['company_name'].required = True
+        self.fields['company_tax_code'].required = True
+        self.fields['company_address'].required = True
+        self.fields['province'].required = True
+        self.fields['district'].required = True
+        self.fields['ward'].required = True
+        
+        self.fields['province'].widget = forms.Select(choices=[('', 'Chọn Tỉnh/Thành phố')])
+        self.fields['district'].widget = forms.Select(choices=[('', 'Chọn Quận/Huyện')])
+        self.fields['ward'].widget = forms.Select(choices=[('', 'Chọn Phường/Xã')])
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip().lower()
+        if not email:
+            raise ValidationError('Vui lòng nhập email.')
+        if User.objects.filter(email__iexact=email).exists():
+            raise ValidationError('Email này đã tồn tại. Vui lòng dùng email khác.')
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = 'employer'
+        user.employer_verified = False
+        if commit:
+            user.save()
+        return user
 
 
 class ProfileUpdateForm(forms.ModelForm):
@@ -56,18 +103,52 @@ class ProfileUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'phone')
+        fields = (
+            'username', 'first_name', 'last_name', 'email', 'phone', 'bio',
+            'university', 'major', 'academic_year', 'skills', 'default_cv',
+            'company_name', 'company_tax_code', 'company_website', 'company_address',
+            'province', 'district', 'ward'
+        )
         widgets = {
             'username': forms.TextInput(attrs={'placeholder': 'Nhập tên đăng nhập'}),
             'first_name': forms.TextInput(attrs={'placeholder': 'Nhập họ'}),
             'last_name': forms.TextInput(attrs={'placeholder': 'Nhập tên'}),
             'email': forms.EmailInput(attrs={'placeholder': 'Nhập email'}),
             'phone': forms.TextInput(attrs={'placeholder': 'Nhập số điện thoại'}),
+            'bio': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Giới thiệu ngắn về bản thân...'}),
+            'skills': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Các kỹ năng, phân tách bằng dấu phẩy...'}),
+            'province': forms.Select(choices=[('', 'Chọn Tỉnh/Thành phố')]),
+            'district': forms.Select(choices=[('', 'Chọn Quận/Huyện')]),
+            'ward': forms.Select(choices=[('', 'Chọn Phường/Xã')]),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].required = True
+        
+        user = self.instance
+        if user and user.role == 'student':
+            # Gỡ bỏ các trường không cần thiết cho sinh viên
+            student_exclude = ['university', 'major', 'academic_year', 'skills', 'default_cv', 'bio']
+            employer_fields = ['company_name', 'company_tax_code', 'company_website', 'company_address', 'province', 'district', 'ward']
+            for field in student_exclude + employer_fields:
+                if field in self.fields:
+                    self.fields[field].widget = forms.HiddenInput()
+                    self.fields[field].required = False
+                    
+        elif user and user.role == 'employer':
+            student_fields = ['university', 'major', 'academic_year', 'skills', 'default_cv']
+            for field in student_fields:
+                if field in self.fields:
+                    self.fields[field].widget = forms.HiddenInput()
+                    self.fields[field].required = False
+                
+            if user.province:
+                self.fields['province'].choices = [(user.province, user.province)]
+            if user.district:
+                self.fields['district'].choices = [(user.district, user.district)]
+            if user.ward:
+                self.fields['ward'].choices = [(user.ward, user.ward)]
 
     def clean_email(self):
         email = (self.cleaned_data.get('email') or '').strip().lower()

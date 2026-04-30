@@ -1,27 +1,36 @@
-from datetime import date
+﻿from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Count, Q
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_encode, urlsafe_base64_decode
-from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
-from django.core.mail import EmailMessage
-from django.contrib.auth.tokens import default_token_generator
-from jobs.models import EmploymentType, FavoriteJob, Job, JobCategory, WorkMode
+from django.utils.http import (
+    url_has_allowed_host_and_scheme,
+    urlsafe_base64_decode,
+    urlsafe_base64_encode,
+)
 
 from applications.forms import ApplicationForm, ApplicationStatusForm
 from applications.models import Application
 from jobs.forms import JobForm
-from users.forms import AccountPasswordChangeForm, ProfileUpdateForm, RegisterForm
+from jobs.models import EmploymentType, FavoriteJob, Job, JobCategory, WorkMode
+from users.forms import (
+    AccountPasswordChangeForm,
+    EmployerRegisterForm,
+    ProfileUpdateForm,
+    RegisterForm,
+)
 from users.models import User
 
 
@@ -127,6 +136,22 @@ def home(request):
     return render(request, 'home.html', context)
 
 
+def employer_landing(request):
+    return render(request, 'employer/home.html')
+
+
+def blog(request):
+    return render(request, 'pages/blog.html')
+
+
+def about_us(request):
+    return render(request, 'pages/about.html')
+
+
+def smart_job_tips(request):
+    return render(request, 'pages/smart_job_tips.html')
+
+
 @login_required
 def favorite_jobs(request):
     favorites = (
@@ -134,13 +159,13 @@ def favorite_jobs(request):
         .select_related('job', 'job__employer')
         .prefetch_related('job__categories')
     )
-    jobs = [item.job for item in favorites]
-    favorite_job_ids = {job.id for job in jobs}
+    jobs_list = [item.job for item in favorites]
+    favorite_job_ids = {job.id for job in jobs_list}
     return render(
         request,
         'jobs/favorite_jobs.html',
         {
-            'jobs': jobs,
+            'jobs': jobs_list,
             'favorite_job_ids': favorite_job_ids,
         },
     )
@@ -170,18 +195,6 @@ def toggle_favorite_job(request, pk):
     )
 
 
-def about_us(request):
-    return render(request, 'pages/about.html')
-
-
-def smart_job_tips(request):
-    return render(request, 'pages/smart_job_tips.html')
-
-
-def blog(request):
-    return render(request, 'pages/blog.html')
-
-
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -196,42 +209,84 @@ def register_view(request):
             except IntegrityError:
                 form.add_error('email', 'Email này đã tồn tại. Vui lòng dùng email khác.')
                 return render(request, 'auth/register.html', {'form': form})
-            
+
             current_site = get_current_site(request)
             mail_subject = 'Kích hoạt tài khoản của bạn trên Web Tuyển Dụng'
-            message = render_to_string('auth/email_activation.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-            })
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(
-                mail_subject, message, to=[to_email]
+            message = render_to_string(
+                'auth/email_activation.html',
+                {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': default_token_generator.make_token(user),
+                },
             )
+            to_email = form.cleaned_data.get('email')
+            email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = 'html'
             email.send()
-            
+
             return render(request, 'auth/verify_email_sent.html')
     else:
         form = RegisterForm()
 
     return render(request, 'auth/register.html', {'form': form})
 
+
+def employer_register_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = EmployerRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = False
+            user.employer_verified = True
+            try:
+                user.save()
+            except IntegrityError:
+                form.add_error('email', 'Email này đã tồn tại. Vui lòng dùng email khác.')
+                return render(request, 'auth/register_employer.html', {'form': form})
+
+            current_site = get_current_site(request)
+            mail_subject = 'Kích hoạt tài khoản nhà tuyển dụng'
+            message = render_to_string(
+                'auth/email_activation.html',
+                {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': default_token_generator.make_token(user),
+                },
+            )
+            to_email = form.cleaned_data.get('email')
+            email = EmailMessage(mail_subject, message, to=[to_email])
+            email.content_subtype = 'html'
+            email.send()
+
+            return render(request, 'auth/verify_email_sent.html')
+    else:
+        form = EmployerRegisterForm()
+
+    return render(request, 'auth/register_employer.html', {'form': form})
+
+
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
+
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
         messages.success(request, 'Tài khoản của bạn đã được xác thực thành công. Vui lòng đăng nhập.')
         return redirect('login')
-    else:
-        messages.error(request, 'Link xác thực không hợp lệ hoặc đã hết hạn!')
-        return redirect('home')
+
+    messages.error(request, 'Link xác thực không hợp lệ hoặc đã hết hạn!')
+    return redirect('home')
 
 
 def login_view(request):
@@ -243,8 +298,11 @@ def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            login(request, form.get_user())
+            user = form.get_user()
+            login(request, user)
             messages.success(request, 'Đăng nhập thành công.')
+            if user.role == 'employer':
+                return redirect('employer_home')
             return redirect(next_url)
         messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng.')
     else:
@@ -292,12 +350,16 @@ def account_profile(request):
         {'profile_form': profile_form, 'password_form': password_form},
     )
 
+
 def job_detail(request, pk):
     job = get_object_or_404(Job.objects.select_related('employer').prefetch_related('categories'), pk=pk)
     category_id = job.categories.values_list('id', flat=True)
-    related_jobs = Job.objects.filter(categories__id__in = category_id).exclude(id = job.id) \
-                                                                        .annotate(same_categories_count = Count('categories')) \
-                                                                        .order_by('-same_categories_count', '-created_at')[:6]
+    related_jobs = (
+        Job.objects.filter(categories__id__in=category_id)
+        .exclude(id=job.id)
+        .annotate(same_categories_count=Count('categories'))
+        .order_by('-same_categories_count', '-created_at')[:6]
+    )
     can_edit = request.user.is_authenticated and (
         request.user == job.employer or has_admin_permission(request.user)
     )
@@ -327,6 +389,13 @@ def job_create(request):
     if request.user.role != 'employer' and not has_admin_permission(request.user):
         messages.error(request, 'Chỉ tài khoản nhà tuyển dụng mới có thể đăng việc.')
         return redirect('home')
+
+    if request.user.role == 'employer' and not request.user.employer_verified:
+        messages.error(
+            request,
+            'Tài khoản nhà tuyển dụng của bạn chưa được xác thực. Vui lòng liên hệ quản trị viên.',
+        )
+        return redirect('employer_home')
 
     if request.method == 'POST':
         form = JobForm(request.POST, request.FILES)
@@ -426,13 +495,9 @@ def applications_view(request):
     sort = request.GET.get('sort', '').strip()
 
     if user.role == 'student':
-        applications = Application.objects.select_related('job', 'job__employer').filter(
-            student=user
-        )
+        applications = Application.objects.select_related('job', 'job__employer').filter(student=user)
     elif user.role == 'employer':
-        applications = Application.objects.select_related('job', 'student').filter(
-            job__employer=user
-        )
+        applications = Application.objects.select_related('job', 'student').filter(job__employer=user)
     else:
         applications = Application.objects.select_related('job', 'student', 'job__employer').all()
 
@@ -486,7 +551,11 @@ def applications_view(request):
     query_data.pop('page', None)
     filters_query = query_data.urlencode()
 
-    job_options = Job.objects.filter(id__in=base_applications.values_list('job_id', flat=True)).distinct().order_by('title')
+    job_options = (
+        Job.objects.filter(id__in=base_applications.values_list('job_id', flat=True))
+        .distinct()
+        .order_by('title')
+    )
 
     has_active_filters = any([query, status, job_id, from_date_raw, to_date_raw, sort != 'newest'])
 
@@ -522,22 +591,22 @@ def employer_jobs(request):
     keyword = request.GET.get('q', '').strip()
     status = request.GET.get('status', '').strip()
     today = timezone.localdate()
-    
-    jobs = Job.objects.filter(employer=request.user).select_related('employer').prefetch_related('categories').annotate(
+
+    jobs_qs = Job.objects.filter(employer=request.user).select_related('employer').prefetch_related('categories').annotate(
         total_applications=Count('applications')
     )
-    
-    if keyword:
-        jobs = jobs.filter(Q(title__icontains=keyword))
-    
-    if status == 'open':
-        jobs = jobs.filter(status='open').filter(Q(deadline__isnull=True) | Q(deadline__gte=today))
-    elif status == 'expired':
-        jobs = jobs.filter(status='open', deadline__lt=today)
-    elif status in {'in_progress', 'completed', 'cancelled'}:
-        jobs = jobs.filter(status=status)
 
-    paginator = Paginator(jobs.order_by('-created_at'), 20)
+    if keyword:
+        jobs_qs = jobs_qs.filter(Q(title__icontains=keyword))
+
+    if status == 'open':
+        jobs_qs = jobs_qs.filter(status='open').filter(Q(deadline__isnull=True) | Q(deadline__gte=today))
+    elif status == 'expired':
+        jobs_qs = jobs_qs.filter(status='open', deadline__lt=today)
+    elif status in {'in_progress', 'completed', 'cancelled'}:
+        jobs_qs = jobs_qs.filter(status=status)
+
+    paginator = Paginator(jobs_qs.order_by('-created_at'), 20)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     query_data = request.GET.copy()
@@ -575,9 +644,37 @@ def update_application_status(request, pk):
     return redirect(next_url)
 
 
+@login_required
+def application_detail_view(request, pk):
+    user = request.user
+    application = get_object_or_404(
+        Application.objects.select_related('job', 'student', 'job__employer'), 
+        pk=pk
+    )
+    
+    # Kiểm tra quyền xem: Phải là chủ tin tuyển dụng, sinh viên nộp đơn, hoặc admin
+    if user != application.student and user != application.job.employer and not has_admin_permission(user):
+        return HttpResponseForbidden('Bạn không có quyền xem chi tiết đơn ứng tuyển này.')
+        
+    return render(request, 'applications/application_detail.html', {
+        'app': application,
+        'status_form': ApplicationStatusForm(instance=application) if user == application.job.employer or has_admin_permission(user) else None,
+        'status_choices': (
+            ('pending', 'Chờ duyệt'),
+            ('accepted', 'Đã chấp nhận'),
+            ('rejected', 'Đã từ chối'),
+        )
+    })
+
+
 def GoiY(request, id):
-    job = get_object_or_404(Job, id = id)
+    job = get_object_or_404(Job, id=id)
     category_id = job.categories.values_list('id', flat=True)
-    related_jobs = Job.objects.filter(categories__id__in = category_id).exclude(id = job.id).annotate(same_categories_count = Count('categories')).order_by('-same_categories_count', '-created_at')[:6]
-    context = {'job': job, 'related_jobs':related_jobs}
+    related_jobs = (
+        Job.objects.filter(categories__id__in=category_id)
+        .exclude(id=job.id)
+        .annotate(same_categories_count=Count('categories'))
+        .order_by('-same_categories_count', '-created_at')[:6]
+    )
+    context = {'job': job, 'related_jobs': related_jobs}
     return render(request, 'jobs')

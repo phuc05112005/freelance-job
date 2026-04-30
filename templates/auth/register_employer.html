@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Đăng ký Nhà tuyển dụng{% endblock %}
+{% block content %}
+
+<section class="split-auth-container">
+    <div class="auth-form-side">
+        <div class="auth-content-box">
+            <h1 class="auth-title">Đăng ký Nhà tuyển dụng</h1>
+            <p class="auth-subtitle">Bắt đầu tìm kiếm những tài năng trẻ xuất sắc cho doanh nghiệp của bạn.</p>
+            
+            <form method="post" class="modern-auth-form">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                
+                <div class="form-row-double">
+                    <div class="form-group">
+                        <label>Tên đăng nhập</label>
+                        {{ form.username }}
+                        {{ form.username.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Email công việc</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                </div>
+
+                <div class="form-row-double">
+                    <div class="form-group">
+                        <label>Họ người liên hệ</label>
+                        {{ form.first_name }}
+                        {{ form.first_name.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Tên người liên hệ</label>
+                        {{ form.last_name }}
+                        {{ form.last_name.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    {{ form.phone }}
+                    {{ form.phone.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label>Tên công ty</label>
+                    {{ form.company_name }}
+                    {{ form.company_name.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label>Mã số thuế</label>
+                    {{ form.company_tax_code }}
+                    {{ form.company_tax_code.errors }}
+                </div>
+
+                <div class="form-row-triple">
+                    <div class="form-group">
+                        <label>Tỉnh/Thành</label>
+                        {{ form.province }}
+                        {{ form.province.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Quận/Huyện</label>
+                        {{ form.district }}
+                        {{ form.district.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Phường/Xã</label>
+                        {{ form.ward }}
+                        {{ form.ward.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ chi tiết</label>
+                    {{ form.company_address }}
+                    {{ form.company_address.errors }}
+                </div>
+
+                <div class="form-row-double">
+                    <div class="form-group">
+                        <label>Mật khẩu</label>
+                        {{ form.password1 }}
+                        {{ form.password1.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Xác nhận mật khẩu</label>
+                        {{ form.password2 }}
+                        {{ form.password2.errors }}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="button button-lg button-full">Đăng ký Nhà tuyển dụng</button>
+                </div>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Bạn đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập</a></p>
+                <p>Bạn là sinh viên? <a href="{% url 'register' %}">Đăng ký tài khoản sinh viên</a></p>
+            </div>
+        </div>
+    </div>
+    <div class="auth-image-side">
+        <img src="{% static 'images/img.webp' %}" alt="Registration Image">
+        <div class="image-overlay-text">
+            <h2>Kết nối doanh nghiệp</h2>
+            <p>Tìm kiếm nguồn nhân lực trẻ, năng động và đầy tiềm năng.</p>
+        </div>
+    </div>
+</section>
+
+<style>
+    .split-auth-container { display: flex; min-height: calc(100vh - 80px); background: #fff; border-radius: 24px; overflow: hidden; margin: 20px 0; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); }
+    .auth-form-side { flex: 1.2; padding: 50px 60px; display: flex; align-items: center; justify-content: center; overflow-y: auto; }
+    .auth-content-box { width: 100%; max-width: 550px; }
+    .auth-title { font-family: 'Sora', sans-serif; font-size: 2rem; margin-bottom: 8px; color: #1e293b; }
+    .auth-subtitle { color: #64748b; margin-bottom: 32px; font-size: 0.95rem; }
+    .modern-auth-form .form-group { margin-bottom: 18px; }
+    .modern-auth-form label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.85rem; color: #475569; }
+    .modern-auth-form input, .modern-auth-form select { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.95rem; }
+    .modern-auth-form input:focus { border-color: #2563eb; background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+    .form-row-double { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-row-triple { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .button-full { width: 100%; padding: 14px; font-weight: 700; border-radius: 12px; }
+    .auth-footer { margin-top: 24px; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+    .auth-footer p { margin-bottom: 6px; font-size: 0.85rem; color: #64748b; }
+    .auth-footer a { color: #2563eb; font-weight: 700; text-decoration: none; }
+    .auth-image-side { flex: 0.8; position: relative; display: block; }
+    .auth-image-side img { width: 100%; height: 100%; object-fit: cover; }
+    .image-overlay-text { position: absolute; bottom: 50px; left: 40px; right: 40px; color: #fff; }
+    .image-overlay-text h2 { font-family: 'Sora', sans-serif; font-size: 2.2rem; margin-bottom: 10px; }
+
+    @media (max-width: 1100px) {
+        .auth-image-side { display: none; }
+        .auth-form-side { padding: 40px 20px; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.querySelector('select[name="province"]');
+    const districtSelect = document.querySelector('select[name="district"]');
+    const wardSelect = document.querySelector('select[name="ward"]');
+
+    fetch('https://provinces.open-api.vn/api/p/')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(province => {
+                const option = new Option(province.name, province.name);
+                option.dataset.code = province.code;
+                provinceSelect.add(option);
+            });
+        });
+
+    provinceSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const provinceCode = selectedOption.dataset.code;
+        districtSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
+        wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        if (provinceCode) {
+            fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
+                .then(response => response.json())
+                .then(data => {
+                    data.districts.forEach(district => {
+                        const option = new Option(district.name, district.name);
+                        option.dataset.code = district.code;
+                        districtSelect.add(option);
+                    });
+                });
+        }
+    });
+
+    districtSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const districtCode = selectedOption.dataset.code;
+        wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        if (districtCode) {
+            fetch(`https://provinces.open-api.vn/api/p/d/${districtCode}?depth=2`)
+                .then(response => response.json())
+                .then(data => {
+                    data.wards.forEach(ward => {
+                        const option = new Option(ward.name, ward.name);
+                        wardSelect.add(option);
+                    });
+                });
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,4 +1,4 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
@@ -7,12 +7,7 @@ from django.utils import timezone
 
 from applications.forms import ApplicationStatusForm
 from applications.models import Application
-from jobs.forms import (
-    EmploymentTypeForm,
-    ExperienceLevelForm,
-    JobCategoryForm,
-    WorkModeForm,
-)
+from jobs.forms import EmploymentTypeForm, ExperienceLevelForm, JobCategoryForm, WorkModeForm
 from jobs.models import EmploymentType, ExperienceLevel, Job, JobCategory, WorkMode
 from users.models import User
 
@@ -67,11 +62,7 @@ def admin_exp_levels(request):
         form = ExperienceLevelForm()
 
     items = ExperienceLevel.objects.annotate(total_jobs=Count('jobs')).order_by('order')
-    return render(
-        request,
-        'admin_center/exp_levels.html',
-        {'form': form, 'items': items},
-    )
+    return render(request, 'admin_center/exp_levels.html', {'form': form, 'items': items})
 
 
 @admin_required
@@ -93,11 +84,7 @@ def admin_work_modes(request):
         form = WorkModeForm()
 
     items = WorkMode.objects.annotate(total_jobs=Count('jobs')).order_by('name')
-    return render(
-        request,
-        'admin_center/work_modes.html',
-        {'form': form, 'items': items},
-    )
+    return render(request, 'admin_center/work_modes.html', {'form': form, 'items': items})
 
 
 @admin_required
@@ -119,11 +106,7 @@ def admin_employment_types(request):
         form = EmploymentTypeForm()
 
     items = EmploymentType.objects.annotate(total_jobs=Count('jobs')).order_by('name')
-    return render(
-        request,
-        'admin_center/employment_types.html',
-        {'form': form, 'items': items},
-    )
+    return render(request, 'admin_center/employment_types.html', {'form': form, 'items': items})
 
 
 @admin_required
@@ -132,8 +115,8 @@ def admin_users(request):
         user_id = request.POST.get('user_id')
         target = get_object_or_404(User, pk=user_id)
 
-        # Thêm đoạn này
-        if request.POST.get('action') == 'delete':
+        action = request.POST.get('action')
+        if action == 'delete':
             if target == request.user:
                 messages.error(request, 'Bạn không thể xóa chính mình.')
                 return redirect('admin_users')
@@ -141,19 +124,33 @@ def admin_users(request):
             messages.success(request, f'Đã xóa tài khoản {target.username}.')
             return redirect('admin_users')
 
-        # Phần cũ giữ nguyên
+        if action == 'verify_employer':
+            if target.role == 'employer':
+                target.employer_verified = True
+                target.save(update_fields=['employer_verified'])
+                messages.success(request, f'Đã xác thực nhà tuyển dụng: {target.username}.')
+            return redirect('admin_users')
+
         new_role = request.POST.get('role')
         is_active = request.POST.get('is_active') == 'on'
+        employer_verified = request.POST.get('employer_verified') == 'on'
+
         if target == request.user and new_role != 'admin':
             messages.error(request, 'Bạn không thể tự hạ quyền tài khoản admin của chính mình.')
             return redirect('admin_users')
+
         if new_role in {'student', 'employer', 'admin'}:
             target.role = new_role
+
+        if target.role == 'employer':
+            target.employer_verified = employer_verified
+        else:
+            target.employer_verified = False
+
         target.is_active = is_active
-        target.save(update_fields=['role', 'is_active'])
+        target.save(update_fields=['role', 'is_active', 'employer_verified'])
         messages.success(request, 'Cập nhật người dùng thành công.')
         return redirect('admin_users')
-    # ... phần GET giữ nguyên
 
     keyword = request.GET.get('q', '').strip()
     role = request.GET.get('role', '').strip()
@@ -293,8 +290,4 @@ def admin_categories(request):
         form = JobCategoryForm()
 
     categories = JobCategory.objects.annotate(total_jobs=Count('jobs')).order_by('name')
-    return render(
-        request,
-        'admin_center/categories.html',
-        {'form': form, 'categories': categories},
-    )
+    return render(request, 'admin_center/categories.html', {'form': form, 'categories': categories})

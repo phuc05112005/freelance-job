@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block title %}Sàn Việc Làm Cho Sinh Viên{% endblock %}
 
@@ -14,7 +14,7 @@
             {% if user.is_authenticated and user.role != 'student' %}
                 <a href="{% url 'job_create' %}" class="button">Đăng bài tuyển dụng</a>
             {% elif user.is_authenticated %}
-                <a href="{% url 'register' %}" class="button">Thông tin ứng tuyển</a>
+                <a href="#list_job" class="button">Tìm việc ngay</a>
             {% endif %}
             <a href="{% url 'application_list' %}" class="button button-ghost">Xem đơn ứng tuyển</a>
         </div>
@@ -27,7 +27,7 @@
     </div>
 </section>
 
-<section class="panel">
+<section class="panel" id="list_job">
     <form method="get" class="filters advanced-filters">
         <input type="text" name="q" placeholder="Tìm kiếm..." value="{{ query }}">
         <select name="category">
@@ -106,7 +106,7 @@
                         aria-label="Lưu việc {{ job.title }}"
                         title="Lưu vào yêu thích"
                     >❤</button>
-                    <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Xem</a>
+                    <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a>
                 </div>
             </div>
         </article>

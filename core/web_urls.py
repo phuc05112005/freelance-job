@@ -7,7 +7,9 @@ from users.forms import CustomPasswordResetForm
 
 urlpatterns = [
     path('', web_views.home, name='home'),
+    path('employer/', web_views.employer_landing, name='employer_home'),
     path('accounts/register/', web_views.register_view, name='register'),
+    path('accounts/register-employer/', web_views.employer_register_view, name='register_employer'),
     path('accounts/activate/<uidb64>/<token>/', web_views.activate, name='activate'),
     path('accounts/login/', web_views.login_view, name='login'),
     path('accounts/logout/', web_views.logout_view, name='logout'),
@@ -24,6 +26,11 @@ urlpatterns = [
     path('smart-job-tips/', web_views.smart_job_tips, name='smart_job_tips'),
     path('blog/', web_views.blog, name='blog'),
     path('applications/', web_views.applications_view, name='application_list'),
+    path(
+        'applications/<int:pk>/', 
+        web_views.application_detail_view, 
+        name='application_detail'
+    ),
     path(
         'applications/<int:pk>/status/',
         web_views.update_application_status,

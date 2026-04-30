@@ -1,163 +1,293 @@
-﻿{% extends 'base.html' %}
-{% block title %}Quản lý thông tin ứng tuyển{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Quản lý ứng tuyển{% endblock %}
 {% block content %}
-<section class="panel">
-    <h1>Thông tin các đơn ứng tuyển</h1>
-    <p class="lead">Theo dõi, phân loại và rà soát hồ sơ nhanh hơn khi số lượng đơn tăng cao.</p>
 
-    <form method="get" class="filters application-filters">
-        <input
-            type="text"
-            name="q"
-            value="{{ query }}"
-            placeholder="Tìm theo công việc, ứng viên, email, số điện thoại..."
-        >
-        <select name="status">
-            <option value="">Tất cả trạng thái</option>
-            {% for code, label in status_choices %}
-                <option value="{{ code }}" {% if status == code %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-        <select name="job">
-            <option value="">Tất cả công việc</option>
-            {% for option in job_options %}
-                <option value="{{ option.id }}" {% if job_id == option.id|stringformat:"s" %}selected{% endif %}>
-                    {{ option.title }}
-                </option>
-            {% endfor %}
-        </select>
-        <label class="date-filter-field">
-            <span>Từ ngày nộp</span>
-            <input type="date" name="from_date" value="{{ from_date }}" aria-label="Từ ngày nộp">
-        </label>
-        <label class="date-filter-field">
-            <span>Đến ngày nộp</span>
-            <input type="date" name="to_date" value="{{ to_date }}" aria-label="Đến ngày nộp">
-        </label>
-        <select name="sort">
-            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
-            <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất</option>
-            <option value="status" {% if sort == 'status' %}selected{% endif %}>Nhóm theo trạng thái</option>
-            <option value="job" {% if sort == 'job' %}selected{% endif %}>Nhóm theo công việc</option>
-        </select>
-        <div class="filter-actions">
-            <button class="button button-sm" type="submit">Lọc dữ liệu</button>
-            {% if has_active_filters %}
-                <a href="{% url 'application_list' %}" class="button button-ghost button-sm">Xóa bộ lọc</a>
-            {% endif %}
+{% if user.role == 'employer' %}
+<div class="breadcrumb-nav" style="margin-bottom: 20px;">
+    <a href="{% url 'employer_job_list' %}" class="btn-back-modern">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Quay lại danh sách
+    </a>
+</div>
+{% endif %}
+
+<section class="panel list-header-panel">
+    <div class="panel-head">
+        <div>
+            <h1 class="modern-h1">Quản lý thông tin ứng tuyển</h1>
+            <p class="lead">Theo dõi và quản lý hồ sơ ứng tuyển của các ứng viên.</p>
         </div>
-    </form>
-
-    <div class="application-summary">
-        {% if user.role != 'student' %}
-        <article class="summary-item jobs">
-            <span>Tổng công việc</span>
-            <strong>{{ total_jobs }}</strong>
-        </article>
-        {% endif %}
-        <article class="summary-item">
-            <span>Tổng hồ sơ</span>
-            <strong>{{ status_totals.all|default:0 }}</strong>
-        </article>
-        <article class="summary-item pending">
-            <span>Chờ duyệt</span>
-            <strong>{{ status_totals.pending|default:0 }}</strong>
-        </article>
-        <article class="summary-item accepted">
-            <span>Đã chấp nhận</span>
-            <strong>{{ status_totals.accepted|default:0 }}</strong>
-        </article>
-        <article class="summary-item rejected">
-            <span>Đã từ chối</span>
-            <strong>{{ status_totals.rejected|default:0 }}</strong>
-        </article>
+        <div class="summary-stats">
+            <div class="mini-stat">
+                <span class="val">{{ status_totals.all }}</span>
+                <span class="lbl">Tổng số</span>
+            </div>
+            <div class="mini-stat pending">
+                <span class="val">{{ status_totals.pending }}</span>
+                <span class="lbl">Chờ duyệt</span>
+            </div>
+            <div class="mini-stat accepted">
+                <span class="val">{{ status_totals.accepted }}</span>
+                <span class="lbl">Chấp nhận</span>
+            </div>
+        </div>
     </div>
 
-    <div class="table-wrap modern-table">
-        <table class="application-table app-list-table">
+    <div class="advanced-filter-bar">
+        <form method="get" class="modern-filter-form">
+            <div class="filter-row">
+                <div class="filter-group search-box">
+                    <label>Tìm kiếm</label>
+                    <input type="text" name="q" placeholder="Tên ứng viên, công việc..." value="{{ query }}">
+                </div>
+                
+                <div class="filter-group">
+                    <label>Công việc</label>
+                    <select name="job">
+                        <option value="">Tất cả công việc</option>
+                        {% for j in job_options %}
+                            <option value="{{ j.id }}" {% if job_id == j.id|stringformat:"i" %}selected{% endif %}>{{ j.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Trạng thái</label>
+                    <select name="status">
+                        <option value="">Tất cả trạng thái</option>
+                        {% for code, label in status_choices %}
+                            <option value="{{ code }}" {% if status == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-row second-row">
+                <div class="filter-group date-range">
+                    <label>Thời gian ứng tuyển</label>
+                    <div class="date-inputs">
+                        <input type="date" name="from_date" value="{{ from_date }}" title="Từ ngày">
+                        <span class="date-sep">→</span>
+                        <input type="date" name="to_date" value="{{ to_date }}" title="Đến ngày">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Sắp xếp theo</label>
+                    <select name="sort">
+                        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất trước</option>
+                        <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất trước</option>
+                        <option value="status" {% if sort == 'status' %}selected{% endif %}>Theo trạng thái</option>
+                        <option value="job" {% if sort == 'job' %}selected{% endif %}>Theo công việc</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="button button-modern">Áp dụng lọc</button>
+                    {% if has_active_filters %}
+                        <a href="{% url 'application_list' %}" class="button button-ghost">Xóa lọc</a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="panel no-padding overflow-hidden">
+    <div class="table-container">
+        <table class="modern-table">
             <thead>
                 <tr>
-                    <th>Công việc</th>
-                    <th>Họ & tên ứng viên</th>
-                    <th>Email</th>
-                    <th>Số điện thoại</th>
-                    <th>CV</th>
+                    <th>Ứng viên / Công việc</th>
+                    <th>Ngày ứng tuyển</th>
+                    <th>Hồ sơ / Liên hệ</th>
                     <th>Trạng thái</th>
-                    <th>Ngày nộp</th>
                     {% if user.role != 'student' %}
-                        <th>Thao tác</th>
+                    <th class="text-right">Thao tác</th>
                     {% endif %}
-                    <th>Chi tiết</th>
                 </tr>
             </thead>
             <tbody>
                 {% for app in applications %}
-                <tr>
-                    <td>
-                        <a href="{% url 'job_detail' app.job.pk %}" class="job-link">{{ app.job.title }}</a>
-                    </td>
-                    <td>
-                        {% with full_name=app.student.get_full_name %}
-                            <p class="applicant-name">{{ full_name|default:app.student.username }}</p>
-                            {% if full_name %}
-                                <p class="applicant-username">@{{ app.student.username }}</p>
-                            {% endif %}
-                        {% endwith %}
-                    </td>
-                    <td>{{ app.candidate_email|default:app.student.email|default:"-" }}</td>
-                    <td>{{ app.candidate_phone|default:app.student.phone|default:"-" }}</td>
-                    <td>
-                        {% if app.cv_file %}
-                            <a href="{{ app.cv_file.url }}" target="_blank" class="doc-btn">CV</a>
-                        {% else %}
-                            <span class="empty">Không có</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="badge status-{{ app.status }}">{{ app.get_status_display }}</span>
-                    </td>
-                    <td>{{ app.applied_at|date:"d/m/Y H:i" }}</td>
-                    {% if user.role != 'student' %}
-                    <td class="action-cell">
-                        <form method="post" action="{% url 'application_status_update' app.pk %}" class="inline-form action-group compact-action-form">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                            <select name="status" class="select-sm">
-                                <option value="accepted" {% if app.status == 'accepted' %}selected{% endif %}>Chấp nhận</option>
-                                <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>Từ chối</option>
-                            </select>
-                            <button class="button button-sm action-save-btn">Cập nhật</button>
-                        </form>
-                    </td>
-                    {% endif %}
-                    <td>
-                        <a href="{% url 'application_detail' app.id %}" class="button button-sm">Xem</a>
-                    </td>
-                </tr>
+                    <tr>
+                        <td class="candidate-job-cell">
+                            <div class="candidate-info">
+                                <span class="candidate-name">{{ app.student.get_full_name|default:app.student.username }}</span>
+                                <span class="candidate-username">@{{ app.student.username }}</span>
+                            </div>
+                            <a href="{% url 'job_detail' app.job.pk %}" class="job-mini-link">{{ app.job.title }}</a>
+                        </td>
+                        <td>
+                            <div class="date-display">
+                                <span class="d-date">{{ app.applied_at|date:"d/m/Y" }}</span>
+                                <span class="d-time">{{ app.applied_at|date:"H:i" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-links">
+                                <a href="{{ app.cv_file.url }}" target="_blank" class="cv-link">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                    Xem CV
+                                </a>
+                                <div class="contact-meta">
+                                    <span>{{ app.candidate_email }}</span>
+                                    <span>{{ app.candidate_phone }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-pill status-{{ app.status }}">
+                                {{ app.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <div class="action-buttons">
+                                <a href="{% url 'application_detail' app.pk %}" class="action-btn view" title="Xem chi tiết">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                </a>
+                                {% if user.role != 'student' %}
+                                    <form method="post" action="{% url 'application_status_update' app.pk %}" class="status-update-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <select name="status" class="status-select-sm" onchange="this.form.submit()">
+                                            {% for code, label in status_choices %}
+                                                <option value="{{ code }}" {% if app.status == code %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
                 {% empty %}
-                <tr>
-                    {% if user.role != 'student' %}
-                        <td colspan="9" class="empty">Không có đơn ứng tuyển nào phù hợp bộ lọc.</td>
-                    {% else %}
-                        <td colspan="8" class="empty">Không có đơn ứng tuyển nào phù hợp bộ lọc.</td>
-                    {% endif %}
-                </tr>
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div class="empty-content">
+                                <p>Không tìm thấy hồ sơ ứng tuyển nào phù hợp.</p>
+                            </div>
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
     {% if applications.paginator.num_pages > 1 %}
-        <div class="pagination">
-            {% if applications.has_previous %}
-                <a href="?page={{ applications.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trước</a>
-            {% endif %}
-            <span>Trang {{ applications.number }} / {{ applications.paginator.num_pages }}</span>
-            {% if applications.has_next %}
-                <a href="?page={{ applications.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Sau</a>
-            {% endif %}
-        </div>
+    <div class="modern-pagination">
+        {% if applications.has_previous %}
+            <a class="page-nav" href="?page={{ applications.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">&larr; Trang trước</a>
+        {% endif %}
+        <div class="page-info">Trang {{ applications.number }} / {{ applications.paginator.num_pages }}</div>
+        {% if applications.has_next %}
+            <a class="page-nav" href="?page={{ applications.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang sau &rarr;</a>
+        {% endif %}
+    </div>
     {% endif %}
 </section>
+
+<style>
+    .no-padding { padding: 0; }
+    .overflow-hidden { overflow: hidden; }
+    .text-right { text-align: right; }
+    
+    /* -------------------------------------
+       NÚT QUAY LẠI TRANG CHỦ (ĐÃ LÀM ĐẸP)
+       ------------------------------------- */
+    .btn-back-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: #ffffff;
+        color: #475569;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    .btn-back-modern:hover {
+        background-color: #f8fafc;
+        color: #0f172a;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .btn-back-modern svg {
+        transition: transform 0.2s ease;
+    }
+    .btn-back-modern:hover svg {
+        transform: translateX(-4px); /* Hiệu ứng icon trượt nhẹ về sau */
+    }
+    /* ------------------------------------- */
+
+    .modern-h1 { font-family: "Sora", sans-serif; font-size: 1.8rem; margin: 0 0 4px; color: #0f172a; }
+    
+    .list-header-panel { background: #fff; margin-bottom: 24px; border-bottom: 0; }
+    
+    .summary-stats { display: flex; gap: 24px; margin-top: 16px; }
+    .mini-stat { display: flex; flex-direction: column; gap: 2px; }
+    .mini-stat .val { font-size: 1.4rem; font-weight: 700; color: #1e293b; }
+    .mini-stat .lbl { font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    .mini-stat.pending .val { color: #b45309; }
+    .mini-stat.accepted .val { color: #15803d; }
+    
+    /* Filters */
+    .advanced-filter-bar { margin-top: 24px; padding-top: 24px; border-top: 1px solid #f1f5f9; }
+    .modern-filter-form { display: grid; gap: 20px; }
+    .filter-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .filter-row.second-row { grid-template-columns: 1.5fr 1fr auto; align-items: flex-end; }
+    
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+    .filter-group label { font-size: 0.85rem; font-weight: 700; color: #475569; }
+    .filter-group input, .filter-group select { background: #f8fafc; border-color: #e2e8f0; height: 42px; }
+    
+    .date-inputs { display: flex; align-items: center; gap: 10px; }
+    .date-sep { color: #94a3b8; }
+    
+    .filter-actions { display: flex; gap: 10px; }
+    
+    /* Table */
+    .table-container { width: 100%; overflow-x: auto; }
+    .modern-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    .modern-table th { background: #f8fafc; padding: 16px 20px; text-align: left; font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; }
+    .modern-table td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .modern-table tr:hover td { background-color: #fbfcfe; }
+    
+    .candidate-job-cell { display: grid; gap: 4px; }
+    .candidate-name { font-weight: 700; color: #1e293b; display: block; }
+    .candidate-username { font-size: 0.8rem; color: #64748b; }
+    .job-mini-link { font-size: 0.9rem; color: #2563eb; text-decoration: none; font-weight: 600; }
+    
+    .date-display { display: flex; flex-direction: column; }
+    .d-date { font-weight: 600; color: #1e293b; }
+    .d-time { font-size: 0.8rem; color: #94a3b8; }
+    
+    .contact-links { display: grid; gap: 6px; }
+    .cv-link { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 700; width: fit-content; }
+    .contact-meta { display: grid; font-size: 0.82rem; color: #64748b; }
+    
+    .status-pill { display: inline-flex; padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+    .status-pending { background: #fef3c7; color: #b45309; }
+    .status-accepted { background: #dcfce7df; color: #15803d; }
+    .status-rejected { background: #fee2e2; color: #b91c1c; }
+    
+    .status-select-sm { padding: 4px 8px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; background: #fff; cursor: pointer; }
+    
+    /* Pagination */
+    .modern-pagination { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 24px; border-top: 1px solid #f1f5f9; background: #fcfdfe; }
+    .page-nav { font-weight: 700; color: #2563eb; text-decoration: none; padding: 8px 16px; border-radius: 10px; background: #fff; border: 1px solid #e2e8f0; }
+    .page-info { color: #64748b; font-weight: 600; }
+    
+    @media (max-width: 980px) {
+        .filter-row { grid-template-columns: 1fr; }
+        .filter-row.second-row { grid-template-columns: 1fr; }
+    }
+</style>
 {% endblock %}
 

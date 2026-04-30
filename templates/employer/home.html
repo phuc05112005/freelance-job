@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Cổng nhà tuyển dụng{% endblock %}
+{% block content %}
+<section class="employer-hero panel">
+    <p class="eyebrow">Cổng nhà tuyển dụng</p>
+    <h1>Tuyển đúng người nhanh hơn với quy trình chuyên nghiệp</h1>
+    <p>Không gian riêng dành cho doanh nghiệp: tạo tài khoản nhà tuyển dụng, xác thực thông tin công ty và đăng tin tuyển dụng hiệu quả.</p>
+    <div class="hero-actions">
+        {% if user.is_authenticated and user.role == 'employer' %}
+            {% if user.employer_verified %}
+                <a href="{% url 'job_create' %}" class="button">Đăng tin ngay</a>
+                <a href="{% url 'employer_job_list' %}" class="button button-ghost">Quản lý tin đăng</a>
+            {% else %}
+                <p class="text-warning">Tài khoản của bạn đang chờ quản trị viên xác thực. Sau khi xác thực, bạn có thể bắt đầu đăng tin.</p>
+            {% endif %}
+        {% elif user.is_authenticated and user.role == 'student' %}
+            <button type="button" class="button" id="student-to-employer-btn">Đăng ký nhà tuyển dụng</button>
+            <a href="{% url 'login' %}" class="button button-ghost">Đăng nhập tài khoản khác</a>
+        {% else %}
+            <a href="{% url 'register_employer' %}?v=1" class="button">Đăng ký nhà tuyển dụng</a>
+            <a href="{% url 'login' %}" class="button button-ghost">Đăng nhập</a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Lợi ích khi tham gia cùng chúng tôi</h2>
+    <div class="grid-4" style="margin-top: 20px;">
+        <div class="stat-card">
+            <strong>01</strong>
+            <span>Tiếp cận hàng ngàn hồ sơ sinh viên năng động mỗi ngày.</span>
+        </div>
+        <div class="stat-card">
+            <strong>02</strong>
+            <span>Công cụ quản lý tin tuyển dụng hiện đại, dễ sử dụng.</span>
+        </div>
+        <div class="stat-card">
+            <strong>03</strong>
+            <span>Hệ thống lọc ứng viên thông minh theo kỹ năng chuyên môn.</span>
+        </div>
+        <div class="stat-card">
+            <strong>04</strong>
+            <span>Xác thực doanh nghiệp uy tín, tăng niềm tin với ứng viên.</span>
+        </div>
+    </div>
+</section>
+
+{% if user.is_authenticated and user.role == 'student' %}
+<script>
+document.getElementById('student-to-employer-btn').addEventListener('click', function() {
+    if (confirm('Bạn đang đăng nhập với tư cách Sinh viên. Để đăng ký tài khoản Nhà tuyển dụng, hệ thống cần đăng xuất tài khoản hiện tại. Bạn có đồng ý không?')) {
+        // Tạo một form ẩn để thực hiện logout POST an toàn trong Django
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{% url 'logout' %}?next={% url 'register_employer' %}";
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = "{{ csrf_token }}";
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+</script>
+{% endif %}
+{% endblock %}
