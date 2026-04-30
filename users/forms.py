@@ -218,6 +218,8 @@ class ProfileUpdateForm(forms.ModelForm):
 class AccountPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.pop('autofocus', None)
         self.fields['old_password'].widget.attrs.update(
             {'placeholder': 'Nhập mật khẩu hiện tại'}
         )
@@ -235,6 +237,11 @@ class CustomPasswordResetForm(PasswordResetForm):
         label='Tên đăng nhập',
         max_length=150,
         widget=forms.TextInput(attrs={'placeholder': 'Nhập tên đăng nhập'}),
+    )
+    email = forms.EmailField(
+        required=True,
+        label='Email',
+        widget=forms.EmailInput(attrs={'placeholder': 'Nhập email của bạn'}),
     )
 
     def clean(self):

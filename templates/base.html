@@ -1,74 +1,91 @@
 ﻿{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sàn Việc Làm{% endblock %}</title>
+    <title>{% block title %} Sàn Việc Làm {% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.png' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/site.css' %}?v=4">
 </head>
+
 <body>
     <div class="bg-mouse"></div>
     <header class="site-header">
         <div class="container nav-wrap">
             <div class="nav-left">
-                <a class="brand" href="{% if user.is_authenticated and user.role == 'employer' %}{% url 'employer_home' %}{% else %}{% url 'home' %}{% endif %}">
-                    <span class="brand-mark">2026</span>
-                    <span class="brand-text">{% if user.is_authenticated and user.role == 'employer' %}Nhà Tuyển Dụng{% else %}Sàn Việc Làm{% endif %}</span>
+                <a class="brand"
+                    href="{% if user.is_authenticated and user.role == 'employer' %}{% url 'employer_home' %}{% else %}{% url 'home' %}{% endif %}">
+                    <span class="brand-mark">
+                        <img src="{% static 'images/favicon.png' %}" alt="logo">
+                    </span>
+                    <span class="brand-text">{% if user.is_authenticated and user.role == 'employer' %}Nhà Tuyển Dụng 
+                        {%else %}
+                        Sàn Việc Làm
+                        {% endif %}
+                    </span>
                 </a>
                 <nav class="main-nav nav-links-left">
                     {% if user.is_authenticated and user.role == 'employer' %}
-                        <a href="{% url 'employer_home' %}" class="{% if 'employer' in request.path %}active{% endif %}">Cổng thông tin tuyển dụng</a>
+                    <a href="{% url 'employer_home' %}"
+                        class="{% if 'employer' in request.path %}active{% endif %}">Cổng thông tin tuyển dụng</a>
                     {% else %}
-                        <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Việc làm</a>
-                        <a href="{% url 'blog' %}" class="{% if 'blog' in request.path %}active{% endif %}">Blog</a>
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'favorite_jobs' %}" class="{% if 'jobs/favorites' in request.path %}active{% endif %}">
-                                Yêu thích
-                                <span id="favorite-count" class="nav-count">{{ request.user.favorite_jobs.count }}</span>
-                            </a>
-                        {% endif %}
+                    <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Việc làm</a>
+                    <a href="{% url 'blog' %}" class="{% if 'blog' in request.path %}active{% endif %}">Blog</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'favorite_jobs' %}"
+                        class="{% if 'jobs/favorites' in request.path %}active{% endif %}">
+                        Yêu thích
+                        <span id="favorite-count" class="nav-count">{{ request.user.favorite_jobs.count }}</span>
+                    </a>
+                    {% endif %}
                     {% endif %}
                 </nav>
             </div>
 
             <div class="main-nav nav-actions-right">
                 {% if user.is_authenticated %}
-                    {% if user.role == 'employer' %}
-                        <a href="{% url 'job_create' %}" class="button button-sm">+ Đăng tuyển</a>
-                        <a href="{% url 'employer_job_list' %}" class="{% if 'jobs/my' in request.path %}active{% endif %}">Tin đã đăng</a>
-                    {% elif user.role != 'admin' %}
-                        <a href="{% url 'application_list' %}" class="{% if 'applications' in request.path %}active{% endif %}">Quản lý thông tin ứng tuyển</a>
+                {% if user.role == 'employer' %}
+                <a href="{% url 'employer_job_list' %}" class="{% if 'jobs/my' in request.path %}active{% endif %}">Tin
+                    đã đăng</a>
+                <a href="{% url 'job_create' %}" class="button button-sm">+ Đăng tuyển</a>
+                {% elif user.role != 'admin' %}
+                <a href="{% url 'application_list' %}"
+                    class="{% if 'applications' in request.path %}active{% endif %}">Quản lý thông tin ứng tuyển</a>
+                {% endif %}
+
+                <form method="post" action="{% url 'logout' %}" class="inline-form">
+                    {% csrf_token %}
+                    <button type="submit" class="button button-ghost button-sm nav-logout-btn">Đăng xuất</button>
+                </form>
+
+                <a href="{% url 'account_profile' %}"
+                    class="account-nav {% if 'accounts/profile' in request.path %}active{% endif %}">
+                    {% if user.avatar_url %}
+                    <img class="nav-avatar nav-avatar-img" src="{{ user.avatar_url }}" alt="Ảnh đại diện">
+                    {% else %}
+                    <span class="nav-avatar">{{ user.username|first|upper }}</span>
                     {% endif %}
+                    Tài khoản
+                </a>
 
-                    <form method="post" action="{% url 'logout' %}" class="inline-form">
-                        {% csrf_token %}
-                        <button type="submit" class="button button-ghost button-sm nav-logout-btn">Đăng xuất</button>
-                    </form>
-
-                    <a href="{% url 'account_profile' %}" class="account-nav {% if 'accounts/profile' in request.path %}active{% endif %}">
-                        {% if user.avatar_url %}
-                            <img class="nav-avatar nav-avatar-img" src="{{ user.avatar_url }}" alt="Ảnh đại diện">
-                        {% else %}
-                            <span class="nav-avatar">{{ user.username|first|upper }}</span>
-                        {% endif %}
-                        Tài khoản
+                {% if user.role == 'admin' or user.is_staff or user.is_superuser %}
+                <div class="nav-admin-wrap">
+                    <a href="{% url 'admin_center' %}"
+                        class="nav-admin-link {% if 'admin' in request.path %}active{% endif %}">
+                        Quản trị hệ thống
                     </a>
-
-                    {% if user.role == 'admin' or user.is_staff or user.is_superuser %}
-                        <div class="nav-admin-wrap">
-                            <a href="{% url 'admin_center' %}" class="nav-admin-link {% if 'admin' in request.path %}active{% endif %}">
-                                Quản trị hệ thống
-                            </a>
-                        </div>
-                    {% endif %}
+                </div>
+                {% endif %}
                 {% else %}
-                    <a href="{% url 'login' %}">Đăng nhập</a>
-                    <a href="{% url 'register' %}" class="button button-sm">Đăng ký</a>
+                <a href="{% url 'login' %}">Đăng nhập</a>
+                <a href="{% url 'register' %}" class="button button-sm">Đăng ký</a>
                 {% endif %}
             </div>
         </div>
@@ -80,11 +97,11 @@
 
     <main class="container page wide-page">
         {% if messages %}
-            <div class="message-stack">
-                {% for message in messages %}
-                    <div class="message {{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-            </div>
+        <div class="message-stack">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
         {% endif %}
         {% block content %}{% endblock %}
     </main>
@@ -93,7 +110,8 @@
         <div class="container footer-premium">
             <section class="footer-intro">
                 <h3>Kết nối cơ hội, đặt đúng người</h3>
-                <p>Nền tảng tuyển dụng hiện đại giúp sinh viên tiếp cận công việc phù hợp và giúp doanh nghiệp tuyển đúng nhân sự.</p>
+                <p>Nền tảng tuyển dụng hiện đại giúp sinh viên tiếp cận công việc phù hợp và giúp doanh nghiệp tuyển
+                    đúng nhân sự.</p>
                 <div class="footer-contact-row">
                     <span>TP. Hồ Chí Minh</span>
                     <span>support@sanvieclam.vn</span>
@@ -111,12 +129,12 @@
                 <h4>Công ty</h4>
                 <a href="{% url 'about_us' %}">Giới thiệu về chúng tôi</a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'application_list' %}">Quản lý ứng tuyển</a>
+                <a href="{% url 'application_list' %}">Quản lý ứng tuyển</a>
                 {% else %}
-                    <a href="{% url 'login' %}">Đăng nhập</a>
+                <a href="{% url 'login' %}">Đăng nhập</a>
                 {% endif %}
                 {% if user.role == 'admin' or user.is_staff or user.is_superuser %}
-                    <a href="{% url 'admin_center' %}">Quản trị hệ thống</a>
+                <a href="{% url 'admin_center' %}">Quản trị hệ thống</a>
                 {% endif %}
             </section>
 
@@ -166,4 +184,5 @@
         animate();
     </script>
 </body>
+
 </html>
