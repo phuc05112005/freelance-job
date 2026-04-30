@@ -160,3 +160,15 @@ class Job(models.Model):
             min_salary = self.format_currency(self.salary_min) if self.salary_min else "0"
             max_salary = self.format_currency(self.salary_max) if self.salary_max else "0"
             return f"{min_salary} - {max_salary} VNĐ"
+
+class FavoriteJob(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorite_jobs')
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='favorited_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'job')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.username} ?? {self.job.title}'

@@ -108,7 +108,7 @@
 
 {% elif not user.is_authenticated %}
 <section class="panel">
-    <h2>Ứng tuyển vào việc này</h2>
+    <h2>Ứng tuyển ngay</h2>
     <p>Bạn cần đăng nhập với tài khoản Sinh viên để ứng tuyển vào công việc này.</p>
     <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
         <a href="{% url 'login' %}?next={{ request.path }}" class="button">Đăng nhập & Ứng tuyển</a>
@@ -119,24 +119,59 @@
 
 <section class="panel">
     <h2 class="section-title">Việc làm liên quan có thể bạn quan tâm</h2>
-    <div class="related-job-grid">
-        {% for r_job in related_jobs %}
-            <a href="{% url 'job_detail' r_job.pk %}" class="related-job-card">
-                <div class="related-job-header">
-                    <h4>{{ r_job.title }}</h4>
-                </div>
-                <p class="job-meta">
-                    <strong>{{ r_job.employer.username }}</strong><br>
-                    <small>{{ r_job.city|default:"Toàn quốc" }} • {{ r_job.display_salary }}</small>
-                </p>
-                <div class="tag-row">
-                    {% for cat in r_job.categories.all|slice:":2" %}
-                        <span class="tag tag-sm">{{ cat.name }}</span>
-                    {% endfor %}
-                </div>
-            </a>
-        {% endfor %}
+    <div class="related-jobs-carousel-wrap">
+        <button class="related-nav related-nav-prev" type="button" aria-label="Xem việc trước">‹</button>
+        <div class="related-jobs-carousel" id="related-jobs-carousel">
+            {% for r_job in related_jobs %}
+                <a href="{% url 'job_detail' r_job.pk %}" class="related-job-card">
+                    <div class="related-job-card-top">
+                        <span class="related-job-brand">
+                            <img
+                                class="related-job-brand-image"
+                                src="{% if r_job.brand_image %}{{ r_job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
+                                alt="Ảnh thương hiệu {{ r_job.employer.username }}"
+                                loading="lazy"
+                            >
+                        </span>
+                        <div class="related-job-header">
+                            <h4>{{ r_job.title }}</h4>
+                        </div>
+                    </div>
+                    <p class="job-meta">
+                        <strong>{{ r_job.employer.username }}</strong><br>
+                        <small>{{ r_job.city|default:"Toàn quốc" }} • {{ r_job.display_salary }}</small>
+                    </p>
+                    <div class="tag-row">
+                        {% for cat in r_job.categories.all|slice:":2" %}
+                            <span class="tag tag-sm">{{ cat.name }}</span>
+                        {% endfor %}
+                    </div>
+                </a>
+            {% empty %}
+                <p class="empty">Chưa có việc liên quan lúc này.</p>
+            {% endfor %}
+        </div>
+        <button class="related-nav related-nav-next" type="button" aria-label="Xem việc tiếp theo">›</button>
     </div>
+    <script>
+        (function () {
+            const track = document.getElementById('related-jobs-carousel');
+            if (!track) return;
+            const prev = track.parentElement.querySelector('.related-nav-prev');
+            const next = track.parentElement.querySelector('.related-nav-next');
+            const step = () => Math.max(track.clientWidth * 0.86, 260);
+            if (prev) {
+                prev.addEventListener('click', function () {
+                    track.scrollBy({ left: -step(), behavior: 'smooth' });
+                });
+            }
+            if (next) {
+                next.addEventListener('click', function () {
+                    track.scrollBy({ left: step(), behavior: 'smooth' });
+                });
+            }
+        })();
+    </script>
 </section>
 
 <style>

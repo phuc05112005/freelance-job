@@ -7,7 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Count, Q
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_encode, urlsafe_base64_decode
@@ -16,7 +16,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
-from jobs.models import Job, JobCategory, WorkMode, EmploymentType
+from jobs.models import EmploymentType, FavoriteJob, Job, JobCategory, WorkMode
 
 from applications.forms import ApplicationForm, ApplicationStatusForm
 from applications.models import Application
@@ -117,7 +117,69 @@ def home(request):
         'employment_types': EmploymentType.objects.all(),
         'filters_query': filters_query,
     }
+    if request.user.is_authenticated:
+        favorite_job_ids = set(
+            FavoriteJob.objects.filter(user=request.user).values_list('job_id', flat=True)
+        )
+    else:
+        favorite_job_ids = set()
+    context['favorite_job_ids'] = favorite_job_ids
     return render(request, 'home.html', context)
+
+
+@login_required
+def favorite_jobs(request):
+    favorites = (
+        FavoriteJob.objects.filter(user=request.user)
+        .select_related('job', 'job__employer')
+        .prefetch_related('job__categories')
+    )
+    jobs = [item.job for item in favorites]
+    favorite_job_ids = {job.id for job in jobs}
+    return render(
+        request,
+        'jobs/favorite_jobs.html',
+        {
+            'jobs': jobs,
+            'favorite_job_ids': favorite_job_ids,
+        },
+    )
+
+
+def toggle_favorite_job(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'message': 'Unauthorized'}, status=401)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Method not allowed'}, status=405)
+
+    job = get_object_or_404(Job, pk=pk)
+    favorite, created = FavoriteJob.objects.get_or_create(user=request.user, job=job)
+    if not created:
+        favorite.delete()
+        is_favorite = False
+    else:
+        is_favorite = True
+
+    total_favorites = FavoriteJob.objects.filter(user=request.user).count()
+    return JsonResponse(
+        {
+            'ok': True,
+            'is_favorite': is_favorite,
+            'total_favorites': total_favorites,
+        }
+    )
+
+
+def about_us(request):
+    return render(request, 'pages/about.html')
+
+
+def smart_job_tips(request):
+    return render(request, 'pages/smart_job_tips.html')
+
+
+def blog(request):
+    return render(request, 'pages/blog.html')
 
 
 def register_view(request):

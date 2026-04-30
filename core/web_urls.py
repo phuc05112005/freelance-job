@@ -17,7 +17,12 @@ urlpatterns = [
     path('jobs/<int:pk>/edit/', web_views.job_edit, name='job_edit'),
     path('jobs/<int:pk>/delete/', web_views.job_delete, name='job_delete'),
     path('jobs/<int:pk>/apply/', web_views.apply_job, name='job_apply'),
+    path('jobs/<int:pk>/favorite-toggle/', web_views.toggle_favorite_job, name='job_favorite_toggle'),
+    path('jobs/favorites/', web_views.favorite_jobs, name='favorite_jobs'),
     path('jobs/my/', web_views.employer_jobs, name='employer_job_list'),
+    path('about-us/', web_views.about_us, name='about_us'),
+    path('smart-job-tips/', web_views.smart_job_tips, name='smart_job_tips'),
+    path('blog/', web_views.blog, name='blog'),
     path('applications/', web_views.applications_view, name='application_list'),
     path(
         'applications/<int:pk>/status/',

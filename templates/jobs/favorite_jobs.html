@@ -1,0 +1,91 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Việc làm yêu thích{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="panel-head">
+        <h1>Việc làm yêu thích</h1>
+        <p class="job-meta">Bạn đã lưu {{ jobs|length }} công việc.</p>
+    </div>
+</section>
+
+<section class="job-grid job-grid-home">
+    {% for job in jobs %}
+        <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0">
+            <div class="job-card-home-top">
+                <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}">
+                    <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
+                </a>
+                <div class="job-card-home-head">
+                    <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
+                    <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
+                </div>
+            </div>
+            <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+            <div class="job-card-top">
+                <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+            </div>
+            <div class="tag-row">
+                {% for category in job.categories.all %}
+                    <span class="tag">{{ category.name }}</span>
+                {% empty %}
+                    <span class="tag">Chưa gắn lĩnh vực</span>
+                {% endfor %}
+            </div>
+            <div class="job-foot">
+                <span>Mức lương: {{ job.display_salary }}</span>
+                <div class="job-foot-actions">
+                    <button type="button" class="favorite-btn is-favorite" data-job-id="{{ job.id }}" aria-label="Bỏ lưu {{ job.title }}" title="Bỏ khỏi yêu thích">❤</button>
+                    <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a>
+                </div>
+            </div>
+        </article>
+    {% empty %}
+        <section class="panel">
+            <p class="empty">Bạn chưa lưu việc nào. Hãy bấm vào trái tim ở trang chủ để lưu công việc yêu thích.</p>
+        </section>
+    {% endfor %}
+</section>
+
+<script>
+(function () {
+    const getCookie = function (name) {
+        const cookieValue = document.cookie.split('; ').find(function (row) { return row.startsWith(name + '='); });
+        return cookieValue ? decodeURIComponent(cookieValue.split('=')[1]) : '';
+    };
+    const csrfToken = getCookie('csrftoken');
+
+    document.querySelectorAll('.clickable-job-card').forEach(function (card) {
+        const href = card.getAttribute('data-href');
+        card.addEventListener('click', function (event) {
+            if (event.target.closest('a, button, input, select, textarea, label')) return;
+            window.location.href = href;
+        });
+    });
+
+    document.querySelectorAll('.favorite-btn').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const jobId = button.getAttribute('data-job-id');
+            if (!jobId) return;
+            const res = await fetch(`/jobs/${jobId}/favorite-toggle/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken, 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            button.classList.toggle('is-favorite', data.is_favorite);
+            if (!data.is_favorite) {
+                const card = button.closest('.job-card');
+                if (card) card.remove();
+            }
+            const navCount = document.getElementById('favorite-count');
+            if (navCount && typeof data.total_favorites === 'number') {
+                navCount.textContent = data.total_favorites;
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}
