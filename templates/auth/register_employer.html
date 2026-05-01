@@ -57,16 +57,11 @@
                     {{ form.company_tax_code.errors }}
                 </div>
 
-                <div class="form-row-triple">
+                <div class="form-row-double">
                     <div class="form-group">
                         <label>Tỉnh/Thành</label>
                         {{ form.province }}
                         {{ form.province.errors }}
-                    </div>
-                    <div class="form-group">
-                        <label>Quận/Huyện</label>
-                        {{ form.district }}
-                        {{ form.district.errors }}
                     </div>
                     <div class="form-group">
                         <label>Phường/Xã</label>
@@ -84,12 +79,24 @@
                 <div class="form-row-double">
                     <div class="form-group">
                         <label>Mật khẩu</label>
-                        {{ form.password1 }}
+                        <div class="pw-wrap">
+                            {{ form.password1 }}
+                            <button type="button" class="pw-toggle">
+                                <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                            </button>
+                        </div>
                         {{ form.password1.errors }}
                     </div>
                     <div class="form-group">
                         <label>Xác nhận mật khẩu</label>
-                        {{ form.password2 }}
+                        <div class="pw-wrap">
+                            {{ form.password2 }}
+                            <button type="button" class="pw-toggle">
+                                <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                            </button>
+                        </div>
                         {{ form.password2.errors }}
                     </div>
                 </div>
@@ -115,17 +122,28 @@
 </section>
 
 <style>
+    /* Ẩn mắt mặc định của Edge/IE */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear { display: none; }
+
     .split-auth-container { display: flex; min-height: calc(100vh - 80px); background: #fff; border-radius: 24px; overflow: hidden; margin: 20px 0; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); }
     .auth-form-side { flex: 1.2; padding: 50px 60px; display: flex; align-items: center; justify-content: center; overflow-y: auto; }
     .auth-content-box { width: 100%; max-width: 550px; }
     .auth-title { font-family: 'Sora', sans-serif; font-size: 2rem; margin-bottom: 8px; color: #1e293b; }
     .auth-subtitle { color: #64748b; margin-bottom: 32px; font-size: 0.95rem; }
+    
     .modern-auth-form .form-group { margin-bottom: 18px; }
     .modern-auth-form label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.85rem; color: #475569; }
-    .modern-auth-form input, .modern-auth-form select { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.95rem; }
-    .modern-auth-form input:focus { border-color: #2563eb; background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+    .modern-auth-form input, .modern-auth-form select { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.95rem; transition: all 0.2s;}
+    .modern-auth-form input:focus, .modern-auth-form select:focus { border-color: #2563eb; background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+    
     .form-row-double { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .form-row-triple { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    
+    .pw-wrap { position: relative; }
+    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
+    .pw-toggle svg { width: 18px; height: 18px; transition: color 0.2s; }
+    .pw-toggle:hover { color: #2563eb; }
+
     .button-full { width: 100%; padding: 14px; font-weight: 700; border-radius: 12px; }
     .auth-footer { margin-top: 24px; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; }
     .auth-footer p { margin-bottom: 6px; font-size: 0.85rem; color: #64748b; }
@@ -143,51 +161,96 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const provinceSelect = document.querySelector('select[name="province"]');
-    const districtSelect = document.querySelector('select[name="district"]');
-    const wardSelect = document.querySelector('select[name="ward"]');
-
-    fetch('https://provinces.open-api.vn/api/p/')
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(province => {
-                const option = new Option(province.name, province.name);
-                option.dataset.code = province.code;
-                provinceSelect.add(option);
-            });
-        });
-
-    provinceSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const provinceCode = selectedOption.dataset.code;
-        districtSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-        wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
-        if (provinceCode) {
-            fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
-                .then(response => response.json())
-                .then(data => {
-                    data.districts.forEach(district => {
-                        const option = new Option(district.name, district.name);
-                        option.dataset.code = district.code;
-                        districtSelect.add(option);
-                    });
-                });
+    // 1. Tự động lấy tên label làm placeholder
+    document.querySelectorAll('.modern-auth-form .form-group').forEach(function(group) {
+        const label = group.querySelector('label');
+        const input = group.querySelector('input');
+        if (label && input && !input.getAttribute('placeholder')) {
+            input.setAttribute('placeholder', 'Nhập ' + label.textContent.toLowerCase() + '...');
         }
     });
 
-    districtSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const districtCode = selectedOption.dataset.code;
+    // 2. Logic tắt/bật mật khẩu
+    document.querySelectorAll('.pw-toggle').forEach(function (btn) {
+        const input = btn.closest('.pw-wrap').querySelector('input');
+        const eyeOn = btn.querySelector('.eye-on');
+        const eyeOff = btn.querySelector('.eye-off');
+
+        btn.addEventListener('click', function () {
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOn.style.display = 'none';
+                eyeOff.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOn.style.display = 'block';
+                eyeOff.style.display = 'none';
+            }
+        });
+    });
+
+    // ==========================================
+    // 3. LOGIC XỬ LÝ 2 FILE JSON (PROVINCES & WARDS)
+    // ==========================================
+    const provinceSelect = document.querySelector('select[name="province"]');
+    const wardSelect = document.querySelector('select[name="ward"]');
+    
+    // Đảm bảo bạn đã đặt 2 file JSON vào thư mục static/data/xaphuong/ của Django
+    const PROVINCES_URL = "{% static 'data/xaphuong/provinces.json' %}"; 
+    const WARDS_URL = "{% static 'data/xaphuong/wards.json' %}"; 
+    
+    let allWardsData = [];
+
+    // Tải cùng lúc cả 2 file bằng Promise.all cho tốc độ bàn thờ
+    Promise.all([
+        fetch(PROVINCES_URL).then(res => res.json()),
+        fetch(WARDS_URL).then(res => res.json())
+    ])
+    .then(([provincesData, wardsData]) => {
+        // Lưu toàn bộ phường/xã vào biến tạm để lát nữa lọc
+        allWardsData = wardsData;
+        
+        // Sắp xếp Tỉnh/Thành theo bảng chữ cái A-Z
+        provincesData.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Đổ dữ liệu Tỉnh/Thành vào Select Box
+        provincesData.forEach(province => {
+            const option = new Option(province.name, province.name);
+            // Lưu id của Tỉnh vào dataset để xíu nữa đối chiếu với provinceId của Phường
+            option.dataset.id = province.id; 
+            provinceSelect.add(option);
+        });
+    })
+    .catch(error => {
+        console.error("Lỗi khi tải file JSON:", error);
+        alert("Không thể tải dữ liệu Tỉnh/Thành. Vui lòng kiểm tra lại đường dẫn file.");
+    });
+
+    // Bắt sự kiện khi người dùng chọn Tỉnh/Thành
+    provinceSelect.addEventListener('change', function() {
+        // Xóa sạch danh sách Phường cũ mỗi khi đổi Tỉnh
         wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
-        if (districtCode) {
-            fetch(`https://provinces.open-api.vn/api/p/d/${districtCode}?depth=2`)
-                .then(response => response.json())
-                .then(data => {
-                    data.wards.forEach(ward => {
-                        const option = new Option(ward.name, ward.name);
-                        wardSelect.add(option);
-                    });
-                });
+        
+        const selectedOption = this.options[this.selectedIndex];
+        const provinceId = selectedOption.dataset.id;
+        
+        if (provinceId) {
+            // Lọc ra tất cả các Phường/Xã có provinceId khớp với id của Tỉnh đang chọn
+            const provinceWards = allWardsData.filter(ward => ward.provinceId === provinceId);
+            
+            // Sắp xếp Phường/Xã theo Alphabet A-Z
+            provinceWards.sort((a, b) => a.name.localeCompare(b.name));
+            
+            // Dùng Set để lọc bỏ trùng lặp (nếu có 2 phường trùng tên trong 1 tỉnh)
+            const uniqueWards = new Set();
+            
+            provinceWards.forEach(w => {
+                if (!uniqueWards.has(w.name)) {
+                    uniqueWards.add(w.name);
+                    const option = new Option(w.name, w.name); 
+                    wardSelect.add(option);
+                }
+            });
         }
     });
 });

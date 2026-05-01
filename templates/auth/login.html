@@ -25,6 +25,7 @@
                         {{ form.password }}
                         <button type="button" class="pw-toggle">
                             <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
                         </button>
                     </div>
                     {{ form.password.errors }}
@@ -55,6 +56,12 @@
 </section>
 
 <style>
+    /* Ẩn con mắt mặc định của trình duyệt (Edge, IE) */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+        display: none;
+    }
+
     .split-auth-container {
         display: flex;
         min-height: calc(100vh - 120px);
@@ -87,7 +94,9 @@
     .modern-auth-form input:focus { border-color: #2563eb; background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
     
     .pw-wrap { position: relative; }
-    .pw-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; }
+    .pw-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
+    .pw-toggle svg { width: 20px; height: 20px; transition: color 0.2s; }
+    .pw-toggle:hover { color: #2563eb; }
     
     .auth-options { display: flex; justify-content: flex-end; margin-top: -12px; margin-bottom: 24px; }
     .forgot-pw { font-size: 0.85rem; color: #2563eb; text-decoration: none; font-weight: 600; }
@@ -130,11 +139,32 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // 1. Tự động lấy tên label làm placeholder cho các input
+    document.querySelectorAll('.modern-auth-form .form-group').forEach(function(group) {
+        const label = group.querySelector('label');
+        const input = group.querySelector('input');
+        if (label && input && !input.getAttribute('placeholder')) {
+            input.setAttribute('placeholder', 'Nhập ' + label.textContent.toLowerCase() + '...');
+        }
+    });
+
+    // 2. Logic tắt/bật mật khẩu với 2 icon con mắt
     const btn = document.querySelector('.pw-toggle');
     if (btn) {
         const input = btn.closest('.pw-wrap').querySelector('input');
+        const eyeOn = btn.querySelector('.eye-on');
+        const eyeOff = btn.querySelector('.eye-off');
+
         btn.addEventListener('click', function () {
-            input.type = input.type === 'password' ? 'text' : 'password';
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOn.style.display = 'none';
+                eyeOff.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOn.style.display = 'block';
+                eyeOff.style.display = 'none';
+            }
         });
     }
 });

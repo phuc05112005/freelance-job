@@ -14,13 +14,8 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'phone',
-            'password1',
-            'password2',
+            'username', 'email', 'first_name', 'last_name',
+            'phone', 'password1', 'password2',
         )
 
     def __init__(self, *args, **kwargs):
@@ -47,19 +42,9 @@ class EmployerRegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'phone',
-            'company_name',
-            'company_tax_code',
-            'province',
-            'district',
-            'ward',
-            'company_address',
-            'password1',
-            'password2',
+            'username', 'email', 'first_name', 'last_name', 'phone',
+            'company_name', 'company_tax_code', 'province', 'ward', # Đã bỏ district
+            'company_address', 'password1', 'password2',
         )
 
     def __init__(self, *args, **kwargs):
@@ -69,11 +54,9 @@ class EmployerRegisterForm(UserCreationForm):
         self.fields['company_tax_code'].required = True
         self.fields['company_address'].required = True
         self.fields['province'].required = True
-        self.fields['district'].required = True
         self.fields['ward'].required = True
         
         self.fields['province'].widget = forms.Select(choices=[('', 'Chọn Tỉnh/Thành phố')])
-        self.fields['district'].widget = forms.Select(choices=[('', 'Chọn Quận/Huyện')])
         self.fields['ward'].widget = forms.Select(choices=[('', 'Chọn Phường/Xã')])
 
     def clean_email(self):
@@ -107,7 +90,7 @@ class ProfileUpdateForm(forms.ModelForm):
             'username', 'first_name', 'last_name', 'email', 'phone', 'bio',
             'university', 'major', 'academic_year', 'skills', 'default_cv',
             'company_name', 'company_tax_code', 'company_website', 'company_address',
-            'province', 'district', 'ward'
+            'province', 'ward' # Đã bỏ district
         )
         widgets = {
             'username': forms.TextInput(attrs={'placeholder': 'Nhập tên đăng nhập'}),
@@ -118,7 +101,6 @@ class ProfileUpdateForm(forms.ModelForm):
             'bio': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Giới thiệu ngắn về bản thân...'}),
             'skills': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Các kỹ năng, phân tách bằng dấu phẩy...'}),
             'province': forms.Select(choices=[('', 'Chọn Tỉnh/Thành phố')]),
-            'district': forms.Select(choices=[('', 'Chọn Quận/Huyện')]),
             'ward': forms.Select(choices=[('', 'Chọn Phường/Xã')]),
         }
 
@@ -128,9 +110,8 @@ class ProfileUpdateForm(forms.ModelForm):
         
         user = self.instance
         if user and user.role == 'student':
-            # Gỡ bỏ các trường không cần thiết cho sinh viên
             student_exclude = ['university', 'major', 'academic_year', 'skills', 'default_cv', 'bio']
-            employer_fields = ['company_name', 'company_tax_code', 'company_website', 'company_address', 'province', 'district', 'ward']
+            employer_fields = ['company_name', 'company_tax_code', 'company_website', 'company_address', 'province', 'ward']
             for field in student_exclude + employer_fields:
                 if field in self.fields:
                     self.fields[field].widget = forms.HiddenInput()
@@ -145,8 +126,6 @@ class ProfileUpdateForm(forms.ModelForm):
                 
             if user.province:
                 self.fields['province'].choices = [(user.province, user.province)]
-            if user.district:
-                self.fields['district'].choices = [(user.district, user.district)]
             if user.ward:
                 self.fields['ward'].choices = [(user.ward, user.ward)]
 

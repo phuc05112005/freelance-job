@@ -51,6 +51,7 @@
                         {{ form.password1 }}
                         <button type="button" class="pw-toggle">
                             <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
                         </button>
                     </div>
                     {{ form.password1.errors }}
@@ -60,6 +61,10 @@
                     <label>Xác nhận mật khẩu</label>
                     <div class="pw-wrap">
                         {{ form.password2 }}
+                        <button type="button" class="pw-toggle">
+                            <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        </button>
                     </div>
                     {{ form.password2.errors }}
                 </div>
@@ -85,6 +90,12 @@
 </section>
 
 <style>
+    /* Ẩn con mắt mặc định của trình duyệt (Edge, IE) */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+        display: none;
+    }
+
     .split-auth-container {
         display: flex;
         min-height: calc(100vh - 80px);
@@ -119,7 +130,9 @@
     .form-row-double { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     
     .pw-wrap { position: relative; }
-    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; }
+    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
+    .pw-toggle svg { width: 20px; height: 20px; transition: color 0.2s; }
+    .pw-toggle:hover { color: #2563eb; }
     
     .button-full { width: 100%; }
     .auth-footer { margin-top: 30px; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; }
@@ -155,17 +168,38 @@
         .auth-image-side { display: none; }
         .auth-form-side { padding: 40px 20px; }
     }
+    
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // 1. Tự động lấy tên label làm placeholder cho các input
+    document.querySelectorAll('.modern-auth-form .form-group').forEach(function(group) {
+        const label = group.querySelector('label');
+        const input = group.querySelector('input');
+        if (label && input && !input.getAttribute('placeholder')) {
+            input.setAttribute('placeholder', 'Nhập ' + label.textContent.toLowerCase() + '...');
+        }
+    });
+
+    // 2. Logic tắt/bật mật khẩu với 2 icon con mắt
     document.querySelectorAll('.pw-toggle').forEach(function (btn) {
         const input = btn.closest('.pw-wrap').querySelector('input');
+        const eyeOn = btn.querySelector('.eye-on');
+        const eyeOff = btn.querySelector('.eye-off');
+
         btn.addEventListener('click', function () {
-            input.type = input.type === 'password' ? 'text' : 'password';
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOn.style.display = 'none';
+                eyeOff.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOn.style.display = 'block';
+                eyeOff.style.display = 'none';
+            }
         });
     });
 });
 </script>
 {% endblock %}
-

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Thông tin tài khoản{% endblock %}
+{% load static %} {% block title %}Thông tin tài khoản{% endblock %}
 
 {% block content %}
 <section class="panel account-shell">
@@ -80,14 +80,6 @@
 
             {% if user.role == 'employer' %}
                 <div class="field-row">
-                    <label for="{{ profile_form.bio.id_for_label }}">Giới thiệu công ty</label>
-                    <div class="field-control">
-                        {{ profile_form.bio }}
-                        {{ profile_form.bio.errors }}
-                    </div>
-                </div>
-
-                <div class="field-row">
                     <label for="{{ profile_form.company_name.id_for_label }}">Tên công ty</label>
                     <div class="field-control">
                         {{ profile_form.company_name }}
@@ -101,13 +93,6 @@
                         {{ profile_form.company_tax_code.errors }}
                     </div>
                 </div>
-                <div class="field-row">
-                    <label for="{{ profile_form.company_website.id_for_label }}">Website công ty</label>
-                    <div class="field-control">
-                        {{ profile_form.company_website }}
-                        {{ profile_form.company_website.errors }}
-                    </div>
-                </div>
 
                 <div class="field-row">
                     <label for="{{ profile_form.province.id_for_label }}">Tỉnh/Thành phố</label>
@@ -116,13 +101,7 @@
                         {{ profile_form.province.errors }}
                     </div>
                 </div>
-                <div class="field-row">
-                    <label for="{{ profile_form.district.id_for_label }}">Quận/Huyện</label>
-                    <div class="field-control">
-                        {{ profile_form.district }}
-                        {{ profile_form.district.errors }}
-                    </div>
-                </div>
+                
                 <div class="field-row">
                     <label for="{{ profile_form.ward.id_for_label }}">Phường/Xã</label>
                     <div class="field-control">
@@ -240,94 +219,84 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const provinceSelect = document.querySelector('select[name="province"]');
-    const districtSelect = document.querySelector('select[name="district"]');
     const wardSelect = document.querySelector('select[name="ward"]');
 
-    const currentProvince = "{{ user.province }}";
-    const currentDistrict = "{{ user.district }}";
-    const currentWard = "{{ user.ward }}";
+    // Lấy dữ liệu hiện tại của user từ Django template (escapejs để tránh lỗi chuỗi)
+    const currentProvince = "{{ user.province|escapejs }}";
+    const currentWard = "{{ user.ward|escapejs }}";
 
-    function loadDistricts(provinceCode, selectedDistrict = null) {
-        if (!districtSelect) return Promise.resolve();
-        districtSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-        if (wardSelect) wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+    // Đường dẫn tới file JSON (giống bên form đăng ký)
+    const PROVINCES_URL = "{% static 'data/xaphuong/provinces.json' %}"; 
+    const WARDS_URL = "{% static 'data/xaphuong/wards.json' %}"; 
+
+    let allWardsData = [];
+
+    // Tải dữ liệu từ 2 file
+    Promise.all([
+        fetch(PROVINCES_URL).then(res => res.json()),
+        fetch(WARDS_URL).then(res => res.json())
+    ])
+    .then(([provincesData, wardsData]) => {
+        allWardsData = wardsData;
         
-        if (provinceCode) {
-            return fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
-                .then(response => response.json())
-                .then(data => {
-                    data.districts.forEach(district => {
-                        const option = new Option(district.name, district.name);
-                        option.dataset.code = district.code;
-                        if (district.name === selectedDistrict) {
-                            option.selected = true;
-                        }
-                        districtSelect.add(option);
-                    });
-                    return data;
-                });
-        }
-        return Promise.resolve();
-    }
-
-    function loadWards(districtCode, selectedWard = null) {
-        if (!wardSelect) return Promise.resolve();
-        wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        // Sắp xếp Tỉnh/Thành
+        provincesData.sort((a, b) => a.name.localeCompare(b.name));
         
-        if (districtCode) {
-            return fetch(`https://provinces.open-api.vn/api/p/d/${districtCode}?depth=2`)
-                .then(response => response.json())
-                .then(data => {
-                    data.wards.forEach(ward => {
-                        const option = new Option(ward.name, ward.name);
-                        if (ward.name === selectedWard) {
-                            option.selected = true;
-                        }
-                        wardSelect.add(option);
-                    });
-                });
-        }
-        return Promise.resolve();
-    }
-
-    if (provinceSelect) {
-        fetch('https://provinces.open-api.vn/api/p/')
-            .then(response => response.json())
-            .then(data => {
-                provinceSelect.innerHTML = '<option value="">Chọn Tỉnh/Thành phố</option>';
-                let initialProvinceCode = null;
-                data.forEach(province => {
-                    const option = new Option(province.name, province.name);
-                    option.dataset.code = province.code;
-                    if (province.name === currentProvince) {
-                        option.selected = true;
-                        initialProvinceCode = province.code;
-                    }
-                    provinceSelect.add(option);
-                });
-
-                if (initialProvinceCode) {
-                    loadDistricts(initialProvinceCode, currentDistrict).then(data => {
-                        if (data && data.districts) {
-                            const selectedDistrictObj = data.districts.find(d => d.name === currentDistrict);
-                            if (selectedDistrictObj) {
-                                loadWards(selectedDistrictObj.code, currentWard);
-                            }
-                        }
-                    });
-                }
-            });
-
-        provinceSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            loadDistricts(selectedOption.dataset.code);
+        // Đổ dữ liệu Tỉnh/Thành vào Select Box
+        provincesData.forEach(province => {
+            const option = new Option(province.name, province.name);
+            option.dataset.id = province.id; 
+            
+            // Nếu là Tỉnh user đã lưu thì chọn sẵn
+            if (province.name === currentProvince) {
+                option.selected = true;
+            }
+            
+            provinceSelect.add(option);
         });
-    }
 
-    if (districtSelect) {
-        districtSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            loadWards(selectedOption.dataset.code);
+        // Nếu user đã có Tỉnh, tải luôn danh sách Phường của Tỉnh đó
+        if (currentProvince) {
+            const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
+            if (selectedOption && selectedOption.dataset.id) {
+                loadWards(selectedOption.dataset.id, currentWard);
+            }
+        }
+    })
+    .catch(error => {
+        console.error("Lỗi khi tải file JSON:", error);
+    });
+
+    // Bắt sự kiện đổi Tỉnh/Thành
+    provinceSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const provinceId = selectedOption.dataset.id;
+        // Đổi tỉnh thì không chọn sẵn phường nào cả (truyền null)
+        loadWards(provinceId, null);
+    });
+
+    // Hàm load Phường/Xã
+    function loadWards(provinceId, selectedWard) {
+        wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        if (!provinceId) return;
+
+        const provinceWards = allWardsData.filter(ward => ward.provinceId === provinceId);
+        provinceWards.sort((a, b) => a.name.localeCompare(b.name));
+        
+        const uniqueWards = new Set();
+        
+        provinceWards.forEach(w => {
+            if (!uniqueWards.has(w.name)) {
+                uniqueWards.add(w.name);
+                const option = new Option(w.name, w.name); 
+                
+                // Nếu là Phường user đã lưu thì chọn sẵn
+                if (w.name === selectedWard) {
+                    option.selected = true;
+                }
+                
+                wardSelect.add(option);
+            }
         });
     }
 });
