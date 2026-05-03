@@ -1,7 +1,7 @@
 ﻿from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, Max, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -19,7 +19,7 @@ def _is_admin_user(user):
 
 
 def admin_required(view_func):
-    return user_passes_test(_is_admin_user, login_url='dashboard')(view_func)
+    return user_passes_test(_is_admin_user, login_url='login')(view_func)
 
 
 @admin_required
@@ -46,14 +46,29 @@ def admin_center(request):
 @admin_required
 def admin_exp_levels(request):
     if request.method == 'POST':
-        if request.POST.get('action') == 'delete':
+        action = request.POST.get('action')
+        if action == 'delete':
             obj_id = request.POST.get('id')
             obj = get_object_or_404(ExperienceLevel, pk=obj_id)
             obj.delete()
             messages.success(request, 'Đã xóa mức kinh nghiệm.')
             return redirect('admin_exp_levels')
+        if action == 'edit':
+            obj_id = request.POST.get('id')
+            obj = get_object_or_404(ExperienceLevel, pk=obj_id)
+            edit_form = ExperienceLevelForm(request.POST, instance=obj)
+            if edit_form.is_valid():
+                edit_form.save()
+                messages.success(request, 'Đã cập nhật mức kinh nghiệm.')
+            else:
+                messages.error(request, 'Dữ liệu cập nhật mức kinh nghiệm không hợp lệ.')
+            return redirect('admin_exp_levels')
 
-        form = ExperienceLevelForm(request.POST)
+        post_data = request.POST.copy()
+        if not post_data.get('order'):
+            max_order = ExperienceLevel.objects.aggregate(max_order=Max('order')).get('max_order') or 0
+            post_data['order'] = max_order + 1
+        form = ExperienceLevelForm(post_data)
         if form.is_valid():
             form.save()
             messages.success(request, 'Đã thêm mức kinh nghiệm mới.')
@@ -68,11 +83,22 @@ def admin_exp_levels(request):
 @admin_required
 def admin_work_modes(request):
     if request.method == 'POST':
-        if request.POST.get('action') == 'delete':
+        action = request.POST.get('action')
+        if action == 'delete':
             obj_id = request.POST.get('id')
             obj = get_object_or_404(WorkMode, pk=obj_id)
             obj.delete()
             messages.success(request, 'Đã xóa hình thức làm việc.')
+            return redirect('admin_work_modes')
+        if action == 'edit':
+            obj_id = request.POST.get('id')
+            obj = get_object_or_404(WorkMode, pk=obj_id)
+            edit_form = WorkModeForm(request.POST, instance=obj)
+            if edit_form.is_valid():
+                edit_form.save()
+                messages.success(request, 'Đã cập nhật hình thức làm việc.')
+            else:
+                messages.error(request, 'Dữ liệu cập nhật hình thức làm việc không hợp lệ.')
             return redirect('admin_work_modes')
 
         form = WorkModeForm(request.POST)
@@ -90,11 +116,22 @@ def admin_work_modes(request):
 @admin_required
 def admin_employment_types(request):
     if request.method == 'POST':
-        if request.POST.get('action') == 'delete':
+        action = request.POST.get('action')
+        if action == 'delete':
             obj_id = request.POST.get('id')
             obj = get_object_or_404(EmploymentType, pk=obj_id)
             obj.delete()
             messages.success(request, 'Đã xóa loại việc làm.')
+            return redirect('admin_employment_types')
+        if action == 'edit':
+            obj_id = request.POST.get('id')
+            obj = get_object_or_404(EmploymentType, pk=obj_id)
+            edit_form = EmploymentTypeForm(request.POST, instance=obj)
+            if edit_form.is_valid():
+                edit_form.save()
+                messages.success(request, 'Đã cập nhật loại việc làm.')
+            else:
+                messages.error(request, 'Dữ liệu cập nhật loại việc làm không hợp lệ.')
             return redirect('admin_employment_types')
 
         form = EmploymentTypeForm(request.POST)
@@ -274,11 +311,22 @@ def admin_applications(request):
 @admin_required
 def admin_categories(request):
     if request.method == 'POST':
-        if request.POST.get('action') == 'delete':
+        action = request.POST.get('action')
+        if action == 'delete':
             category_id = request.POST.get('category_id')
             category = get_object_or_404(JobCategory, pk=category_id)
             category.delete()
             messages.success(request, 'Đã xóa lĩnh vực.')
+            return redirect('admin_categories')
+        if action == 'edit':
+            category_id = request.POST.get('category_id')
+            category = get_object_or_404(JobCategory, pk=category_id)
+            edit_form = JobCategoryForm(request.POST, instance=category)
+            if edit_form.is_valid():
+                edit_form.save()
+                messages.success(request, 'Đã cập nhật lĩnh vực.')
+            else:
+                messages.error(request, 'Dữ liệu cập nhật lĩnh vực không hợp lệ.')
             return redirect('admin_categories')
 
         form = JobCategoryForm(request.POST)
@@ -291,3 +339,32 @@ def admin_categories(request):
 
     categories = JobCategory.objects.annotate(total_jobs=Count('jobs')).order_by('name')
     return render(request, 'admin_center/categories.html', {'form': form, 'categories': categories})
+
+@admin_required
+def admin_user_detail(request, user_id):
+    target_user = get_object_or_404(User, pk=user_id)
+    stats = {}
+
+    if target_user.role == 'student':
+        applications = Application.objects.filter(student=target_user).select_related('job', 'job__employer')
+        stats['total_applications'] = applications.count()
+        stats['pending']  = applications.filter(status='pending').count()
+        stats['accepted'] = applications.filter(status='accepted').count()
+        stats['rejected'] = applications.filter(status='rejected').count()
+        stats['recent_applications'] = applications.order_by('-applied_at')[:5]
+
+    elif target_user.role == 'employer':
+        jobs = Job.objects.filter(employer=target_user).annotate(
+            total_applications=Count('applications')
+        )
+        stats['total_jobs'] = jobs.count()
+        stats['open_jobs'] = jobs.filter(status='open').count()
+        stats['total_applications_received'] = Application.objects.filter(
+            job__employer=target_user
+        ).count()
+        stats['recent_jobs'] = jobs.order_by('-created_at')[:5]
+
+    return render(request, 'admin_center/user_detail.html', {
+        'target_user': target_user,
+        'stats': stats,
+    })

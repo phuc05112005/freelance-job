@@ -6,7 +6,7 @@
 <section class="split-auth-container">
     <div class="auth-form-side">
         <div class="auth-content-box">
-            <h1 class="auth-title">Chào mừng trở lại</h1>
+            <h1 class="auth-title">Đăng nhập</h1>
             <p class="auth-subtitle">Đăng nhập để tiếp tục khám phá những cơ hội nghề nghiệp mới nhất.</p>
             
             <form method="post" class="modern-auth-form">
@@ -134,6 +134,43 @@
         .auth-image-side { display: none; }
         .auth-form-side { padding: 40px 20px; }
         .split-auth-container { min-height: auto; }
+    }
+    /* ===== BUTTON LOGIN HOVER XỊN ===== */
+    .form-actions .button {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* hover nổi lên */
+    .form-actions .button:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow:
+            0 10px 25px rgba(0,0,0,0.25),
+            0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    /* ánh sáng chạy */
+    .form-actions .button::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255,255,255,0.7),
+            transparent
+        );
+        transform: skewX(-25deg);
+    }
+
+    /* khi hover -> chạy qua */
+    .form-actions .button:hover::after {
+        left: 130%;
+        transition: 0.7s;
     }
 </style>
 

@@ -168,7 +168,50 @@
         .auth-image-side { display: none; }
         .auth-form-side { padding: 40px 20px; }
     }
-    
+    /* ===== BUTTON HOVER PRO (giống Home) ===== */
+    .button {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        transform: translateY(0);
+    }
+
+    /* nổi lên + shadow */
+    .button:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow:
+            0 10px 25px rgba(0,0,0,0.2),
+            0 6px 15px rgba(0,0,0,0.12);
+    }
+
+    /* ánh sáng quét */
+    .button::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255,255,255,0.6),
+            transparent
+        );
+        transform: skewX(-25deg);
+    }
+
+    .button:hover::after {
+        left: 130%;
+        transition: 0.7s ease;
+    }
+
+    /* riêng nút full đẹp hơn chút */
+    .button-full {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+    }
 </style>
 
 <script>

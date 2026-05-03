@@ -49,7 +49,7 @@
                 </nav>
             </div>
 
-            <div class="main-nav nav-actions-right">
+            <div class="nav-actions-right">
                 {% if user.is_authenticated %}
                 {% if user.role == 'employer' %}
                 <a href="{% url 'employer_job_list' %}" class="{% if 'jobs/my' in request.path %}active{% endif %}">Tin

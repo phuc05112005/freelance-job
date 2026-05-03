@@ -38,6 +38,8 @@ urlpatterns = [
     ),
     path('admin-center/', admin_center_views.admin_center, name='admin_center'),
     path('admin-center/users/', admin_center_views.admin_users, name='admin_users'),
+    path('admin-center/users/<int:user_id>/', admin_center_views.admin_user_detail, name='admin_user_detail'), 
+    path('admin-center/jobs/', admin_center_views.admin_jobs, name='admin_jobs'),
     path('admin-center/jobs/', admin_center_views.admin_jobs, name='admin_jobs'),
     path(
         'admin-center/applications/',

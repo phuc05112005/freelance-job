@@ -6,7 +6,7 @@
 <section class="split-auth-container">
     <div class="auth-form-side">
         <div class="auth-content-box">
-            <h1 class="auth-title">Đăng ký Nhà tuyển dụng</h1>
+            <h1 class="auth-title">Đăng ký - Nhà tuyển dụng</h1>
             <p class="auth-subtitle">Bắt đầu tìm kiếm những tài năng trẻ xuất sắc cho doanh nghiệp của bạn.</p>
             
             <form method="post" class="modern-auth-form">
@@ -156,6 +156,49 @@
     @media (max-width: 1100px) {
         .auth-image-side { display: none; }
         .auth-form-side { padding: 40px 20px; }
+    }
+    /* ===== BUTTON HOVER PRO (ĐỒNG BỘ HOME) ===== */
+    .button {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        transform: translateY(0);
+    }
+
+    /* hover nổi */
+    .button:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow:
+            0 12px 28px rgba(0,0,0,0.22),
+            0 6px 14px rgba(0,0,0,0.12);
+    }
+
+    /* ánh sáng chạy */
+    .button::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255,255,255,0.6),
+            transparent
+        );
+        transform: skewX(-25deg);
+        pointer-events: none;
+    }
+
+    .button:hover::after {
+        left: 130%;
+        transition: 0.7s ease;
+    }
+
+    /* click nhẹ */
+    .button:active {
+        transform: translateY(0) scale(0.98);
     }
 </style>
 

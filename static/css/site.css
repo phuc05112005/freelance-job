@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --bg: #f4f6fb;
     --panel: #ffffff;
     --ink: #192230;
@@ -47,8 +47,10 @@ body {
 }
 
 .site-header {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     backdrop-filter: blur(10px);
     background: rgba(248, 251, 255, 0.86);
     border-bottom: 1px solid rgba(223, 230, 241, 0.8);
@@ -84,7 +86,7 @@ body {
 .brand-mark img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* giữ tỉ lệ, không méo */
+    object-fit: contain; /* giá»¯ tá»‰ lá»‡, khĂ´ng mĂ©o */
 }
 .brand-text {
     font-family: "Manrope", sans-serif;
@@ -154,7 +156,7 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 .page {
-    padding: 32px 0 48px;
+    padding: 104px 0 48px;
     flex: 1 0 auto;
 }
 
@@ -540,8 +542,8 @@ textarea {
     padding: 12px;
     max-height: 320px;
     overflow: auto;
-    width: 100%; /* 🔥 QUAN TRỌNG */
-    max-width: 100%; /* bỏ giới hạn */
+    width: 100%; /* đŸ”¥ QUAN TRá»ŒNG */
+    max-width: 100%; /* bá» giá»›i háº¡n */
 }
 
 #id_categories li,
@@ -597,7 +599,7 @@ textarea {
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
-    min-height: 320px; /* chỉnh theo ý bạn */
+    min-height: 320px; /* chá»‰nh theo Ă½ báº¡n */
     padding: 16px;
     border-radius: 12px;
     background: #fff;
@@ -823,7 +825,7 @@ textarea {
 }
 .job-foot a {
     white-space: nowrap;
-    flex-shrink: 0; /* KHÔNG co lại */
+    flex-shrink: 0; /* KHĂ”NG co láº¡i */
 }
 .tag-row {
     display: flex;
@@ -1237,7 +1239,7 @@ th {
 .application-table tbody tr:hover {
     background: #f8fafc;
 }
-/* ===== LINK CÔNG VIỆC ===== */
+/* ===== LINK CĂ”NG VIá»†C ===== */
 .job-link {
     display: block;
     font-weight: 700;
@@ -1261,7 +1263,7 @@ th {
     font-size: 0.82rem;
     color: #64748b;
 }
-/* ===== CỘT CÔNG VIỆC (QUAN TRỌNG NHẤT) ===== */
+/* ===== Cá»˜T CĂ”NG VIá»†C (QUAN TRá»ŒNG NHáº¤T) ===== */
 .app-list-table th:first-child,
 .app-list-table td:first-child {
     width: 16%;
@@ -1307,7 +1309,7 @@ th {
     width: 7%;
 }
 
-/* ===== BADGE TRẠNG THÁI ===== */
+/* ===== BADGE TRáº NG THĂI ===== */
 
 .status-accepted {
     background: #dcfce7;
@@ -2120,23 +2122,23 @@ th {
 
     background:
         radial-gradient(circle at var(--x, 50%) var(--y, 50%),
-            rgba(99, 102, 241, 0.25),   /* tím xanh premium */
+            rgba(99, 102, 241, 0.25),   /* tĂ­m xanh premium */
             rgba(56, 189, 248, 0.20),   /* xanh cyan */
-            rgba(16, 185, 129, 0.18),   /* xanh lá */
+            rgba(16, 185, 129, 0.18),   /* xanh lĂ¡ */
             transparent 60%
         ),
         radial-gradient(circle at calc(var(--x, 50%) + 300px) calc(var(--y, 50%) - 200px),
-            rgba(236, 72, 153, 0.15),  /* hồng nhẹ */
+            rgba(236, 72, 153, 0.15),  /* há»“ng nháº¹ */
             transparent 60%
         ),
         radial-gradient(circle at calc(var(--x, 50%) - 300px) calc(var(--y, 50%) + 200px),
             rgba(59, 130, 246, 0.15),
             transparent 60%
         ),
-        linear-gradient(180deg, #ffffff, #f8fafc); /* nền trắng xịn hơn */
+        linear-gradient(180deg, #ffffff, #f8fafc); /* ná»n tráº¯ng xá»‹n hÆ¡n */
 }
 
-/* Lớp glow blur sâu hơn */
+/* Lá»›p glow blur sĂ¢u hÆ¡n */
 .bg-mouse::before {
     content: "";
     position: absolute;
@@ -2153,7 +2155,7 @@ th {
     opacity: 0.7;
 }
 
-/* Lớp ánh sáng mịn (glass feel) */
+/* Lá»›p Ă¡nh sĂ¡ng má»‹n (glass feel) */
 .bg-mouse::after {
     content: "";
     position: absolute;
@@ -2169,7 +2171,7 @@ th {
     pointer-events: none;
 }
 
-/* Animation nhẹ cho màu */
+/* Animation nháº¹ cho mĂ u */
 @keyframes bgShift {
     0% {
         filter: hue-rotate(0deg) brightness(1);
@@ -2844,6 +2846,25 @@ html, body {
     flex: 0 0 auto;
 }
 
+.nav-actions-right a {
+    padding: 8px 12px;
+    border-radius: 9px;
+    color: #1e293b;
+    font-weight: 650;
+    text-decoration: none;
+    transition: background-color .22s ease, color .22s ease, box-shadow .22s ease;
+}
+
+.nav-actions-right a:hover {
+    background: #eef6ff;
+    color: #005f76;
+    box-shadow: inset 0 0 0 1px #cfe2f5;
+}
+
+.nav-actions-right .inline-form {
+    margin: 0;
+}
+
 @media (max-width: 1100px) {
     .nav-wrap {
         flex-wrap: wrap;
@@ -2859,6 +2880,8 @@ html, body {
         justify-content: flex-start;
     }
 }
+
+
 
 /* ===== Student vs Employer split ===== */
 .hero {
@@ -2964,8 +2987,9 @@ html, body {
 }
 
 #list_job {
-    scroll-margin-top: 80px; /* chỉnh số này theo chiều cao header hoặc khoảng bạn muốn chừa */
+    scroll-margin-top: 80px; /* chá»‰nh sá»‘ nĂ y theo chiá»u cao header hoáº·c khoáº£ng báº¡n muá»‘n chá»«a */
 }
 #apply-form-section{
-    scroll-margin-top: 80px; /* chỉnh số này theo chiều cao header hoặc khoảng bạn muốn chừa */
+    scroll-margin-top: 80px; /* chá»‰nh sá»‘ nĂ y theo chiá»u cao header hoáº·c khoáº£ng báº¡n muá»‘n chá»«a */
 }
+

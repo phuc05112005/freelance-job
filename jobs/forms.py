@@ -108,21 +108,38 @@ class JobCategoryForm(forms.ModelForm):
     class Meta:
         model = JobCategory
         fields = ('name', 'slug')
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Ví dụ: Công nghệ thông tin'}),
+            'slug': forms.TextInput(attrs={'placeholder': 'vi-du: cong-nghe-thong-tin'}),
+        }
 
 
 class ExperienceLevelForm(forms.ModelForm):
     class Meta:
         model = ExperienceLevel
         fields = ('name', 'code', 'order')
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Ví dụ: Junior (1-2 năm)'}),
+            'code': forms.TextInput(attrs={'placeholder': 'vi-du: junior'}),
+            'order': forms.NumberInput(attrs={'placeholder': 'Ví dụ: 1'}),
+        }
 
 
 class WorkModeForm(forms.ModelForm):
     class Meta:
         model = WorkMode
         fields = ('name', 'code')
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Ví dụ: Làm tại văn phòng'}),
+            'code': forms.TextInput(attrs={'placeholder': 'vi-du: office'}),
+        }
 
 
 class EmploymentTypeForm(forms.ModelForm):
     class Meta:
         model = EmploymentType
         fields = ('name', 'code')
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Ví dụ: Toàn thời gian'}),
+            'code': forms.TextInput(attrs={'placeholder': 'vi-du: fulltime'}),
+        }

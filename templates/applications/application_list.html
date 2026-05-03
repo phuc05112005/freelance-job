@@ -105,8 +105,10 @@
                     <th>Ngày ứng tuyển</th>
                     <th>Hồ sơ / Liên hệ</th>
                     <th>Trạng thái</th>
-                    {% if user.role != 'student' %}
-                    <th class="text-right">Thao tác</th>
+                    {% if user.role == 'student' %}
+                        <th class="text-left">Chi tiết</th>
+                    {% else %}
+                        <th class="text-left">Thao tác</th>
                     {% endif %}
                 </tr>
             </thead>
@@ -145,8 +147,8 @@
                         </td>
                         <td class="text-right">
                             <div class="action-buttons">
-                                <a href="{% url 'application_detail' app.pk %}" class="action-btn view" title="Xem chi tiết">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <a href="{% url 'application_detail' app.pk %}" class="btn-view-detail">
+                                    Xem
                                 </a>
                                 {% if user.role != 'student' %}
                                     <form method="post" action="{% url 'application_status_update' app.pk %}" class="status-update-form">
@@ -191,7 +193,6 @@
 <style>
     .no-padding { padding: 0; }
     .overflow-hidden { overflow: hidden; }
-    .text-right { text-align: right; }
     
     /* -------------------------------------
        NÚT QUAY LẠI TRANG CHỦ (ĐÃ LÀM ĐẸP)
@@ -287,6 +288,31 @@
     @media (max-width: 980px) {
         .filter-row { grid-template-columns: 1fr; }
         .filter-row.second-row { grid-template-columns: 1fr; }
+    }
+    .btn-view-detail {
+        display: inline-block;
+        padding: 6px 14px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border-radius: 8px;
+        text-decoration: none;
+        border: 1px solid #bfdbfe;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view-detail:hover {
+        background: #2563eb;
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    }
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; 
+        gap: 8px;
     }
 </style>
 {% endblock %}

@@ -291,6 +291,10 @@ def activate(request, uidb64, token):
 
 def login_view(request):
     if request.user.is_authenticated:
+        if has_admin_permission(request.user):
+            return redirect('admin_center')
+        if request.user.role == 'employer':
+            return redirect('employer_home')
         return redirect('home')
 
     next_url = _get_safe_next_url(request)
@@ -301,6 +305,8 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, 'Đăng nhập thành công.')
+            if has_admin_permission(user):
+                return redirect('admin_center')
             if user.role == 'employer':
                 return redirect('employer_home')
             return redirect(next_url)
