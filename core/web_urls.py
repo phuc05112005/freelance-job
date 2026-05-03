@@ -15,6 +15,7 @@ urlpatterns = [
     path('accounts/logout/', web_views.logout_view, name='logout'),
     path('accounts/profile/', web_views.account_profile, name='account_profile'),
     path('jobs/create/', web_views.job_create, name='job_create'),
+    path('jobs/all/', web_views.job_list_all, name='job_list_all'),
     path('jobs/<int:pk>/', web_views.job_detail, name='job_detail'),
     path('jobs/<int:pk>/edit/', web_views.job_edit, name='job_edit'),
     path('jobs/<int:pk>/delete/', web_views.job_delete, name='job_delete'),

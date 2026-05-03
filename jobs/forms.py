@@ -44,7 +44,7 @@ class JobForm(forms.ModelForm):
             ),
             'deadline': forms.DateInput(attrs={'type': 'date'}),
             'address': forms.TextInput(attrs={'placeholder': 'Ví dụ: 268 Lý Thường Kiệt, Quận 10'}),
-            'city': forms.TextInput(attrs={'placeholder': 'Ví dụ: TP Hồ Chí Minh'}),
+            'city': forms.Select(choices=[('', 'Ch?n T?nh/Th?nh ph?')]),
             'salary_min': forms.NumberInput(attrs={
                 'placeholder': 'Có thể để trống nếu lương: Thỏa thuận'
             }),

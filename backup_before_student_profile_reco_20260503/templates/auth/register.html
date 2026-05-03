@@ -44,24 +44,6 @@
                     {{ form.phone }}
                     {{ form.phone.errors }}
                 </div>
-                <div class="form-row-double">
-                    <div class="form-group">
-                        <label>Tên trường đại học</label>
-                        {{ form.university }}
-                        {{ form.university.errors }}
-                    </div>
-                    <div class="form-group">
-                        <label>Chuyên ngành</label>
-                        {{ form.major }}
-                        {{ form.major.errors }}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Địa điểm mong muốn làm việc</label>
-                    {{ form.province }}
-                    {{ form.province.errors }}
-                </div>
 
                 <div class="form-group">
                     <label>Mật khẩu</label>
@@ -142,8 +124,8 @@
     
     .modern-auth-form .form-group { margin-bottom: 20px; }
     .modern-auth-form label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: #475569; }
-    .modern-auth-form input, .modern-auth-form select { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; transition: all 0.2s; }
-    .modern-auth-form input:focus, .modern-auth-form select:focus { border-color: #2563eb; background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+    .modern-auth-form input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; transition: all 0.2s; }
+    .modern-auth-form input:focus { border-color: #2563eb; background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
     
     .form-row-double { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     
@@ -261,21 +243,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-
-    // 3. Load Province data from JSON
-    const provinceSelect = document.querySelector('select[name="province"]');
-    if (provinceSelect) {
-        fetch("{% static 'data/xaphuong/provinces.json' %}")
-            .then(res => res.json())
-            .then(data => {
-                data.sort((a, b) => a.name.localeCompare(b.name));
-                data.forEach(p => {
-                    const option = new Option(p.name, p.name);
-                    provinceSelect.add(option);
-                });
-            })
-            .catch(err => console.error("Error loading provinces:", err));
-    }
 });
 </script>
 {% endblock %}

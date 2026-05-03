@@ -1,4 +1,5 @@
 ﻿{% extends 'base.html' %}
+{% load static %}
 {% block title %}{% if mode == 'edit' %}Chỉnh sửa bài đăng tuyển{% else %}Đăng việc{% endif %}{% endblock %}
 {% block content %}
 <div style="margin-bottom: 16px; display:flex; align-items:center; gap:14px;">
@@ -218,6 +219,7 @@
         const searchInput = document.getElementById('category-search');
         const categoriesContainer = document.getElementById('id_categories');
         const jobForm = document.getElementById('job-form');
+        const citySelect = document.getElementById('id_city');
 
         const removeAccents = (str) => {
             return str
@@ -247,6 +249,33 @@
                     }
                 }
             });
+        }
+        if (citySelect) {
+            const provincesUrl = "{% static 'data/xaphuong/provinces.json' %}";
+            const currentCity = "{{ form.city.value|default:''|escapejs }}";
+
+            fetch(provincesUrl)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Cannot load provinces');
+                    }
+                    return response.json();
+                })
+                .then((provinces) => {
+                    const sortedProvinces = [...provinces].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+                    citySelect.innerHTML = '<option value="">Ch?n T?nh/Th?nh ph?</option>';
+
+                    sortedProvinces.forEach((province) => {
+                        const option = new Option(province.name, province.name);
+                        if (province.name === currentCity) {
+                            option.selected = true;
+                        }
+                        citySelect.add(option);
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error loading provinces for job city select:', error);
+                });
         }
 
         const hasLikelyHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(value || '');
@@ -333,6 +362,10 @@
     });
 </script>
 {% endblock %}
+
+
+
+
 
 
 

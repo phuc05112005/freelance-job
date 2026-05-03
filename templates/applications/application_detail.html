@@ -28,6 +28,9 @@
                         {% if app.student.university %}
                             <span class="badge">{{ app.student.university }}</span>
                         {% endif %}
+                        {% if app.student.major %}
+                            <span class="badge badge-outline">{{ app.student.major }}</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>

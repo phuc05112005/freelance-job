@@ -78,32 +78,7 @@
                 </div>
             </div>
 
-                        {% if user.role == 'student' %}
-                <div class="field-row">
-                    <label for="{{ profile_form.university.id_for_label }}">Trường đại học</label>
-                    <div class="field-control">
-                        {{ profile_form.university }}
-                        {{ profile_form.university.errors }}
-                    </div>
-                </div>
-
-                <div class="field-row">
-                    <label for="{{ profile_form.major.id_for_label }}">Chuyên ngành</label>
-                    <div class="field-control">
-                        {{ profile_form.major }}
-                        {{ profile_form.major.errors }}
-                    </div>
-                </div>
-
-                <div class="field-row">
-                    <label for="{{ profile_form.province.id_for_label }}">Địa điểm mong muốn làm việc</label>
-                    <div class="field-control">
-                        {{ profile_form.province }}
-                        {{ profile_form.province.errors }}
-                    </div>
-                </div>
-            {% endif %}
-{% if user.role == 'employer' %}
+            {% if user.role == 'employer' %}
                 <div class="field-row">
                     <label for="{{ profile_form.company_name.id_for_label }}">Tên công ty</label>
                     <div class="field-control">
@@ -240,6 +215,7 @@
     }
 </style>
 
+{% if user.role == 'employer' %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const provinceSelect = document.querySelector('select[name="province"]');
@@ -276,13 +252,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.selected = true;
             }
             
-            if (provinceSelect) {
-                provinceSelect.add(option);
-            }
+            provinceSelect.add(option);
         });
 
         // Nếu user đã có Tỉnh, tải luôn danh sách Phường của Tỉnh đó
-        if (currentProvince && provinceSelect) {
+        if (currentProvince) {
             const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
             if (selectedOption && selectedOption.dataset.id) {
                 loadWards(selectedOption.dataset.id, currentWard);
@@ -294,17 +268,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Bắt sự kiện đổi Tỉnh/Thành
-    if (provinceSelect) {
-        provinceSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const provinceId = selectedOption.dataset.id;
-            loadWards(provinceId, null);
-        });
-    }
+    provinceSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const provinceId = selectedOption.dataset.id;
+        // Đổi tỉnh thì không chọn sẵn phường nào cả (truyền null)
+        loadWards(provinceId, null);
+    });
 
     // Hàm load Phường/Xã
     function loadWards(provinceId, selectedWard) {
-        if (!wardSelect) return;
         wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
         if (!provinceId) return;
 
@@ -329,4 +301,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+{% endif %}
 {% endblock %}

@@ -105,7 +105,7 @@
             <option value="range" {% if salary_type == 'range' %}selected{% endif %}>Khoảng lương</option>
             <option value="fixed" {% if salary_type == 'fixed' %}selected{% endif %}>Lương cố định</option>
         </select>
-        <select name="city" id="homeCityFilter"><option value="">Tất cả Tỉnh/Thành phố</option></select>
+        <input type="text" name="city" placeholder="Tỉnh/Thành phố..." value="{{ city }}">
         <select name="status">
             <option value="">Tất cả trạng thái</option>
             <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
@@ -116,22 +116,21 @@
 </section>
 
 
-{% if is_searching %}
-<section class="job-section search-results-section" id="search_results">
+<section class="job-section">
     <div class="job-section-header">
-        <h2>Kết quả tìm kiếm</h2>
-        <p>Tìm thấy {{ search_results.paginator.count }} công việc phù hợp</p>
+        <h2>Việc làm mới nhất 🔥</h2>
     </div>
-    <div class="job-carousel-nav">
-        <button type="button" class="job-slide-arrow left" data-target="searchGrid" aria-label="Lướt trái">‹</button>
-        <button type="button" class="job-slide-arrow right" data-target="searchGrid" aria-label="L??t ph?i">›</button>
-    </div>
-    <div class="job-grid job-grid-home job-scroll-grid" id="searchGrid">
-        {% for job in search_results %}
+    <div class="job-grid job-grid-home">
+        {% for job in page_obj %}
             <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
                 <div class="job-card-home-top">
                     <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
-                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
+                        <img
+                            class="job-brand-image job-brand-image-square"
+                            src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
+                            alt="Ảnh thương hiệu {{ job.employer.username }}"
+                            loading="lazy"
+                        >
                     </a>
                     <div class="job-card-home-head">
                         <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
@@ -139,11 +138,13 @@
                     </div>
                 </div>
                 <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+
                 <div class="job-card-top">
                     <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
                     {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
                     {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
                 </div>
+
                 <div class="tag-row">
                     {% for category in job.categories.all %}
                         <span class="tag">{{ category.name }}</span>
@@ -154,162 +155,22 @@
                 <div class="job-foot">
                     <span>Mức lương: {{ job.display_salary }}</span>
                     <div class="job-foot-actions">
-                        <button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}">❤</button>
+                        <button
+                            type="button"
+                            class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}"
+                            data-job-id="{{ job.id }}"
+                            aria-label="Lưu việc {{ job.title }}"
+                            title="Lưu vào yêu thích"
+                        >❤</button>
                         <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a>
                     </div>
                 </div>
             </article>
         {% empty %}
-            <p class="empty">Không tìm thấy công việc nào phù hợp với yêu cầu của bạn.</p>
+            <p class="empty">Không có việc phù hợp bộ lọc hiện tại.</p>
         {% endfor %}
-    </div>
-
-    <div class="pagination">
-        {% if search_results.has_previous %}
-            <a href="?page={{ search_results.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}#search_results">⬅</a>
-        {% endif %}
-        <span>Trang {{ search_results.number }} / {{ search_results.paginator.num_pages }}</span>
-        {% if search_results.has_next %}
-            <a href="?page={{ search_results.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}#search_results">➡</a>
-        {% endif %}
-    </div>
+    </div> 
 </section>
-<hr class="section-divider">
-{% endif %}
-
-<section class="job-section">
-    <div class="job-section-header discovery-header">
-        <h2>Việc làm mới nhất</h2>
-        <a href="{% url 'job_list_all' %}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
-    </div>
-    <div class="job-grid job-grid-home job-scroll-grid" id="latestGrid">
-        {% for job in latest_jobs %}
-            <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
-                <div class="job-card-home-top">
-                    <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
-                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
-                    </a>
-                    <div class="job-card-home-head">
-                        <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
-                        <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
-                    </div>
-                </div>
-                <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
-                <div class="job-card-top">
-                    <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
-                    {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
-                    {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
-                </div>
-                <div class="tag-row">
-                    {% for category in job.categories.all %}
-                        <span class="tag">{{ category.name }}</span>
-                    {% empty %}
-                        <span class="tag">Chưa gắn lĩnh vực</span>
-                    {% endfor %}
-                </div>
-                <div class="job-foot">
-                    <span>Mức lương: {{ job.display_salary }}</span>
-                    <div class="job-foot-actions">
-                        <button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}" title="Lưu vào yêu thích">❤</button>
-                        <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a>
-                    </div>
-                </div>
-            </article>
-        {% endfor %}
-    </div>
-</section>
-
-{% if user.is_authenticated and user.role == 'student' and recommended_major_jobs %}
-<section class="job-section">
-    <div class="job-section-header discovery-header">
-        <h2>Việc làm theo chuyên ngành</h2>
-        <a href="{% url 'job_list_all' %}?q={{ user.major|urlencode }}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
-    </div>
-    <div class="job-grid job-grid-home job-scroll-grid" id="majorGrid">
-        {% for job in recommended_major_jobs %}
-            <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
-                <div class="job-card-home-top">
-                    <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
-                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
-                    </a>
-                    <div class="job-card-home-head">
-                        <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
-                        <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
-                    </div>
-                </div>
-                <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
-                <div class="job-card-top">
-                    <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
-                    {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
-                    {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
-                </div>
-                <div class="tag-row">
-                    {% for category in job.categories.all %}
-                        <span class="tag">{{ category.name }}</span>
-                    {% empty %}
-                        <span class="tag">Chưa gắn lĩnh vực</span>
-                    {% endfor %}
-                </div>
-                <div class="job-foot">
-                    <span>Mức lương: {{ job.display_salary }}</span>
-                    <div class="job-foot-actions"><button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}" title="Lưu vào yêu thích">❤</button><a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a></div>
-                </div>
-            </article>
-        {% endfor %}
-    </div>
-    <div class="job-carousel-nav">
-        <button type="button" class="job-slide-arrow left" data-target="majorGrid" aria-label="Lướt trái">‹</button>
-        <button type="button" class="job-slide-arrow right" data-target="majorGrid" aria-label="Lướt phải">›</button>
-    </div>
-</section>
-{% endif %}
-
-{% if user.is_authenticated and user.role == 'student' and nearby_jobs %}
-<section class="job-section">
-    <div class="job-section-header discovery-header">
-        <h2>Việc làm gần bạn</h2>
-        <a href="{% url 'job_list_all' %}?city={{ user.province|urlencode }}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
-    </div>
-    <div class="job-grid job-grid-home job-scroll-grid" id="nearbyGrid">
-        {% for job in nearby_jobs %}
-            <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
-                <div class="job-card-home-top">
-                    <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
-                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
-                    </a>
-                    <div class="job-card-home-head">
-                        <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
-                        <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
-                    </div>
-                </div>
-                <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
-                <div class="job-card-top">
-                    <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
-                    {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
-                    {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
-                </div>
-                <div class="tag-row">
-                    {% for category in job.categories.all %}
-                        <span class="tag">{{ category.name }}</span>
-                    {% empty %}
-                        <span class="tag">Chưa gắn lĩnh vực</span>
-                    {% endfor %}
-                </div>
-                <div class="job-foot">
-                    <span>Mức lương: {{ job.display_salary }}</span>
-                    <div class="job-foot-actions"><button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}" title="Lưu vào yêu thích">❤</button><a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a></div>
-                </div>
-                
-            </article>
-        {% endfor %}
-    </div>
-    <div class="job-carousel-nav">
-        <button type="button" class="job-slide-arrow left" data-target="nearbyGrid" aria-label="Lướt trái">‹</button>
-        <button type="button" class="job-slide-arrow right" data-target="nearbyGrid" aria-label="Lướt phải">›</button>
-    </div>
-</section>
-{% endif %}
-
 <style>
 @keyframes heartPop {
     0%   { transform: scale(1); }
@@ -593,11 +454,11 @@
 }
 /* ===== Header Mới nhất ===== */
 .job-section {
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 .job-section-header {
-    margin-bottom: 10px;
+    margin-bottom: 2px;
 }
 
 .job-section-header h2 {
@@ -621,95 +482,6 @@
 .job-section-header p {
     font-size: 0.9rem;
     color: #64748b;
-}
-
-.discovery-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.discovery-header h2 {
-    margin: 0;
-}
-
-.view-all-btn {
-    margin-left: auto;
-    white-space: nowrap;
-}
-
-@media (max-width: 640px) {
-    .discovery-header {
-        flex-wrap: wrap;
-        align-items: flex-start;
-    }
-
-    .view-all-btn {
-        margin-left: 0;
-    }
-}
-
-
-
-.job-section {
-    position: relative;
-}
-
-.job-scroll-grid {
-    overflow-x: auto;
-    scroll-behavior: smooth;
-}
-
-.job-scroll-grid::-webkit-scrollbar {
-    height: 8px;
-}
-
-.job-carousel-nav {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-.job-slide-arrow {
-    width: 38px;
-    height: 38px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 50%;
-    background: #fff;
-    color: #334155;
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    transition: all 0.18s ease;
-}
-.job-slide-arrow:hover {
-    border-color: #94a3b8;
-    background: #f8fafc;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-    transform: scale(1.1);
-}
-
-.clickable-job-card {
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.clickable-job-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
-}
-
-@media (max-width: 768px) {
-    .job-slide-arrow {
-        display: none;
-    }
 }
 </style>
 <script>
@@ -769,36 +541,6 @@
         });
     }
 
-
-    /* ===== Home city filter ===== */
-    const homeCityFilter = document.getElementById('homeCityFilter');
-    if (homeCityFilter) {
-        const provincesUrl = "{% static 'data/xaphuong/provinces.json' %}";
-        const currentCity = "{{ city|default:''|escapejs }}";
-
-        fetch(provincesUrl)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Cannot load provinces');
-                }
-                return response.json();
-            })
-            .then((provinces) => {
-                const sortedProvinces = [...provinces].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
-                homeCityFilter.innerHTML = '<option value="">Tất cả Tỉnh/Thành phố</option>';
-
-                sortedProvinces.forEach((province) => {
-                    const option = new Option(province.name, province.name);
-                    if (province.name === currentCity) {
-                        option.selected = true;
-                    }
-                    homeCityFilter.add(option);
-                });
-            })
-            .catch((error) => {
-                console.error('Error loading provinces for home city filter:', error);
-            });
-    }
     /* ===== Toggle favorite ===== */
     document.querySelectorAll('.favorite-btn').forEach(function (btn) {
         btn.addEventListener('click', async function (e) {
@@ -841,21 +583,6 @@
             }
         });
     });
-
-
-    /* ===== Job section slide arrows ===== */
-    document.querySelectorAll('.job-slide-arrow').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            const targetId = btn.getAttribute('data-target');
-            const grid = document.getElementById(targetId);
-            if (!grid) return;
-            const amount = Math.max(grid.clientWidth * 0.9, 280);
-            const dir = btn.classList.contains('right') ? 1 : -1;
-            grid.scrollBy({ left: dir * amount, behavior: 'smooth' });
-        });
-    });
-
     /* ===== Hero Banner Slider ===== */
     (function () {
         const track  = document.getElementById('heroBannerTrack');
@@ -904,4 +631,14 @@
     })();
 })();
 </script>
+
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">⬅</a>
+    {% endif %}
+    <span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">➡</a>
+    {% endif %}
+</div>
 {% endblock %}

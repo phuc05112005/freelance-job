@@ -60,7 +60,7 @@ def _parse_date_param(raw_value):
         return None
 
 
-def _filter_jobs(request):
+def home(request):
     query = request.GET.get('q', '').strip()
     status = request.GET.get('status', '').strip()
     mode = request.GET.get('mode', '').strip()
@@ -95,30 +95,12 @@ def _filter_jobs(request):
     if city:
         jobs = jobs.filter(city__icontains=city)
 
-    return jobs.distinct().order_by('-created_at')
+    paginator = Paginator(jobs.distinct(), 8)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
-
-def home(request):
-    # Check if any filter is active
-    is_searching = any(
-        request.GET.get(p) for p in ['q', 'status', 'mode', 'category', 'employment', 'salary_type', 'city']
-    )
-
-    today = timezone.localdate()
-    search_results = None
-    if is_searching:
-        jobs_qs = _filter_jobs(request)
-        paginator = Paginator(jobs_qs, 8)
-        search_results = paginator.get_page(request.GET.get('page'))
-
-    # Latest Jobs (Discovery) - Always get latest 8
-    latest_jobs = (
-        Job.objects.select_related('employer')
-        .prefetch_related('categories')
-        .filter(status='open')
-        .filter(Q(deadline__isnull=True) | Q(deadline__gte=today))
-        .order_by('-created_at')[:8]
-    )
+    query_data = request.GET.copy()
+    query_data.pop('page', None)
+    filters_query = query_data.urlencode()
 
     stats = {
         'jobs': Job.objects.count(),
@@ -129,55 +111,20 @@ def home(request):
         'employers': User.objects.filter(role='employer').count(),
     }
 
-    recommended_major_jobs = Job.objects.none()
-    nearby_jobs = Job.objects.none()
-    if request.user.is_authenticated and request.user.role == 'student':
-        major = (request.user.major or '').strip()
-        province = (request.user.province or '').strip()
-        if major:
-            recommended_major_jobs = (
-                Job.objects.select_related('employer')
-                .prefetch_related('categories')
-                .filter(
-                    Q(title__icontains=major)
-                    | Q(description__icontains=major)
-                    | Q(required_skills__icontains=major)
-                    | Q(categories__name__icontains=major)
-                )
-                .distinct()
-                .order_by('-created_at')[:4]
-            )
-        if province:
-            nearby_jobs = (
-                Job.objects.select_related('employer')
-                .prefetch_related('categories')
-                .filter(city__icontains=province)
-                .distinct()
-                .order_by('-created_at')[:4]
-            )
-
-    query_data = request.GET.copy()
-    query_data.pop('page', None)
-    filters_query = query_data.urlencode()
-
     context = {
-        'is_searching': is_searching,
-        'search_results': search_results,
-        'latest_jobs': latest_jobs,
-        'query': request.GET.get('q', ''),
-        'status': request.GET.get('status', ''),
-        'mode': request.GET.get('mode', ''),
-        'category_id': request.GET.get('category', ''),
-        'employment': request.GET.get('employment', ''),
-        'salary_type': request.GET.get('salary_type', ''),
-        'city': request.GET.get('city', ''),
+        'page_obj': page_obj,
+        'query': query,
+        'status': status,
+        'mode': mode,
+        'category_id': category_id,
+        'employment': employment,
+        'salary_type': salary_type,
+        'city': city,
         'categories': JobCategory.objects.all(),
         'stats': stats,
         'work_modes': WorkMode.objects.all(),
         'employment_types': EmploymentType.objects.all(),
         'filters_query': filters_query,
-        'recommended_major_jobs': recommended_major_jobs,
-        'nearby_jobs': nearby_jobs,
     }
     if request.user.is_authenticated:
         favorite_job_ids = set(
@@ -187,39 +134,6 @@ def home(request):
         favorite_job_ids = set()
     context['favorite_job_ids'] = favorite_job_ids
     return render(request, 'home.html', context)
-
-
-def job_list_all(request):
-    jobs_qs = _filter_jobs(request)
-    paginator = Paginator(jobs_qs, 8)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    query_data = request.GET.copy()
-    query_data.pop('page', None)
-    filters_query = query_data.urlencode()
-
-    context = {
-        'page_obj': page_obj,
-        'query': request.GET.get('q', ''),
-        'status': request.GET.get('status', ''),
-        'mode': request.GET.get('mode', ''),
-        'category_id': request.GET.get('category', ''),
-        'employment': request.GET.get('employment', ''),
-        'salary_type': request.GET.get('salary_type', ''),
-        'city': request.GET.get('city', ''),
-        'categories': JobCategory.objects.all(),
-        'work_modes': WorkMode.objects.all(),
-        'employment_types': EmploymentType.objects.all(),
-        'filters_query': filters_query,
-    }
-    if request.user.is_authenticated:
-        favorite_job_ids = set(
-            FavoriteJob.objects.filter(user=request.user).values_list('job_id', flat=True)
-        )
-    else:
-        favorite_job_ids = set()
-    context['favorite_job_ids'] = favorite_job_ids
-    return render(request, 'jobs/job_list.html', context)
 
 
 def employer_landing(request):
