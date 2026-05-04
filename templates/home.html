@@ -124,7 +124,7 @@
     </div>
     <div class="job-carousel-nav">
         <button type="button" class="job-slide-arrow left" data-target="searchGrid" aria-label="Lướt trái">‹</button>
-        <button type="button" class="job-slide-arrow right" data-target="searchGrid" aria-label="L??t ph?i">›</button>
+        <button type="button" class="job-slide-arrow right" data-target="searchGrid" aria-label="Lướt phải">›</button>
     </div>
     <div class="job-grid job-grid-home job-scroll-grid" id="searchGrid">
         {% for job in search_results %}
@@ -179,7 +179,7 @@
 
 <section class="job-section">
     <div class="job-section-header discovery-header">
-        <h2>Việc làm mới nhất</h2>
+        <h2>Việc làm mới nhất 🔥</h2>
         <a href="{% url 'job_list_all' %}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
     </div>
     <div class="job-grid job-grid-home job-scroll-grid" id="latestGrid">
@@ -222,10 +222,10 @@
 {% if user.is_authenticated and user.role == 'student' and recommended_major_jobs %}
 <section class="job-section">
     <div class="job-section-header discovery-header">
-        <h2>Việc làm theo chuyên ngành</h2>
+        <h2>Việc làm chuyên ngành liên quan</h2>
         <a href="{% url 'job_list_all' %}?q={{ user.major|urlencode }}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
     </div>
-    <div class="job-grid job-grid-home job-scroll-grid" id="majorGrid">
+    <div class="job-carousel-4" id="majorGrid">
         {% for job in recommended_major_jobs %}
             <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
                 <div class="job-card-home-top">
@@ -258,8 +258,18 @@
         {% endfor %}
     </div>
     <div class="job-carousel-nav">
-        <button type="button" class="job-slide-arrow left" data-target="majorGrid" aria-label="Lướt trái">‹</button>
-        <button type="button" class="job-slide-arrow right" data-target="majorGrid" aria-label="Lướt phải">›</button>
+        <button type="button" class="job-slide-arrow left" data-target="majorGrid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+        <button type="button" class="job-slide-arrow right" data-target="majorGrid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+        </button>
     </div>
 </section>
 {% endif %}
@@ -270,7 +280,7 @@
         <h2>Việc làm gần bạn</h2>
         <a href="{% url 'job_list_all' %}?city={{ user.province|urlencode }}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
     </div>
-    <div class="job-grid job-grid-home job-scroll-grid" id="nearbyGrid">
+    <div class="job-carousel-4" id="nearbyGrid">
         {% for job in nearby_jobs %}
             <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
                 <div class="job-card-home-top">
@@ -304,8 +314,18 @@
         {% endfor %}
     </div>
     <div class="job-carousel-nav">
-        <button type="button" class="job-slide-arrow left" data-target="nearbyGrid" aria-label="Lướt trái">‹</button>
-        <button type="button" class="job-slide-arrow right" data-target="nearbyGrid" aria-label="Lướt phải">›</button>
+        <button type="button" class="job-slide-arrow left" data-target="nearbyGrid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+        <button type="button" class="job-slide-arrow right" data-target="nearbyGrid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+        </button>
     </div>
 </section>
 {% endif %}
@@ -710,6 +730,52 @@
     .job-slide-arrow {
         display: none;
     }
+}
+.job-carousel-4 {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    align-items: stretch;
+}
+.job-carousel-4::-webkit-scrollbar { height: 6px; }
+.job-carousel-4::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.job-carousel-4 .job-card-home {
+    flex: 0 0 calc(25% - 12px);
+    min-width: 240px;
+    box-sizing: border-box;
+    scroll-snap-align: start;
+    /* card đều chiều cao */
+    display: flex;
+    flex-direction: column;
+    height: auto; /* bỏ height cứng, để stretch tự căn */
+}
+
+/* đẩy phần lương + nút xuống đáy */
+.job-carousel-4 .job-card-home .job-foot {
+    margin-top: auto;
+}
+
+/* tag-row không co lại */
+.job-carousel-4 .job-card-home .tag-row {
+    flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+    .job-carousel-4 .job-card-home { flex: 0 0 calc(33.33% - 11px); min-width: 220px; }
+}
+@media (max-width: 768px) {
+    .job-carousel-4 .job-card-home { flex: 0 0 calc(50% - 8px); min-width: 200px; }
+}
+@media (max-width: 480px) {
+    .job-carousel-4 .job-card-home { flex: 0 0 85%; min-width: 0; }
 }
 </style>
 <script>

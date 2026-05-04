@@ -145,7 +145,7 @@ def home(request):
                     | Q(categories__name__icontains=major)
                 )
                 .distinct()
-                .order_by('-created_at')[:4]
+                .order_by('-created_at')[:8]
             )
         if province:
             nearby_jobs = (
@@ -153,7 +153,7 @@ def home(request):
                 .prefetch_related('categories')
                 .filter(city__icontains=province)
                 .distinct()
-                .order_by('-created_at')[:4]
+                .order_by('-created_at')[:8]
             )
 
     query_data = request.GET.copy()
