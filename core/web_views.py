@@ -757,16 +757,3 @@ def application_detail_view(request, pk):
             ('rejected', 'Đã từ chối'),
         )
     })
-
-
-def GoiY(request, id):
-    job = get_object_or_404(Job, id=id)
-    category_id = job.categories.values_list('id', flat=True)
-    related_jobs = (
-        Job.objects.filter(categories__id__in=category_id)
-        .exclude(id=job.id)
-        .annotate(same_categories_count=Count('categories'))
-        .order_by('-same_categories_count', '-created_at')[:6]
-    )
-    context = {'job': job, 'related_jobs': related_jobs}
-    return render(request, 'jobs')

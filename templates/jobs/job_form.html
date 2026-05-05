@@ -99,7 +99,9 @@
         <label>Lương tối thiểu {{ form.salary_min }} {{ form.salary_min.errors }}</label>
         <label>Lương tối đa {{ form.salary_max }} {{ form.salary_max.errors }}</label>
         <label>Hạn nhận hồ sơ {{ form.deadline }} {{ form.deadline.errors }}</label>
-        <label>Trạng thái {{ form.status }} {{ form.status.errors }}</label>
+        {% if mode == 'edit' %}
+            <label>Trạng thái {{ form.status }} {{ form.status.errors }}</label>
+        {% endif %}
 
         <div class="full panel soft">
             <strong>Lưu ý:</strong> Chọn "Thỏa thuận" nếu không muốn hiển thị lương cụ thể.

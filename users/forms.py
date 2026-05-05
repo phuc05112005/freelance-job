@@ -88,6 +88,7 @@ class EmployerRegisterForm(UserCreationForm):
         return user
 
 
+
 class ProfileUpdateForm(forms.ModelForm):
     avatar_upload = forms.FileField(
         required=False,
