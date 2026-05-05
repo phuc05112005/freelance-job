@@ -35,14 +35,16 @@
             <option value="range" {% if salary_type == 'range' %}selected{% endif %}>Khoảng lương</option>
             <option value="fixed" {% if salary_type == 'fixed' %}selected{% endif %}>Lương cố định</option>
         </select>
-        <input type="text" name="city" placeholder="Tỉnh/Thành phố..." value="{{ city }}">
+        <select name="city" id="cityFilter"><option value="">Tất cả Tỉnh/Thành phố</option></select>
         <select name="status">
             <option value="">Tất cả trạng thái</option>
             <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
             <option value="expired" {% if status == 'expired' %}selected{% endif %}>Hết hạn</option>
         </select>
-        <button class="button button-sm" type="submit">Tìm kiếm</button>
-        <a href="{% url 'job_list_all' %}" class="button button-sm button-ghost">Xóa lọc</a>
+        <div class="filter-btn-group">
+            <button class="button button-sm" type="submit">Tìm</button>
+            <a href="{% url 'job_list_all' %}" class="button button-sm btn-clear-filter">Xóa lọc</a>
+        </div>
     </form>
 </section>
 
@@ -125,6 +127,41 @@
     margin-bottom: 20px;
     color: #64748b;
 }
+.filter-btn-group {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    white-space: nowrap;
+}
+
+.filter-btn-group .button {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn-group .button[type="submit"] {
+    flex: 2;
+}
+
+.filter-btn-group .btn-clear-filter {
+    flex: 1;
+}
+
+.btn-clear-filter {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: none;
+}
+
+.btn-clear-filter:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
 </style>
 
 <script>
@@ -173,6 +210,30 @@
             }
         });
     });
+    /* ===== City filter dropdown ===== */
+    const cityFilter = document.getElementById('cityFilter');
+    if (cityFilter) {
+        const provincesUrl = "{% static 'data/xaphuong/provinces.json' %}";
+        const currentCity = "{{ city|default:''|escapejs }}";
+
+        fetch(provincesUrl)
+            .then((response) => {
+                if (!response.ok) throw new Error('Cannot load provinces');
+                return response.json();
+            })
+            .then((provinces) => {
+                const sorted = [...provinces].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+                cityFilter.innerHTML = '<option value="">Tất cả Tỉnh/Thành phố</option>';
+                sorted.forEach((province) => {
+                    const option = new Option(province.name, province.name);
+                    if (province.name === currentCity) option.selected = true;
+                    cityFilter.add(option);
+                });
+            })
+            .catch((error) => {
+                console.error('Error loading provinces:', error);
+            });
+    }
 })();
 </script>
 {% endblock %}

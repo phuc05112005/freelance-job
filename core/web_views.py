@@ -77,6 +77,8 @@ def _filter_jobs(request):
             | Q(description__icontains=query)
             | Q(required_skills__icontains=query)
             | Q(employer__username__icontains=query)
+            | Q(categories__name__icontains=query)
+
         )
     if status == 'open':
         jobs = jobs.filter(status='open').filter(Q(deadline__isnull=True) | Q(deadline__gte=today))
@@ -131,9 +133,12 @@ def home(request):
 
     recommended_major_jobs = Job.objects.none()
     nearby_jobs = Job.objects.none()
+    major_category_id = ''
     if request.user.is_authenticated and request.user.role == 'student':
         major = (request.user.major or '').strip()
         province = (request.user.province or '').strip()
+        major_category = JobCategory.objects.filter(name__icontains=major).first()
+        major_category_id = major_category.id if major_category else ''
         if major:
             recommended_major_jobs = (
                 Job.objects.select_related('employer')
@@ -178,6 +183,7 @@ def home(request):
         'filters_query': filters_query,
         'recommended_major_jobs': recommended_major_jobs,
         'nearby_jobs': nearby_jobs,
+        'major_category_id': major_category_id,
     }
     if request.user.is_authenticated:
         favorite_job_ids = set(

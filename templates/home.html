@@ -111,7 +111,10 @@
             <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
             <option value="expired" {% if status == 'expired' %}selected{% endif %}>Hết hạn</option>
         </select>
-        <button class="button button-sm" type="submit">Tìm</button>
+        <div class="filter-btn-group">
+            <button class="button button-sm" type="submit">Tìm</button>
+            <a href="{% url 'home' %}" class="button button-sm btn-clear-filter">Xóa lọc</a>
+        </div>  
     </form>
 </section>
 
@@ -223,7 +226,8 @@
 <section class="job-section">
     <div class="job-section-header discovery-header">
         <h2>Việc làm chuyên ngành liên quan</h2>
-        <a href="{% url 'job_list_all' %}?q={{ user.major|urlencode }}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
+        <a href="{% url 'job_list_all' %}?q={{ user.major|urlencode }}&category={{ major_category_id }}" 
+        class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
     </div>
     <div class="job-carousel-4" id="majorGrid">
         {% for job in recommended_major_jobs %}
@@ -741,10 +745,10 @@
     padding-bottom: 8px;
     align-items: stretch;
 }
-.job-carousel-4::-webkit-scrollbar { height: 6px; }
-.job-carousel-4::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+.job-carousel-4::-webkit-scrollbar { display: none; }
+.job-carousel-4 {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .job-carousel-4 .job-card-home {
@@ -776,6 +780,47 @@
 }
 @media (max-width: 480px) {
     .job-carousel-4 .job-card-home { flex: 0 0 85%; min-width: 0; }
+}
+.job-carousel-4::-webkit-scrollbar {
+    display: none;
+}
+.job-carousel-4 {
+    -ms-overflow-style: none;  
+    scrollbar-width: none;    
+}
+.btn-clear-filter {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: none;
+}
+
+.btn-clear-filter:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+.filter-btn-group {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    white-space: nowrap;
+}
+
+.filter-btn-group .button {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn-group .button[type="submit"] {
+    flex: 2;
+}
+
+.filter-btn-group .btn-clear-filter {
+    flex: 1;
 }
 </style>
 <script>

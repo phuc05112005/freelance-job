@@ -42,6 +42,7 @@ class JobListCreateView(generics.ListCreateAPIView):
                 Q(title__icontains=keyword)
                 | Q(description__icontains=keyword)
                 | Q(required_skills__icontains=keyword)
+                | Q(categories__name__icontains=keyword)
             )
         if status == 'open':
             queryset = queryset.filter(status='open').filter(
