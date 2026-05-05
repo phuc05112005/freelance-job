@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import serve
 from django.urls import include, path, re_path
+from pages import views as pages
 
 urlpatterns = [
     path('', include('core.web_urls')),
@@ -25,6 +26,8 @@ urlpatterns = [
     path('api/jobs/', include('jobs.urls')),
     path('api/applications/', include('applications.urls')),
 ]
+
+handler404 = 'pages.views.error_404_view'
 
 if not settings.DEBUG:
     urlpatterns += [
