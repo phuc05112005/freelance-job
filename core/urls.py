@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf import settings
-from django.conf.urls.static import serve
+from django.conf.urls.static import static
 from django.urls import include, path, re_path
 from pages import views as pages
 
@@ -29,7 +29,4 @@ urlpatterns = [
 
 handler404 = 'pages.views.error_404_view'
 
-if not settings.DEBUG:
-    urlpatterns += [
-        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    ]
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
