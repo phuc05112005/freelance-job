@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card cv-manage-card position-relative">
+    <div class="card-body p-4">
+
+        <form action="{% url 'xoacv' cv.id %}" method="POST" class="cv-delete-btn">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('Bạn có chắc muốn xóa CV này?')">
+                Xóa CV
+            </button>
+        </form>
+
+        <div class="d-flex flex-column flex-md-row align-items-center">
+
+            <div class="me-md-4 mb-3 mb-md-0">
+                {% if cv.avatar %}
+                    <img src="{{ cv.avatar.url }}" class="cv-avatar">
+                {% else %}
+                    <div class="cv-no-img">No Image</div>
+                {% endif %}
+            </div>
+
+            <div class="flex-grow-1 w-100 text-center text-md-start">
+                <h2 class="cv-name">{{ cv.hoten|upper }}</h2>
+                <p class="cv-title">Tiêu đề: {{ cv.tieude }}</p>
+
+                <div class="cv-actions-group">
+                    <a href="{% url 'suacv' cv.id %}" class="btn btn-outline">
+                        Sửa CV
+                    </a>
+
+                    <a href="{% url 'taicv' cv.id %}" class="btn btn-solid">
+                        Tải CV
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

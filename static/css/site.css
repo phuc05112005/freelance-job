@@ -2993,3 +2993,529 @@ html, body {
     scroll-margin-top: 80px; /* chá»‰nh sá»‘ nĂ y theo chiá»u cao header hoáº·c khoáº£ng báº¡n muá»‘n chá»«a */
 }
 
+.cv-card-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+}
+
+.cv-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    width: 100%;
+    max-width: 1000px;
+    position: relative;
+    border: 1px solid #eee;
+}
+
+.delete-link {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.cv-content {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.cv-preview img {
+    width: 120px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.cv-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.cv-date {
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 25px;
+}
+
+.cv-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+}
+
+.btn-edit, .btn-download {
+    background-color: #f3f0ff;
+    color: #4c1d95;
+}
+
+.btn-primary-custom {
+    background-color: #4338ca;
+    color: white;
+}
+
+.btn-action:hover {
+    opacity: 0.8;
+}
+
+/* Tông màu xanh xám chủ đạo của mẫu */
+:root {
+    --cv-blue: #5d6d7e; 
+    --cv-text-light: #ecf0f1;
+}
+
+/* Container chính bao quanh CV để chụp ảnh cho đẹp */
+.cv-print-container {
+    padding: 30px 0;
+    background-color: #f4f7f6;
+}
+
+/* Card chính chứa CV, đặt kích thước chuẩn A4 */
+#CV.cv-main-card {
+    background: #ffffff;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    display: flex;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 1. CỘT TRÁI (Sidebar màu xanh) */
+.cv-left-side {
+    width: 33%; /* Chiếm 1/3 chiều rộng */
+    background-color: var(--accent);
+    color: var(--cv-text-light) !important;
+    padding: 35px 25px;
+}
+
+.cv-avatar-box img {
+    width: 100%;
+    height: auto;
+    border: 5px solid rgba(255, 255, 255, 0.15);
+    margin-bottom: 30px;
+}
+
+.cv-side-title {
+    font-size: 19px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 8px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.cv-contact-item {
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.cv-contact-item strong {
+    color: #fff;
+}
+
+/* 2. CỘT PHẢI (Nội dung trắng) */
+.cv-right-side {
+    width: 67%;
+    padding: 40px;
+    background-color: #ffffff;
+}
+
+/* Phần Tên và Tiêu đề hồ sơ */
+.cv-header-info {
+    margin-bottom: 40px;
+}
+
+.cv-full-name {
+    font-size: 32px;
+    font-weight: 800;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.cv-job-title {
+    font-size: 16px;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+/* Các thanh banner mục (Kinh nghiệm, Học vấn) */
+.cv-section-banner {
+    background-color: var(--accent);
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 17px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    margin-top: 30px;
+    border-radius: 2px;
+}
+
+/* Nội dung chi tiết */
+.cv-section-body {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Căn chỉnh thời gian sang bên phải giống mẫu */
+.d-flex.justify-content-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+}
+
+.text-muted.small {
+    color: #7f8c8d !important;
+}
+
+/* Nút tải ảnh màu xanh xám đồng bộ */
+.btn-cv-download {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.btn-cv-download:hover {
+    background-color: var(--accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.btn-cv-download i {
+    margin-right: 8px;
+}
+
+/*trang quan ly cv*/
+.cv-manage-card {
+    border-radius: 14px;
+    border: none;
+    background: #fff;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+    position: relative;
+}
+
+/* Avatar */
+.cv-avatar {
+    width: 140px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #eee;
+}
+
+.cv-no-img {
+    width: 140px;
+    height: 180px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+}
+
+/* Text */
+.cv-name {
+    font-weight: 700;
+    font-size: 26px;
+    color: #333;
+}
+
+.cv-title {
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.cv-date {
+    color: #888;
+    margin-bottom: 15px;
+}
+
+/* Buttons */
+.cv-actions-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-outline {
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-solid {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* Hover */
+.btn-outline:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.btn-solid:hover {
+    opacity: 0.9;
+}
+
+/* Nút xóa góc phải */
+.cv-delete-btn {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+}
+
+.cv-delete-btn button {
+    background: transparent;
+    border: none;
+    color: red;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cv-delete-btn button:hover {
+    text-decoration: none;
+}
+
+/*tao cv*/
+/* Container chính */
+.cv-builder-container {
+    background-color: var(--bg);
+    min-height: 100vh;
+    padding: 40px 0;
+    color: var(--ink);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Các khối nội dung */
+.section-card {
+    background: var(--panel);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+    padding: 35px;
+    border: 1px solid var(--line);
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+}
+
+/* Hệ thống Layout Chia Cột */
+.layout-flex-header {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.col-inputs {
+    flex: 2;
+    min-width: 300px;
+}
+
+.col-avatar-box {
+    flex: 1;
+    text-align: center;
+    min-width: 180px;
+}
+
+.layout-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.layout-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.span-3 { grid-column: span 3; }
+.span-2 { grid-column: span 2; }
+
+/* Input và Label */
+.form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    font-size: 0.95rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: #fff;
+}
+
+/* Avatar */
+.avatar-preview {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--panel);
+    box-shadow: var(--shadow);
+}
+
+.btn-upload-custom {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 20px;
+    background: var(--accent);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+}
+
+/* Items động (Kinh nghiệm/Học vấn) */
+.dynamic-item {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.btn-delete {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.btn-add {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px dashed var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-save-big {
+    display: block;
+    width: fit-content;
+    min-width: 220px;
+    padding: 15px 40px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 40px auto;
+}
+
+/* tai pdf */
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+#CV {
+    width: 210mm; 
+    min-height: 296mm; 
+    background: white;
+    overflow: hidden; 
+    box-sizing: border-box;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background-color: #ffffff;
+    color: #333333;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-back:hover {
+    background-color: #f8fafc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(-3px); 
+}
+
+.btn-back:active {
+    transform: scale(0.97);
+}

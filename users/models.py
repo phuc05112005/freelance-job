@@ -32,3 +32,35 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.username} ({self.role})'
+
+class CV(models.Model):
+    GENDER_CHOICES = [
+        ('Nam', 'Nam'),
+        ('Nữ', 'Nữ'),
+    ]
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    tieude = models.CharField(max_length=255)
+    avatar = models.ImageField(upload_to='avatars', null=True, blank=True)
+    hoten = models.CharField(max_length=255)
+    gioitinh = models.CharField(max_length=10, choices=GENDER_CHOICES, default='Nam')
+    ngaysinh = models.CharField(max_length=20,null=True, blank=True)
+    email = models.CharField(max_length=254, null=True, blank=True)
+    sdt = models.TextField(max_length=20, null=True, blank=True)
+    diachi = models.CharField(max_length=100)
+    muctieu = models.TextField(null=True, blank=True)
+    kynang = models.TextField(null=True, blank=True)
+
+class KINHNGHIEM(models.Model):
+    cv = models.ForeignKey(CV, on_delete=models.CASCADE)
+    congty = models.CharField(max_length=255)
+    vitri = models.CharField(max_length=255)
+    batdau = models.CharField(max_length=50)
+    ketthuc = models.CharField(max_length=50)
+    mota = models.TextField(null=True, blank=True)
+
+class HocVan(models.Model):
+    cv = models.ForeignKey(CV, on_delete=models.CASCADE)
+    truong = models.CharField(max_length=255)
+    nganh = models.CharField(max_length=255)
+    batdau = models.CharField(max_length=50)
+    ketthuc = models.CharField(max_length=50)

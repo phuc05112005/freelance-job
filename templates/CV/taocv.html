@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="cv-builder-container">
+    <div class="container" style="max-width: 900px; margin: auto;">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="section-card">
+                <h5 class="section-title">Thông tin cơ bản</h5>
+                <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                    <div style="flex: 2; min-width: 300px;">
+                        <div style="margin-bottom: 15px;">
+                            <label class="form-label">Tiêu đề hồ sơ</label>
+                            <input type="text" name="tieude" class="form-control" placeholder="Ví dụ: Nhân viên bán hàng">
+                        </div>
+                        <div style="display: flex; gap: 15px;">
+                            <div style="flex: 1;">
+                                <label class="form-label">Họ và tên</label>
+                                <input type="text" name="hoten" class="form-control">
+                            </div>
+                            <div style="flex: 1;">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="flex: 1; text-align: center; min-width: 180px;">
+                        <img src="{% static 'images/default.png' %}" id="avatar-img" class="avatar-preview">
+                        <br>
+                        <label class="btn-upload-custom">
+                            THÊM ẢNH
+                            <input type="file" name="avatar" hidden accept="image/*" onchange="previewAvatar(this)">
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" name="sdt" class="form-control">
+                    </div>
+                    <div>
+                        <label class="form-label">Giới tính</label>
+                        <select name="gioitinh" class="form-select">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Ngày sinh</label>
+                        <input type="date" name="ngaysinh" class="form-control">
+                    </div>
+                    <div style="grid-column: span 3;">
+                        <label class="form-label">Địa Chỉ</label>
+                        <input type="text" name="diachi" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h5 class="section-title">Mục tiêu nghề nghiệp</h5>
+                <textarea name="muctieu" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="section-card">
+                <h5 class="section-title">Kinh nghiệm làm việc</h5>
+                <div id="kn-container"></div>
+                <button type="button" class="btn-add" onclick="addItem('kn-template', 'kn-container')">+ THÊM KINH NGHIỆM</button>
+            </div>
+
+            <div class="section-card">
+                <h5 class="section-title">Học vấn</h5>
+                <div id="hv-container"></div>
+                <button type="button" class="btn-add" onclick="addItem('hv-template', 'hv-container')">+ THÊM HỌC VẤN</button>
+            </div>
+
+            <div class="section-card">
+                <h5 class="section-title">Kỹ năng</h5>
+                <textarea name="kynang" class="form-control" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn-save-big">XÁC NHẬN LƯU</button>
+        </form>
+    </div>
+</div>
+
+<template id="kn-template">
+    <div class="dynamic-item">
+        <button type="button" class="btn-delete" onclick="removeItem(this)">Xóa</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="grid-column: span 2;">
+                <label class="form-label">Tên công ty</label>
+                <input type="text" name="kn_congty[]" class="form-control">
+            </div>
+            <div>
+                <label class="form-label">Vị trí</label>
+                <input type="text" name="kn_vitri[]" class="form-control">
+            </div>
+            <div>
+                <label class="form-label">Thời gian (Năm)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" name="kn_batdau[]" class="form-control" placeholder="Bắt đầu" style="flex: 1;">
+                    <input type="text" name="kn_kethuc[]" class="form-control" placeholder="Kết thúc" style="flex: 1;">
+                </div>
+            </div>
+            <div style="grid-column: span 2;">
+                <label class="form-label">Mô tả công việc</label>
+                <textarea name="kn_mota[]" class="form-control" rows="3" placeholder="Mô tả những việc bạn đã làm..."></textarea>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="hv-template">
+    <div class="dynamic-item">
+        <button type="button" class="btn-delete" onclick="removeItem(this)">Xóa</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="grid-column: span 2;">
+                <label class="form-label">Tên trường</label>
+                <input type="text" name="hv_truong[]" class="form-control" placeholder="Ví dụ: Đại học Bách Khoa">
+            </div>
+
+            <div>
+                <label class="form-label">Chuyên ngành</label>
+                <input type="text" name="hv_nganh[]" class="form-control" placeholder="Ví dụ: Công nghệ thông tin">
+            </div>
+
+            <div>
+                <label class="form-label">Thời gian (Năm)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" name="hv_batdau[]" class="form-control" placeholder="Bắt đầu" style="flex: 1;">
+                    <input type="text" name="hv_kethuc[]" class="form-control" placeholder="Kết thúc" style="flex: 1;">
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    function addItem(templateId, containerId) {
+        const template = document.getElementById(templateId);
+        const container = document.getElementById(containerId);
+        const clone = document.importNode(template.content, true);
+        container.appendChild(clone);
+    }
+    function removeItem(btn) {
+        btn.closest('.dynamic-item').remove();
+    }
+    function previewAvatar(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) { document.getElementById('avatar-img').src = e.target.result; }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

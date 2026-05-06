@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<div class="container mt-4 text-center">
+    <a href="{% url 'quanlycv' %}" class="btn-back">
+        Quay lại trang trước
+    </a>
+    <button onclick="downloadPDF()" class="btn btn-cv-download">
+        <i class="fas fa-file-pdf"></i> Tải hồ sơ (PDF)
+    </button>
+</div>
+
+<div class="cv-print-container mt-4">
+    <div id="CV" class="cv-main-card">
+        
+        <div class="cv-left-side">
+            <div class="cv-avatar-box">
+                {% if cv.avatar %}
+                    <img src="{{ cv.avatar.url }}" alt="Avatar">
+                {% else %}
+                    <div class="no-avatar" style="height: 200px; background: #444; color: white; display: flex; align-items: center; justify-content: center;">ẢNH CV</div>
+                {% endif %}
+            </div>
+
+            <div class="cv-side-section">
+                <h2 class="cv-side-title">Thông tin</h2>
+                <div class="cv-contact-item"><strong>Giới tính:</strong> {{cv.gioitinh}}</div>
+                <div class="cv-contact-item"><strong>Ngày sinh:</strong> {{cv.ngaysinh}}</div>
+                <div class="cv-contact-item"><strong>Số điện thoại:</strong> {{ cv.sdt }}</div>
+                <div class="cv-contact-item"><strong>Email:</strong> {{ cv.email }}</div>
+                <div class="cv-contact-item"><strong>Địa chỉ:</strong> {{ cv.diachi }}</div>
+            </div>
+
+            <div class="cv-side-section">
+                <h2 class="cv-side-title">Kỹ năng</h2>
+                <p class="cv-contact-item">{{cv.kynang}}</p>
+            </div>
+
+        </div>
+
+        <div class="cv-right-side">
+            <div class="cv-header-info">
+                <h1 class="cv-full-name">Họ tên: {{ cv.hoten }}</h1>
+                <p class="cv-job-title">{{ cv.tieude }}</p>
+            </div>
+
+            <div class="cv-main-section">
+                <h2 class="cv-section-heading fw-bold" style="color: var(--cv-blue);">Mục tiêu nghề nghiệp</h2>
+                <div class="cv-section-body text-muted">{{ cv.muctieu|linebreaksbr }}</div>
+            </div>
+
+            <div class="cv-main-section">
+                <h2 class="cv-section-banner">Kinh nghiệm làm việc</h2>
+                {% if kinhnghiem %}
+                    {% for kn in kinhnghiem %}
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between">
+                                <p><strong>Tên công ty: {{ kn.congty }}</strong></p>
+                                <p class="text-muted small">{{ kn.batdau}} - {{ kn.ketthuc}}</p>
+                            </div>
+                            <p class="mb-1"><i>Vị trí: {{ kn.vitri }}</i></p>
+                            <div class="small text-muted">{{ kn.mota|linebreaks }}</div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="cv-main-section">
+                <h2 class="cv-section-banner">Học vấn</h2>
+                {% if hocvan %}
+                    {% for hv in hocvan %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <p><strong>Tên trường: {{ hv.truong }}</strong></p>
+                                <p class="text-muted small">{{ hv.batdau}} - {{ hv.ketthuc}}</p>
+                            </div>
+                            <p class="mb-1">{{ hv.nganh }}</p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function downloadPDF() {
+    const element = document.getElementById('CV');
+    const opt = {
+        margin:       0,
+        filename:     'CV_{{ cv.hoten }}.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+        if (pdf.internal.getNumberOfPages() > 1) {
+            pdf.deletePage(pdf.internal.getNumberOfPages());
+        }
+    }).save();
+}
+</script>
+{% endblock %}
