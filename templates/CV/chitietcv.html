@@ -2,18 +2,221 @@
 {% load static %}
 
 {% block content %}
+<style>
+    :root {
+        --cv-blue: #2d5a88;
+        --cv-dark: #1a3c5e;
+        --cv-light: #f4f7f9;
+        --cv-accent: #c9a84c;
+    }
+
+    .cv-top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        background: #fff;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+    }
+
+    .btn-cv-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+
+    .btn-cv-back:hover {
+        color: var(--cv-accent);
+    }
+
+    .btn-cv-download {
+        background: #1c1a17;
+        color: #f0e0a8 !important;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-cv-download:hover {
+        background: #2e2a24;
+        transform: translateY(-1px);
+    }
+
+    /* CV Container & Styling */
+    .cv-print-container {
+        max-width: 900px;
+        margin: 0 auto 60px;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .cv-main-card {
+        display: flex;
+        /* min-height 1100px giúp CV nhìn đầy đặn như 1 trang A4 thật */
+        min-height: 1100px; 
+        background: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cv-left-side {
+        width: 300px;
+        background: #2c3e50;
+        color: white;
+        padding: 40px 30px;
+        align-self: stretch; /* Giúp cột xanh dài theo trang */
+    }
+
+    .cv-right-side {
+        flex: 1;
+        padding: 40px 50px;
+        background: white;
+    }
+
+    .cv-avatar-box {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 30px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid rgba(255,255,255,0.2);
+    }
+
+    .cv-avatar-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cv-side-title {
+        font-family: 'Lora', serif;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        margin-top: 30px;
+    }
+
+    .cv-contact-item {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+        line-height: 1.5;
+        opacity: 0.9;
+    }
+
+    .cv-contact-item strong {
+        display: block;
+        margin-bottom: 2px;
+        color: #c9a84c;
+    }
+
+    .cv-header-info {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+
+    .cv-full-name {
+        font-family: 'Lora', serif;
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    .cv-job-title {
+        font-size: 1.2rem;
+        color: #c9a84c;
+        font-weight: 500;
+        letter-spacing: 1px;
+    }
+
+    .cv-section-banner {
+        font-family: 'Lora', serif;
+        background: #f8f9fa;
+        padding: 8px 15px;
+        border-left: 4px solid #c9a84c;
+        font-size: 1.2rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        margin-top: 30px;
+        font-weight: 600;
+    }
+
+    .cv-section-body {
+        line-height: 1.7;
+        font-size: 0.95rem;
+        color: #444;
+    }
+
+    .exp-item {
+        margin-bottom: 25px;
+    }
+
+    .exp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 5px;
+        gap: 15px;
+    }
+
+    .exp-company {
+        font-weight: 700;
+        color: #2c3e50;
+        flex: 1;
+    }
+
+    .exp-time {
+        color: #777;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .exp-role {
+        font-style: italic;
+        color: #c9a84c;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+</style>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<div class="container mt-4 text-center">
-    <a href="{% url 'quanlycv' %}" class="btn-back">
-        Quay lại trang trước
+<div class="cv-top-bar">
+    <a href="{% url 'quanlycv' %}" class="btn-cv-back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Quay lại quản lý
     </a>
-    <button onclick="downloadPDF()" class="btn btn-cv-download">
-        <i class="fas fa-file-pdf"></i> Tải hồ sơ (PDF)
+    <button onclick="downloadPDF()" class="btn-cv-download">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Tải xuống bản PDF
     </button>
 </div>
 
-<div class="cv-print-container mt-4">
+<div class="cv-print-container" style="margin-bottom: 0;">
     <div id="CV" class="cv-main-card">
         
         <div class="cv-left-side">
@@ -21,50 +224,55 @@
                 {% if cv.avatar %}
                     <img src="{{ cv.avatar.url }}" alt="Avatar">
                 {% else %}
-                    <div class="no-avatar" style="height: 200px; background: #444; color: white; display: flex; align-items: center; justify-content: center;">ẢNH CV</div>
+                    <div style="width:100%; height:100%; background:#4e6a85; display:flex; align-items:center; justify-content:center; font-weight:bold; color:white; font-size:1.5rem;">ẢNH CV</div>
                 {% endif %}
             </div>
 
             <div class="cv-side-section">
+                <h2 class="cv-side-title">Liên hệ</h2>
+                <div class="cv-contact-item"><strong>Email</strong> {{ cv.email }}</div>
+                <div class="cv-contact-item"><strong>Điện thoại</strong> {{ cv.sdt }}</div>
+                <div class="cv-contact-item"><strong>Địa chỉ</strong> {{ cv.diachi }}</div>
+            </div>
+
+            <div class="cv-side-section">
                 <h2 class="cv-side-title">Thông tin</h2>
-                <div class="cv-contact-item"><strong>Giới tính:</strong> {{cv.gioitinh}}</div>
-                <div class="cv-contact-item"><strong>Ngày sinh:</strong> {{cv.ngaysinh}}</div>
-                <div class="cv-contact-item"><strong>Số điện thoại:</strong> {{ cv.sdt }}</div>
-                <div class="cv-contact-item"><strong>Email:</strong> {{ cv.email }}</div>
-                <div class="cv-contact-item"><strong>Địa chỉ:</strong> {{ cv.diachi }}</div>
+                <div class="cv-contact-item"><strong>Giới tính</strong> {{cv.gioitinh}}</div>
+                <div class="cv-contact-item"><strong>Ngày sinh</strong> {{cv.ngaysinh}}</div>
             </div>
 
             <div class="cv-side-section">
                 <h2 class="cv-side-title">Kỹ năng</h2>
-                <p class="cv-contact-item">{{cv.kynang}}</p>
+                <div class="cv-contact-item">{{cv.kynang|safe}}</div>
             </div>
-
         </div>
 
         <div class="cv-right-side">
             <div class="cv-header-info">
-                <h1 class="cv-full-name">Họ tên: {{ cv.hoten }}</h1>
+                <h1 class="cv-full-name">{{ cv.hoten }}</h1>
                 <p class="cv-job-title">{{ cv.tieude }}</p>
             </div>
 
             <div class="cv-main-section">
-                <h2 class="cv-section-heading fw-bold" style="color: var(--cv-blue);">Mục tiêu nghề nghiệp</h2>
-                <div class="cv-section-body text-muted">{{ cv.muctieu|linebreaksbr }}</div>
+                <h2 class="cv-section-banner">Mục tiêu nghề nghiệp</h2>
+                <div class="cv-section-body">{{ cv.muctieu|safe }}</div>
             </div>
 
             <div class="cv-main-section">
                 <h2 class="cv-section-banner">Kinh nghiệm làm việc</h2>
                 {% if kinhnghiem %}
                     {% for kn in kinhnghiem %}
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between">
-                                <p><strong>Tên công ty: {{ kn.congty }}</strong></p>
-                                <p class="text-muted small">{{ kn.batdau}} - {{ kn.ketthuc}}</p>
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <span class="exp-company">{{ kn.congty }}</span>
+                                <span class="exp-time">{{ kn.batdau}} — {{ kn.ketthuc}}</span>
                             </div>
-                            <p class="mb-1"><i>Vị trí: {{ kn.vitri }}</i></p>
-                            <div class="small text-muted">{{ kn.mota|linebreaks }}</div>
+                            <div class="exp-role">{{ kn.vitri }}</div>
+                            <div class="cv-section-body" style="font-size: 0.9rem;">{{ kn.mota|safe }}</div>
                         </div>
                     {% endfor %}
+                {% else %}
+                    <p class="text-muted">Chưa có thông tin kinh nghiệm.</p>
                 {% endif %}
             </div>
 
@@ -72,14 +280,16 @@
                 <h2 class="cv-section-banner">Học vấn</h2>
                 {% if hocvan %}
                     {% for hv in hocvan %}
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between">
-                                <p><strong>Tên trường: {{ hv.truong }}</strong></p>
-                                <p class="text-muted small">{{ hv.batdau}} - {{ hv.ketthuc}}</p>
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <span class="exp-company">{{ hv.truong }}</span>
+                                <span class="exp-time">{{ hv.batdau}} — {{ hv.ketthuc}}</span>
                             </div>
-                            <p class="mb-1">{{ hv.nganh }}</p>
+                            <div class="exp-role" style="color: #666; font-style: normal;">{{ hv.nganh }}</div>
                         </div>
                     {% endfor %}
+                {% else %}
+                    <p class="text-muted">Chưa có thông tin học vấn.</p>
                 {% endif %}
             </div>
         </div>
@@ -88,20 +298,40 @@
 
 <script>
 function downloadPDF() {
+    const btn = document.querySelector('.btn-cv-download');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Đang tải...';
+    btn.disabled = true;
+
     const element = document.getElementById('CV');
+    
+    // Đo đạc kích thước thực tế của CV đang hiển thị
+    const actualWidth = element.offsetWidth;
+    const actualHeight = element.offsetHeight;
+
     const opt = {
-        margin:       0,
-        filename:     'CV_{{ cv.hoten }}.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        margin: 0,
+        filename: 'CV_{{ cv.hoten|slugify }}.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            letterRendering: true,
+            width: actualWidth,
+            height: actualHeight
+        },
+        // QUAN TRỌNG: Ép trang PDF có kích thước bằng ĐÚNG chiều cao nội dung
+        jsPDF: { 
+            unit: 'px', 
+            format: [actualWidth, actualHeight], 
+            orientation: 'portrait' 
+        }
     };
 
-    html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-        if (pdf.internal.getNumberOfPages() > 1) {
-            pdf.deletePage(pdf.internal.getNumberOfPages());
-        }
-    }).save();
+    html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
 }
 </script>
 {% endblock %}

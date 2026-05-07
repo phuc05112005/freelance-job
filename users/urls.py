@@ -9,6 +9,6 @@ urlpatterns = [
     path('taocv/',views.Tao_CV, name='taocv'),
     path('cv/', views.quanlycv, name='quanlycv'),
     path('suacv/<int:cv_id>/', views.suacv, name='suacv'),
-    path('taicv/<int:cv_id>/', views.chitietcv, name='taicv'),
+    path('xemcv/<int:cv_id>/', views.chitietcv, name='xemcv'),
     path('xoacv/<int:cv_id>/', views.xoacv, name='xoacv'),
 ]

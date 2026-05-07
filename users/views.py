@@ -94,18 +94,16 @@ def Tao_CV(request):
 
 @login_required
 def quanlycv(request):
-    cv = CV.objects.filter(user = request.user).first()
-    if not cv:
-        return redirect('taocv')
-    context = {'cv':cv,}
+    cv_list = CV.objects.filter(user=request.user)
+    context = {'cv_list': cv_list}
     return render(request, 'CV/quanly.html', context)
 
 @login_required
 def xoacv(request, cv_id):
-    cv = get_object_or_404(CV, id = cv_id, user = request.user)
+    cv = get_object_or_404(CV, id=cv_id, user=request.user)
     if request.method == 'POST':
         cv.delete()
-    return redirect('home')
+    return redirect('quanlycv')
 
 @login_required
 def suacv(request, cv_id):
