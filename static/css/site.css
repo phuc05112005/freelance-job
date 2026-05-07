@@ -94,21 +94,24 @@ body {
     color: var(--ink);
 }
 
-.main-nav {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+.main-nav a {
+    position: relative;
+    text-decoration: none;
+    color: #d6d6d6;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    padding: 10px 14px;
+    border-radius: 10px;
 }
 
-.main-nav a {
-    text-decoration: none;
-    color: var(--ink);
-    font-weight: 600;
+.main-nav a:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.08);
 }
+
 .main-nav a.active {
-    color: #2563eb;
-    font-weight: 600;
-    position: relative;
+    color: #fff;
+    background: rgba(255,255,255,0.12);
 }
 
 .main-nav a.active::after {
@@ -2987,10 +2990,10 @@ html, body {
 }
 
 #list_job {
-    scroll-margin-top: 80px; /* chá»‰nh sá»‘ nĂ y theo chiá»u cao header hoáº·c khoáº£ng báº¡n muá»‘n chá»«a */
+    scroll-margin-top: 80px;
 }
 #apply-form-section{
-    scroll-margin-top: 80px; /* chá»‰nh sá»‘ nĂ y theo chiá»u cao header hoáº·c khoáº£ng báº¡n muá»‘n chá»«a */
+    scroll-margin-top: 80px; 
 }
 
 .cv-card-container {

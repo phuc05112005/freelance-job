@@ -250,15 +250,32 @@ def favorite_jobs(request):
         FavoriteJob.objects.filter(user=request.user)
         .select_related('job', 'job__employer')
         .prefetch_related('job__categories')
+        .order_by('-created_at')
     )
-    jobs_list = [item.job for item in favorites]
-    favorite_job_ids = {job.id for job in jobs_list}
+
+    jobs_qs = Job.objects.filter(
+    favorited_by__user=request.user
+    ).select_related('employer').prefetch_related('categories').distinct()
+
+    paginator = Paginator(jobs_qs, 8)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    favorite_job_ids = {job.id for job in jobs_qs}
+
+    query_data = request.GET.copy()
+    query_data.pop('page', None)
+    filters_query = query_data.urlencode()
+
     return render(
         request,
         'jobs/favorite_jobs.html',
         {
-            'jobs': jobs_list,
+            'jobs': page_obj,
+            'page_obj': page_obj,
             'favorite_job_ids': favorite_job_ids,
+            'filters_query': filters_query,
         },
     )
 
