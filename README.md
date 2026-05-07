@@ -1,4 +1,4 @@
-# Nền tảng Kết nối Freelance (Freelance Job Platform)
+# Nền tảng Kết nối Tuyển dụng & Tìm kiếm việc làm cho Sinh viên và Nhà tuyển dụng
 
 Dự án cuối khóa cho môn **Phát triển phần mềm mã nguồn mở**. Đây là một ứng dụng web đầy đủ tính năng (Full-stack) được xây dựng trên nền tảng Django, giúp kết nối sinh viên (freelancers) với các nhà tuyển dụng.
 
@@ -147,4 +147,4 @@ Dự án này được cấp phép theo Giấy phép MIT - xem tệp [LICENSE](L
 
 ---
 
-_Dự án được thực hiện bởi Phuc Le - 2026_
+_Dự án được thực hiện bởi Nhom7_12DHCNTT3 - 2026_
