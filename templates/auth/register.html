@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Đăng ký tài khoản{% endblock %}
+{% block content %}
+
+<section class="split-auth-container">
+    <div class="auth-form-side">
+        <div class="auth-content-box">
+            <h1 class="auth-title">Đăng ký tài khoản</h1>
+            <p class="auth-subtitle">Tham gia cộng đồng và bắt đầu tìm kiếm cơ hội việc làm ngay hôm nay.</p>
+            
+            <form method="post" enctype="multipart/form-data" class="modern-auth-form">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                
+                <div class="form-row-double">
+                    <div class="form-group">
+                        <label>Tên đăng nhập</label>
+                        {{ form.username }}
+                        {{ form.username.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                </div>
+
+                <div class="form-row-double">
+                    <div class="form-group">
+                        <label>Họ</label>
+                        {{ form.first_name }}
+                        {{ form.first_name.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Tên</label>
+                        {{ form.last_name }}
+                        {{ form.last_name.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    {{ form.phone }}
+                    {{ form.phone.errors }}
+                </div>
+                <div class="form-row-double">
+                    <div class="form-group">
+                        <label>Tên trường đại học</label>
+                        {{ form.university }}
+                        {{ form.university.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Chuyên ngành</label>
+                        {{ form.major }}
+                        {{ form.major.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa điểm mong muốn làm việc</label>
+                    {{ form.province }}
+                    {{ form.province.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="pw-wrap">
+                        {{ form.password1 }}
+                        <button type="button" class="pw-toggle">
+                            <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        </button>
+                    </div>
+                    {{ form.password1.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu</label>
+                    <div class="pw-wrap">
+                        {{ form.password2 }}
+                        <button type="button" class="pw-toggle">
+                            <svg class="eye-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        </button>
+                    </div>
+                    {{ form.password2.errors }}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="button button-lg button-full">Đăng ký tài khoản</button>
+                </div>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Bạn đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập</a></p>
+                <p>Bạn là nhà tuyển dụng? <a href="{% url 'register_employer' %}">Đăng ký tại đây</a></p>
+            </div>
+        </div>
+    </div>
+    <div class="auth-image-side">
+        <img src="{% static 'images/img.webp' %}" alt="Registration Image">
+        <div class="image-overlay-text">
+            <h2>Khám phá cơ hội nghề nghiệp</h2>
+            <p>Hàng ngàn công việc chất lượng đang chờ đón bạn.</p>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Ẩn con mắt mặc định của trình duyệt (Edge, IE) */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+        display: none;
+    }
+
+    .split-auth-container {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 20px 0;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    }
+    
+    .auth-form-side {
+        flex: 1;
+        padding: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .auth-content-box {
+        width: 100%;
+        max-width: 500px;
+    }
+    
+    .auth-title { font-family: 'Manrope', sans-serif; font-size: 2rem; margin-bottom: 10px; color: #0f172a; }
+    .auth-subtitle { color: #64748b; margin-bottom: 40px; }
+    
+    .modern-auth-form .form-group { margin-bottom: 20px; }
+    .modern-auth-form label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: #475569; }
+    .modern-auth-form input, .modern-auth-form select { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; transition: all 0.2s; }
+    .modern-auth-form input:focus, .modern-auth-form select:focus { border-color: #2563eb; background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+    
+    .form-row-double { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    
+    .pw-wrap { position: relative; }
+    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
+    .pw-toggle svg { width: 20px; height: 20px; transition: color 0.2s; }
+    .pw-toggle:hover { color: #2563eb; }
+    
+    .button-full { width: 100%; }
+    .auth-footer { margin-top: 30px; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+    .auth-footer p { margin-bottom: 8px; font-size: 0.9rem; color: #64748b; }
+    .auth-footer a { color: #2563eb; font-weight: 700; text-decoration: none; }
+    
+    .auth-image-side {
+        flex: 1;
+        position: relative;
+        background: #f1f5f9;
+        display: block;
+    }
+    
+    .auth-image-side img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .image-overlay-text {
+        position: absolute;
+        bottom: 60px;
+        left: 60px;
+        right: 60px;
+        color: #fff;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    
+    .image-overlay-text h2 { font-family: 'Sora', sans-serif; font-size: 2.5rem; margin-bottom: 12px; }
+    .image-overlay-text p { font-size: 1.1rem; opacity: 0.9; }
+
+    @media (max-width: 1024px) {
+        .auth-image-side { display: none; }
+        .auth-form-side { padding: 40px 20px; }
+    }
+    /* ===== BUTTON HOVER PRO (giống Home) ===== */
+    .button {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        transform: translateY(0);
+    }
+
+    /* nổi lên + shadow */
+    .button:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow:
+            0 10px 25px rgba(0,0,0,0.2),
+            0 6px 15px rgba(0,0,0,0.12);
+    }
+
+    /* ánh sáng quét */
+    .button::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255,255,255,0.6),
+            transparent
+        );
+        transform: skewX(-25deg);
+    }
+
+    .button:hover::after {
+        left: 130%;
+        transition: 0.7s ease;
+    }
+
+    /* riêng nút full đẹp hơn chút */
+    .button-full {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // 1. Tự động lấy tên label làm placeholder cho các input
+    document.querySelectorAll('.modern-auth-form .form-group').forEach(function(group) {
+        const label = group.querySelector('label');
+        const input = group.querySelector('input');
+        if (label && input && !input.getAttribute('placeholder')) {
+            input.setAttribute('placeholder', 'Nhập ' + label.textContent.toLowerCase() + '...');
+        }
+    });
+
+    // 2. Logic tắt/bật mật khẩu với 2 icon con mắt
+    document.querySelectorAll('.pw-toggle').forEach(function (btn) {
+        const input = btn.closest('.pw-wrap').querySelector('input');
+        const eyeOn = btn.querySelector('.eye-on');
+        const eyeOff = btn.querySelector('.eye-off');
+
+        btn.addEventListener('click', function () {
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOn.style.display = 'none';
+                eyeOff.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOn.style.display = 'block';
+                eyeOff.style.display = 'none';
+            }
+        });
+    });
+
+    // 3. Load Province data from JSON
+    const provinceSelect = document.querySelector('select[name="province"]');
+    if (provinceSelect) {
+        fetch("{% static 'data/xaphuong/provinces.json' %}")
+            .then(res => res.json())
+            .then(data => {
+                data.sort((a, b) => a.name.localeCompare(b.name));
+                data.forEach(p => {
+                    const option = new Option(p.name, p.name);
+                    provinceSelect.add(option);
+                });
+            })
+            .catch(err => console.error("Error loading provinces:", err));
+    }
+});
+</script>
+{% endblock %}

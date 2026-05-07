@@ -1,0 +1,540 @@
+{% extends 'base.html' %}
+{% load static jobs_rich_text %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb-nav">
+    {% if user.role == 'employer' %}
+        <a href="{% url 'employer_job_list' %}" class="btn-back-modern">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Quay lại danh sách
+        </a>
+    {% else %}
+        <a href="{% url 'home' %}" class="btn-back-modern">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Quay về trang chủ
+        </a>
+    {% endif %}
+</div>
+
+{% if can_edit %}
+<div class="employer-dashboard-header panel">
+    <div class="dashboard-stats">
+        <div class="stat-box">
+            <span class="stat-label">Tổng số đơn ứng tuyển</span>
+            <span class="stat-value">{{ applications_count }}</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Trạng thái</span>
+            <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+        </div>
+    </div>
+    <div class="dashboard-actions">
+        <a href="{% url 'application_list' %}?job={{ job.id }}" class="button button-modern">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Quản lý ứng viên
+        </a>
+        <a href="{% url 'job_edit' job.pk %}" class="button button-ghost">Sửa tin</a>
+        <a href="{% url 'job_delete' job.pk %}?next=/" class="button button-danger-ghost">Xóa</a>
+    </div>
+</div>
+{% endif %}
+
+<div class="job-detail-banner">
+    <div class="banner-image-container">
+        <img
+            src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}"
+            alt="Ảnh {{ job.employer.username }}"
+            class="job-detail-banner-img"
+        >
+    </div>
+    <div class="job-detail-banner-overlay">
+        <div class="job-detail-banner-inner">
+            <div class="actions-row" style="justify-content:flex-start; gap:6px; margin-bottom:10px;">
+                <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+                {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
+            </div>
+            <h1 class="job-main-title">{{ job.title }}</h1>
+            <p class="job-main-subtitle">
+                Đăng bởi <strong>{{ job.employer.username }}</strong> &nbsp;·&nbsp; {{ job.created_at|date:"d M Y" }}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="job-content-layout">
+    <div class="job-main-content">
+        <section class="panel">
+            <h3 class="panel-title">Mô tả công việc</h3>
+            <div class="rich-text-content">
+                {{ job.description|render_rich_text }}
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3 class="panel-title">Yêu cầu ứng viên</h3>
+            <div class="rich-text-content">
+                {% if job.required_skills %}
+                    {{ job.required_skills|render_rich_text }}
+                {% else %}
+                    <p class="text-muted">Chưa cập nhật yêu cầu chi tiết.</p>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
+    <aside class="job-sidebar">
+        <div class="panel soft sidebar-info">
+            <h3 class="sidebar-title">Thông tin chung</h3>
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="info-label">Yêu cầu kinh nghiệm:</span>
+                    <span class="info-value">{{ job.experience_level_obj.name|default:"Không yêu cầu" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Số lượng tuyển:</span>
+                    <span class="info-value">{{ job.vacancies }} người</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Hình thức:</span>
+                    <span class="info-value">{{ job.employment_type_obj.name|default:"-- " }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Mức lương:</span>
+                    <span class="info-value salary-highlight">{{ job.display_salary }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Hạn nộp hồ sơ:</span>
+                    <span class="info-value">{{ job.deadline|default:"Không có thời hạn" }}</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-location">
+                <span class="info-label">Địa điểm làm việc:</span>
+                <span class="info-value">
+                    {% if job.city %}{{ job.city }}{% else %}Toàn quốc{% endif %}
+                    {% if job.address %}<br><small>{{ job.address }}</small>{% endif %}
+                </span>
+            </div>
+        </div>
+
+        {% if can_apply and not existing_application %}
+       <a href="#apply-form-section" class="button button-full button-lg apply-pro-btn">
+            Ứng tuyển ngay
+        </a>
+        {% elif not user.is_authenticated %}
+        <div class="apply-cta-box">
+            <a href="{% url 'login' %}?next={{ request.path }}" class="button button-full button-lg">Ứng tuyển ngay</a>
+            <p class="cta-hint">Dành cho tài khoản ứng viên</p>
+        </div>
+        {% endif %}
+    </aside>
+</div>
+
+{% if can_apply %}
+<section class="panel" id="apply-form-section">
+    <h2 class="section-title">Điền thông tin ứng tuyển</h2>
+    {% if existing_application %}
+        <div class="applied-status-box">
+            <p>Bạn đã ứng tuyển công việc này.</p>
+            <div class="status-wrap">
+                Trạng thái hiện tại: <span class="badge status-{{ existing_application.status }}">{{ existing_application.get_status_display }}</span>
+            </div>
+        </div>
+    {% elif apply_form %}
+        <form method="post" action="{% url 'job_apply' job.pk %}" enctype="multipart/form-data" class="form-grid two-col modern-form">
+            {% csrf_token %}
+            <div class="field-block full">
+                <label>Thư giới thiệu</label>
+                {{ apply_form.cover_letter }}
+                <p class="field-hint">Hãy cho nhà tuyển dụng biết tại sao bạn phù hợp.</p>
+            </div>
+            <label>Email liên hệ {{ apply_form.candidate_email }}</label>
+            <label>Số điện thoại {{ apply_form.candidate_phone }}</label>
+            <label>Ngày có thể bắt đầu {{ apply_form.available_date }}</label>
+            <label>Tải CV (PDF/DOC) {{ apply_form.cv_file }}</label>
+            
+            {% if request.user.default_cv %}
+            <div class="full cv-notice">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Hệ thống sẽ sử dụng CV mặc định trong hồ sơ của bạn nếu bạn không tải file mới.
+            </div>
+            {% endif %}
+
+            <div class="full form-actions">
+                <button type="submit" class="button button-lg">Gửi hồ sơ ứng tuyển</button>
+            </div>
+        </form>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if user.role != 'employer' %}
+<section class="panel related-jobs-section">
+    <div class="rj-header">
+        <h2 class="section-title" style="margin: 0;">Việc làm liên quan có thể bạn quan tâm 🔥</h2>
+        <div class="rj-nav-group">
+            <button class="rj-nav" id="rj-prev" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="rj-nav" id="rj-next">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="rj-track-wrap">
+        <div class="rj-track" id="rj-track">
+            {% for r_job in related_jobs %}
+            <a href="{% url 'job_detail' r_job.pk %}" class="rj-card">
+                <div class="rj-card-top">
+                    <div class="rj-logo">
+                        <img src="{% if r_job.brand_image %}{{ r_job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Logo">
+                    </div>
+                    <div class="rj-info">
+                        <p class="rj-job-title">{{ r_job.title }}</p>
+                        <p class="rj-company">{{ r_job.employer.username }}</p>
+                    </div>
+                </div>
+                <div class="rj-meta">
+                    {% if r_job.city %}<span class="rj-tag">{{ r_job.city }}</span>{% endif %}
+                    {% if r_job.employment_type_obj %}<span class="rj-tag">{{ r_job.employment_type_obj.name }}</span>{% endif %}
+                </div>
+                <p class="rj-salary">{{ r_job.display_salary }}</p>
+            </a>
+            {% empty %}
+            <p class="empty">Không có việc làm tương tự.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="rj-dots" id="rj-dots"></div>
+</section>
+{% endif %}
+
+<style>
+    /* Reset & Layout */
+    .breadcrumb-nav { margin-bottom: 20px; }
+    .job-content-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+    
+    /* -------------------------------------
+       NÚT QUAY LẠI TRANG CHỦ (ĐÃ LÀM ĐẸP)
+       ------------------------------------- */
+    .btn-back-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: #ffffff;
+        color: #475569;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    .btn-back-modern:hover {
+        background-color: #f8fafc;
+        color: #0f172a;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .btn-back-modern svg {
+        transition: transform 0.2s ease;
+    }
+    .btn-back-modern:hover svg {
+        transform: translateX(-4px); /* Hiệu ứng icon trượt nhẹ về sau */
+    }
+
+    /* Employer Dashboard */
+    .employer-dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        color: #fff;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 0;
+    }
+    .dashboard-stats { display: flex; gap: 40px; }
+    .stat-box { display: flex; flex-direction: column; gap: 4px; }
+    .stat-label { font-size: 0.85rem; color: #94a3b8; font-weight: 600; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; font-family: 'Sora', sans-serif; }
+    .dashboard-actions { display: flex; gap: 10px; }
+    .button-modern { background: #3b82f6; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .button-danger-ghost { background: transparent; border: 1px solid #ef4444; color: #ef4444; }
+    
+    /* Banner & Image Handling */
+    .job-detail-banner {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        height: 300px;
+    }
+    .banner-image-container {
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+    .job-detail-banner-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 10px 15px rgba(0,0,0,0.08));
+    }
+    .job-detail-banner-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.4) 60%, rgba(15, 23, 42, 0.1) 100%);
+        display: flex;
+        align-items: flex-end;
+    }
+    .job-detail-banner-inner { padding: 32px; width: 100%; }
+    
+    /* Content */
+    .job-main-title { font-family:'Be Vietnam Pro',sans-serif; color:#fff; margin:0 0 8px; font-size:clamp(1.8rem, 4vw, 2.6rem); text-shadow:0 2px 10px rgba(0,0,0,0.5); font-weight: 800; }
+    .job-main-subtitle { color:rgba(255,255,255,0.9); margin:0; font-size:1.1rem; }
+    
+    /* Sidebar */
+    .sidebar-info { padding: 24px; border-radius: 20px; border: 1px solid #f1f5f9; }
+    .sidebar-title { font-size: 1.2rem; margin-bottom: 20px; font-family: 'Sora', sans-serif; }
+    .info-list { display: grid; gap: 16px; margin-bottom: 24px; }
+    .info-item { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #f8fafc; padding-bottom: 12px; }
+    .info-label { color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+    .info-value { color: #1e293b; font-weight: 700; font-size: 1.05rem; }
+    .salary-highlight { color: #059669; font-size: 1.2rem; }
+    
+    .apply-cta-box { margin-top: 20px; text-align: center; }
+    .cta-hint { font-size: 0.85rem; color: #64748b; margin-top: 10px; }
+    
+    .button-full { width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; }
+    
+    @media (max-width: 980px) {
+        .job-content-layout { grid-template-columns: 1fr; }
+        .sidebar-info { position: static; }
+        .job-detail-banner { height: 250px; }
+        .banner-image-container { padding: 20px; }
+    }
+    /* Related jobs — redesigned */
+    .rj-header {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;
+    }
+    .rj-nav-group { display: flex; gap: 8px; }
+    .rj-nav {
+        width: 36px; height: 36px; border-radius: 50%;
+        border: 1px solid #dbe5f2; background: #fff;
+        color: #1e293b; font-size: 16px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+    }
+    .rj-nav:hover:not(:disabled) {
+        background: #f0f7ff; border-color: #a9bfdc;
+        transform: scale(1.06); box-shadow: 0 4px 12px rgba(30,58,95,0.12);
+    }
+    .rj-nav:disabled { opacity: 0.3; cursor: default; transform: none; }
+    .rj-track-wrap { overflow: hidden;
+    padding: 6px;
+    margin: -6px;}
+    .rj-track {
+        display: flex; gap: 12px;
+        transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+    }
+    .rj-card {
+        /* flex-basis tính cho 4 card với gap=12px trong 4 cards: (100% - 3*12px) / 4 */
+        flex: 0 0 calc(25% - 9px);
+        min-width: 0;
+        background: #fff;
+        border: 1px solid #dbe5f2;
+        border-radius: 14px;
+        padding: 14px;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-sizing: border-box;
+        /* Fix hover không bị layout shift — dùng outline thay border */
+        outline: 2px solid transparent;
+        transition: outline-color 0.22s, box-shadow 0.22s, transform 0.22s;
+    }
+    .rj-card:hover {
+        outline-color: #2563eb;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 24px rgba(15,23,42,0.1);
+    }
+    .rj-card-top { display: flex; align-items: flex-start; gap: 10px; }
+    .rj-logo {
+        width: 44px; height: 44px; border-radius: 10px;
+        border: 1px solid #dbe4f1; background: #f4f8ff;
+        flex: 0 0 44px; overflow: hidden;
+    }
+    .rj-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .rj-info { min-width: 0; flex: 1; }
+    .rj-job-title {
+        font-size: 0.95rem; font-weight: 700; color: #1e293b;
+        line-height: 1.35; margin: 0 0 4px;
+        display: -webkit-box; line-clamp: 2;
+        -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .rj-company {
+        font-size: 0.82rem; color: #64748b; margin: 0;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rj-meta { display: flex; flex-wrap: wrap; gap: 5px; }
+    .rj-tag {
+        font-size: 0.75rem; padding: 3px 9px; border-radius: 999px;
+        background: #edf5ff; color: #21507d;
+        border: 1px solid #d0e4f7; white-space: nowrap;
+    }
+    .rj-salary {
+        font-size: 0.88rem; font-weight: 700;
+        color: #059669; margin: 0; margin-top: auto;
+    }
+    .rj-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
+    .rj-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: #cbd5e1; transition: background 0.2s, width 0.2s;
+        cursor: pointer; border: none; padding: 0;
+    }
+    .rj-dot.active { background: #2563eb; width: 18px; border-radius: 3px; }
+
+    @media (max-width: 980px) {
+        .rj-card { flex: 0 0 calc(50% - 6px); }
+    }
+    @media (max-width: 560px) {
+        .rj-card { flex: 0 0 85%; }
+    }
+    .badge.status-rejected,
+    .badge.status-cancelled,
+    .badge.status-withdrawn {
+        background: rgba(188, 72, 72, 0.562);
+        color: #bb1a1a;
+        border: 1.5px solid #b91c1c;
+    }
+
+    .badge.status-expired {
+        background: rgba(201, 78, 78, 0.742);
+        color: #4e0707;
+        border: 1.5px solid #b91c1c;
+    }
+
+    .badge.status-open {
+        background: rgba(9, 216, 98, 0.28);
+        color: #13e170;
+        border: 1.5px solid #079f42;
+    }
+
+    .badge.status-pending,
+    .badge.status-in_progress {
+        background: rgba(185, 133, 0, 0.28);
+        color: #6b4a00;
+        border: 1.5px solid #b45309;
+    }
+
+    .badge.status-accepted,
+    .badge.status-completed {
+        background: rgba(31, 157, 85, 0.28);
+        color: #145c34;
+        border: 1.5px solid #15803d;
+    }
+    /* ===== GLOBAL HOVER UPGRADE ===== */
+    .button,
+    .button-modern,
+    .button-full {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Glow + nâng lên */
+    .button:hover,
+    .button-modern:hover,
+    .button-full:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow:
+            0 14px 32px rgba(37, 99, 235, 0.35),
+            0 6px 14px rgba(0,0,0,0.15);
+    }
+
+    /* Shine effect */
+    .button::before,
+    .button-modern::before,
+    .button-full::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -120%;
+        width: 120%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: all 0.5s;
+    }
+
+    .button:hover::before,
+    .button-modern:hover::before,
+    .button-full:hover::before {
+        left: 120%;
+    }
+    
+</style>
+<script>
+(function(){
+    const track = document.getElementById('rj-track');
+    if (!track) return;
+    const prevBtn = document.getElementById('rj-prev');
+    const nextBtn = document.getElementById('rj-next');
+    const dotsEl = document.getElementById('rj-dots');
+    const cards = track.querySelectorAll('.rj-card');
+    const total = cards.length;
+    const VISIBLE = window.innerWidth < 560 ? 1 : window.innerWidth < 980 ? 2 : 4;
+    let current = 0;
+
+    function getCardWidth() {
+        return cards[0] ? cards[0].getBoundingClientRect().width + 12 : 0;
+    }
+    function maxOffset() { return Math.max(0, total - VISIBLE); }
+
+    function buildDots() {
+        dotsEl.innerHTML = '';
+        for (let i = 0; i <= maxOffset(); i++) {
+            const d = document.createElement('button');
+            d.className = 'rj-dot' + (i === 0 ? ' active' : '');
+            d.addEventListener('click', () => goTo(i));
+            dotsEl.appendChild(d);
+        }
+    }
+
+    function goTo(idx) {
+        current = Math.max(0, Math.min(idx, maxOffset()));
+        track.style.transform = 'translateX(-' + (current * getCardWidth()) + 'px)';
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current >= maxOffset();
+        dotsEl.querySelectorAll('.rj-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    }
+
+    prevBtn.addEventListener('click', () => goTo(current - 1));
+    nextBtn.addEventListener('click', () => goTo(current + 1));
+    buildDots();
+    goTo(0);
+    window.addEventListener('resize', () => { buildDots(); goTo(current); });
+})();
+</script>
+{% endblock %}

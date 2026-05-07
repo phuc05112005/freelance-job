@@ -1,0 +1,46 @@
+﻿{% extends 'admin_center/base_admin.html' %}
+{% block title %}Quản lý loại việc làm{% endblock %}
+{% block admin_body %}
+<div class="admin-center-page">
+<section class="panel">
+    <form method="post" class="form-grid two-col">
+        {% csrf_token %}
+        <label>Tên loại việc {{ form.name }} {{ form.name.errors }}</label>
+        <label>Mã (code) {{ form.code }} {{ form.code.errors }}</label>
+        <div class="full"><button class="button button-sm" type="submit">Thêm loại mới</button></div>
+    </form>
+</section>
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Tên loại việc</th><th>Mã (code)</th><th>Số việc</th><th>Thao tác</th></tr></thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td><input type="text" name="name" form="edit-emp-{{ item.id }}" value="{{ item.name }}" placeholder="Tên loại việc"></td>
+                        <td><input type="text" name="code" form="edit-emp-{{ item.id }}" value="{{ item.code }}" placeholder="Mã code"></td>
+                        <td>{{ item.total_jobs }}</td>
+                        <td>
+                            <form method="post" class="inline-form" id="edit-emp-{{ item.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="edit">
+                                <input type="hidden" name="id" value="{{ item.id }}">
+                                <button class="button button-sm" type="submit">Lưu</button>
+                            </form>
+                            <form method="post" class="inline-form" style="margin-top:6px;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ item.id }}">
+                                <button class="button button-danger button-sm" type="submit">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="empty">Chưa có loại việc làm nào.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+</div>
+{% endblock %}

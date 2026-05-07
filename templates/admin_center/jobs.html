@@ -1,0 +1,83 @@
+﻿{% extends 'admin_center/base_admin.html' %}
+{% block title %}Quản lý việc làm{% endblock %}
+{% block admin_body %}
+<div class="admin-center-page">
+
+
+<style>
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-bar input { flex: 1; min-width: 180px; }
+  .jobs-card { background: var(--color-background-primary, #fff); border: 0.5px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-top: 1.5rem; }
+  .tbl-wrap { overflow-x: auto; }
+  .admin-center-page table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .admin-center-page thead tr { border-bottom: 0.5px solid #e2e8f0; }
+  .admin-center-page th { padding: 10px 14px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+  .admin-center-page td { padding: 11px 14px; border-bottom: 0.5px solid #f1f5f9; vertical-align: middle; }
+  .admin-center-page tbody tr:last-child td { border-bottom: none; }
+  .admin-center-page tbody tr:hover { background: #f8fafc; }
+  .job-link { font-weight: 600; color: inherit; text-decoration: none; }
+  .job-link:hover { text-decoration: underline; }
+  .job-employer { font-size: 13px; color: #64748b; margin-top: 2px; }
+  .id-cell { color: #94a3b8; font-size: 13px; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 99px; background: #f1f5f9; color: #475569; margin: 1px 2px 1px 0; }
+  .count-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 20px; padding: 0 6px; border-radius: 99px; background: #f1f5f9; font-size: 13px; font-weight: 500; color: #475569; }
+  .pill { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 99px; white-space: nowrap; display: inline-block; }
+  .status-open { background: rgba(31, 157, 85, 0.15); color: #1b7d47; }
+  .status-expired { background: rgba(209, 67, 67, 0.16); color: #b52f2f; }
+  .status-in_progress { background: rgba(185, 133, 0, 0.18); color: #8b6300; }
+  .status-completed { background: rgba(31, 157, 85, 0.16); color: #1f9d55; }
+  .status-cancelled { background: rgba(209, 67, 67, 0.16); color: #b52f2f; }
+  .actions { display: flex; gap: 6px; }
+  .empty-row td { text-align: center; padding: 32px; color: #94a3b8; }
+  .tbl-pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 16px; border-top: 0.5px solid #e2e8f0; font-size: 13px; }
+  .tbl-pagination a { color: #64748b; text-decoration: none; padding: 5px 12px; border-radius: 6px; border: 0.5px solid #e2e8f0; }
+  .tbl-pagination a:hover { background: #f8fafc; }
+  .tbl-pagination span { color: #64748b; }
+</style>
+
+<section class="panel">
+  <form method="get" class="filter-bar">
+    <input type="text" name="q" placeholder="Tìm theo tiêu đề, nhà tuyển dụng..." value="{{ keyword }}">
+    <select name="status">
+      <option value="">Tất cả trạng thái</option>
+      <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
+      <option value="expired" {% if status == 'expired' %}selected{% endif %}>Hết hạn</option>
+      <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>Đang thực hiện</option>
+      <option value="completed" {% if status == 'completed' %}selected{% endif %}>Đã hoàn thành</option>
+      <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Đã hủy</option>
+    </select>
+    <button class="button button-sm" type="submit">Lọc</button>
+  </form>
+</section>
+
+<div class="jobs-card">
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Tiêu đề / NTD</th><th>Lĩnh vực</th><th>Hình thức</th><th>Đơn</th><th>Trạng thái</th><th>Thao tác</th></tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td class="id-cell">#{{ job.id }}</td>
+          <td><a class="job-link" href="{% url 'job_detail' job.pk %}">{{ job.title }}</a><div class="job-employer">{{ job.employer.username }}</div></td>
+          <td>{% for category in job.categories.all %}<span class="tag">{{ category.name }}</span>{% empty %}-{% endfor %}</td>
+          <td>{% if job.work_mode_obj %}<span class="tag">{{ job.work_mode_obj.name }}</span>{% else %}-{% endif %}</td>
+          <td><span class="count-badge">{{ job.total_applications }}</span></td>
+          <td><span class="pill status-{{ job.display_status_key }}">{{ job.display_status_label }}</span></td>
+          <td><div class="actions"><a class="button button-sm button-ghost" href="{% url 'job_edit' job.pk %}">Sửa</a><a class="button button-sm button-danger" href="{% url 'job_delete' job.pk %}?next={{ request.get_full_path|urlencode }}">Xóa</a></div></td>
+        </tr>
+        {% empty %}
+        <tr class="empty-row"><td colspan="7">Không có việc phù hợp.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="tbl-pagination">
+    {% if jobs.has_previous %}<a href="?page={{ jobs.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">← Trang trước</a>{% endif %}
+    <span>Trang {{ jobs.number }} / {{ jobs.paginator.num_pages }}</span>
+    {% if jobs.has_next %}<a href="?page={{ jobs.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang sau →</a>{% endif %}
+  </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 10px;">
+    <h2 style="color: #006d77; text-align: center;">Kích hoạt tài khoản Web Tuyển Dụng</h2>
+    <p>Xin chào <strong>{{ user.first_name|default:user.username }}</strong>,</p>
+    <p>Cảm ơn bạn đã đăng ký tài khoản tại hệ thống của chúng tôi. Vui lòng nhấn vào nút bên dưới để xác nhận địa chỉ email và kích hoạt tài khoản của bạn:</p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}" 
+           style="background-color: #006d77; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+           Kích hoạt tài khoản ngay
+        </a>
+    </div>
+
+    <p style="font-size: 0.9em; color: #666;">Nếu nút trên không hoạt động, bạn có thể copy và dán đường link này vào trình duyệt:</p>
+    <p style="font-size: 0.85em; word-break: break-all;"><a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}" style="color: #006d77;">http://{{ domain }}{% url 'activate' uidb64=uid token=token %}</a></p>
+    
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+    <p style="font-size: 0.8em; color: #999; text-align: center;">Nếu bạn không yêu cầu đăng ký này, vui lòng bỏ qua email.</p>
+</div>

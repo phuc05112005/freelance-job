@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Việc làm yêu thích{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="panel-head">
+        <h1>Việc làm yêu thích</h1>
+        <p class="job-meta">Bạn đã lưu {{ jobs|length }} công việc.</p>
+    </div>
+</section>
+
+<section class="job-grid job-grid-home">
+    {% for job in jobs %}
+        <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0">
+            <div class="job-card-home-top">
+                <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}">
+                    <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
+                </a>
+                <div class="job-card-home-head">
+                    <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
+                    <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
+                </div>
+            </div>
+            <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+            <div class="job-card-top">
+                <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+            </div>
+            <div class="tag-row">
+                {% for category in job.categories.all %}
+                    <span class="tag">{{ category.name }}</span>
+                {% empty %}
+                    <span class="tag">Chưa gắn lĩnh vực</span>
+                {% endfor %}
+            </div>
+            <div class="job-foot">
+                <span>Mức lương: {{ job.display_salary }}</span>
+                <div class="job-foot-actions">
+                    <button type="button" class="favorite-btn is-favorite" data-job-id="{{ job.id }}" aria-label="Bỏ lưu {{ job.title }}" title="Bỏ khỏi yêu thích">❤</button>
+                    <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a>
+                </div>
+            </div>
+        </article>
+    {% empty %}
+        <section class="panel">
+            <p class="empty">Bạn chưa lưu việc nào. Hãy bấm vào trái tim ở trang chủ để lưu công việc yêu thích.</p>
+        </section>
+    {% endfor %}
+</section>
+
+<style>
+@keyframes heartPop {
+    0%   { transform: scale(1); }
+    20%  { transform: scale(1.7) rotate(-15deg); }
+    40%  { transform: scale(1.4) rotate(10deg); }
+    60%  { transform: scale(1.6) rotate(-5deg); }
+    80%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes heartRipple {
+    0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6), 0 0 0 0 rgba(251, 113, 133, 0.4); }
+    60%  { box-shadow: 0 0 0 14px rgba(220, 38, 38, 0), 0 0 0 28px rgba(251, 113, 133, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0), 0 0 0 0 rgba(251, 113, 133, 0); }
+}
+
+@keyframes heartParticle {
+    0%   { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0) rotate(var(--rot)); opacity: 0; }
+}
+
+@keyframes heartGlow {
+    0%   { filter: drop-shadow(0 0 0px rgba(220,38,38,0)); }
+    40%  { filter: drop-shadow(0 0 10px rgba(220,38,38,0.8)); }
+    100% { filter: drop-shadow(0 0 0px rgba(220,38,38,0)); }
+}
+
+.favorite-btn.heart-pop {
+    animation:
+        heartPop 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both,
+        heartRipple 0.55s ease-out both,
+        heartGlow 0.55s ease-out both;
+}
+
+.heart-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    animation: heartParticle 0.65s ease-out forwards;
+    transform-origin: center;
+    line-height: 1;
+}
+
+/* Card mờ khi bỏ tim, chưa xóa hẳn */
+.job-card.unfavorited {
+    opacity: 0.45;
+    filter: grayscale(0.4);
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+</style>
+
+<script>
+(function () {
+    function getCookie(name) {
+        const row = document.cookie.split('; ').find(r => r.startsWith(name + '='));
+        return row ? decodeURIComponent(row.split('=')[1]) : '';
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    /* Click card điều hướng */
+    document.querySelectorAll('.clickable-job-card').forEach(function (card) {
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('a, button, input, select, textarea, label')) return;
+            window.location.href = card.getAttribute('data-href');
+        });
+    });
+
+    /* Particles */
+    const PARTICLES = ['❤', '✨', '💗'];
+
+    function spawnParticles(btn) {
+        const rect = btn.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top  + rect.height / 2;
+        PARTICLES.forEach(function (emoji, i) {
+            const p = document.createElement('span');
+            p.className = 'heart-particle';
+            p.textContent = emoji;
+            const angle = (360 / PARTICLES.length) * i + (Math.random() * 30 - 15);
+            const dist  = 32 + Math.random() * 20;
+            const rad   = (angle * Math.PI) / 180;
+            p.style.setProperty('--tx', (Math.cos(rad) * dist) + 'px');
+            p.style.setProperty('--ty', (Math.sin(rad) * dist) + 'px');
+            p.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
+            p.style.left     = cx + 'px';
+            p.style.top      = cy + 'px';
+            p.style.fontSize = (0.7 + Math.random() * 0.5) + 'rem';
+            p.style.color    = `hsl(${335 + Math.random() * 25}, 90%, ${50 + Math.random() * 15}%)`;
+            p.style.animationDelay    = (i * 0.03) + 's';
+            p.style.animationDuration = (0.55 + Math.random() * 0.15) + 's';
+            document.body.appendChild(p);
+            p.addEventListener('animationend', () => p.remove());
+        });
+    }
+
+    /* Toggle favorite */
+    document.querySelectorAll('.favorite-btn').forEach(function (btn) {
+        btn.addEventListener('click', async function (e) {
+            e.stopPropagation();
+            const jobId = btn.getAttribute('data-job-id');
+            if (!jobId) return;
+
+            /* Hiệu ứng pop */
+            btn.classList.remove('heart-pop');
+            void btn.offsetWidth;
+            btn.classList.add('heart-pop');
+            btn.addEventListener('animationend', () => btn.classList.remove('heart-pop'), { once: true });
+
+            const card = btn.closest('.job-card');
+            const willFavorite = !btn.classList.contains('is-favorite');
+
+            /* Particle khi thêm lại tim */
+            if (willFavorite) spawnParticles(btn);
+
+            try {
+                const res = await fetch(`/jobs/${jobId}/favorite-toggle/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken, 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+
+                btn.classList.toggle('is-favorite', data.is_favorite);
+
+                if (!data.is_favorite) {
+                    /* Bỏ tim: mờ card + đổi tooltip, KHÔNG xóa */
+                    card && card.classList.add('unfavorited');
+                    btn.title = 'Tim lại';
+                    btn.setAttribute('aria-label', 'Tim lại công việc này');
+                } else {
+                    /* Tim lại: khôi phục card */
+                    card && card.classList.remove('unfavorited');
+                    btn.title = 'Bỏ khỏi yêu thích';
+                    btn.setAttribute('aria-label', 'Bỏ lưu công việc này');
+                }
+
+                const navCount = document.getElementById('favorite-count');
+                if (navCount && typeof data.total_favorites === 'number') {
+                    navCount.textContent = data.total_favorites;
+                }
+            } catch (err) {
+                console.error('Toggle favorite failed', err);
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

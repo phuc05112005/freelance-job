@@ -1,0 +1,89 @@
+﻿{% extends 'admin_center/base_admin.html' %}
+{% block title %}Quản lý tài khoản người dùng{% endblock %}
+{% block admin_body %}
+<div class="admin-center-page">
+
+
+<section class="panel">
+    <form method="get" class="filters">
+        <input type="text" name="q" placeholder="Tìm username, email, họ tên..." value="{{ keyword }}">
+        <select name="role">
+            <option value="">Tất cả vai trò</option>
+            <option value="student" {% if role == 'student' %}selected{% endif %}>Sinh viên</option>
+            <option value="employer" {% if role == 'employer' %}selected{% endif %}>Nhà tuyển dụng</option>
+            <option value="admin" {% if role == 'admin' %}selected{% endif %}>Quản trị viên</option>
+        </select>
+        <button class="button button-sm" type="submit">Lọc</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tài khoản</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Chi tiết</th>
+                    <th>Cập nhật</th>
+                    <th>Xóa</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in users %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.username }}</td>
+                        <td>{{ item.email|default:"-" }}</td>
+                        <td>
+                            <form method="post" class="inline-form" id="form-{{ item.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ item.id }}">
+                                <select name="role">
+                                    <option value="student" {% if item.role == 'student' %}selected{% endif %}>Sinh viên</option>
+                                    <option value="employer" {% if item.role == 'employer' %}selected{% endif %}>Nhà tuyển dụng</option>
+                                    <option value="admin" {% if item.role == 'admin' %}selected{% endif %}>Quản trị viên</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <label style="display:flex; align-items:center; gap:5px; white-space:nowrap;">
+                                <input type="checkbox" name="is_active" form="form-{{ item.id }}" {% if item.is_active %}checked{% endif %} style="width:auto;">
+                                Hoạt động
+                            </label>
+                        </td>
+                        <td><a class="button button-sm button-ghost" href="{% url 'admin_user_detail' item.id %}">Xem</a></td>
+                        <td>
+                            <button class="button button-sm" type="submit" form="form-{{ item.id }}">Cập nhật</button>
+                            {% if item.role == 'employer' and not item.employer_verified %}
+                            <button class="button button-sm" type="submit" form="form-{{ item.id }}" name="action" value="verify_employer">Duyệt NTD</button>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item != request.user %}
+                            <button class="button button-sm button-danger" type="submit" form="form-{{ item.id }}" name="action" value="delete" onclick="return confirm('Xóa tài khoản {{ item.username }}?')">Xóa tài khoản</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="9" class="empty">Không có người dùng phù hợp.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        {% if users.has_previous %}
+            <a href="?page={{ users.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang trước</a>
+        {% endif %}
+        <span>Trang {{ users.number }} / {{ users.paginator.num_pages }}</span>
+        {% if users.has_next %}
+            <a href="?page={{ users.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">Trang sau</a>
+        {% endif %}
+    </div>
+</section>
+</div>
+{% endblock %}

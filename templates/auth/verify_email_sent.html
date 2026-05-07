@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Xác nhận đăng ký{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+    <div class="auth-panel" style="text-align: center; padding: 40px 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        <h1 style="margin-bottom: 15px;">Xác nhận địa chỉ email</h1>
+        <p style="color: var(--muted); margin-bottom: 10px;">Chúng tôi đã gửi một đường dẫn xác thực tới email của bạn.</p>
+        <p style="color: var(--muted); margin-bottom: 25px;">Vui lòng kiểm tra hộp thư đến (và thư mục rác) để hoàn tất việc đăng ký.</p>
+        <a href="{% url 'login' %}" class="button">Quay lại đăng nhập</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --cream: #faf8f4;
+        --ink: #1c1a17;
+        --gold: #c9a84c;
+        --gold-light: #f0e0a8;
+        --rust: #b85c38;
+        --sage: #6b7c6a;
+        --border: #ddd8cc;
+        --card-bg: #ffffff;
+        --shadow: 0 2px 16px rgba(28,26,23,0.07);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--ink); }
+
+    .manage-page { padding: 48px 20px 80px; max-width: 860px; margin: auto; }
+
+    .page-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    .page-header-text h2 {
+        font-family: 'Lora', serif;
+        font-size: 1.8rem;
+        color: var(--ink);
+        letter-spacing: -0.5px;
+    }
+    .page-header-text p { color: var(--sage); font-size: 0.88rem; margin-top: 5px; font-weight: 300; }
+
+    .btn-new-cv {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 22px;
+        background: var(--ink);
+        color: var(--gold-light);
+        border: none;
+        border-radius: 9px;
+        font-family: 'Lora', serif;
+        font-size: 0.88rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+        white-space: nowrap;
+    }
+    .btn-new-cv:hover { background: #2e2a24; transform: translateY(-1px); }
+
+    /* CV Card */
+    .cv-manage-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px 32px;
+        margin-bottom: 18px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        transition: box-shadow 0.2s, transform 0.2s;
+        animation: fadeUp 0.3s ease both;
+    }
+    .cv-manage-card:hover { box-shadow: 0 6px 28px rgba(28,26,23,0.12); transform: translateY(-2px); }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .cv-manage-card:nth-child(1) { animation-delay: 0s; }
+    .cv-manage-card:nth-child(2) { animation-delay: 0.07s; }
+    .cv-manage-card:nth-child(3) { animation-delay: 0.14s; }
+    .cv-manage-card:nth-child(4) { animation-delay: 0.21s; }
+
+    .cv-manage-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    }
+
+    .cv-card-inner { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+
+    .cv-avatar-wrap { flex-shrink: 0; }
+    .cv-avatar {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--gold-light);
+        display: block;
+    }
+    .cv-no-img {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: #f0ece4;
+        border: 2px dashed var(--border);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem; color: #c8c0b4;
+    }
+
+    .cv-info { flex: 1; min-width: 200px; }
+    .cv-name {
+        font-family: 'Lora', serif;
+        font-size: 1.2rem; font-weight: 600;
+        color: var(--ink); letter-spacing: -0.3px; margin-bottom: 4px;
+    }
+    .cv-title-badge {
+        display: inline-block;
+        padding: 2px 11px;
+        background: var(--gold-light);
+        border-radius: 20px;
+        font-size: 0.75rem; font-weight: 600;
+        color: #7a6020; letter-spacing: 0.04em;
+        margin-bottom: 10px;
+    }
+    .cv-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+    .cv-meta-item { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--sage); }
+
+    .cv-actions { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+
+    .btn-action {
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 6px; padding: 8px 18px; border-radius: 7px;
+        font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600;
+        letter-spacing: 0.04em; text-decoration: none; cursor: pointer;
+        transition: all 0.2s; border: none; white-space: nowrap;
+    }
+    .btn-view   { background: var(--ink); color: var(--gold-light); }
+    .btn-view:hover { background: #2e2a24; }
+    .btn-edit   { background: transparent; border: 1.5px solid var(--border); color: var(--sage); }
+    .btn-edit:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-light); }
+    .btn-delete-cv {
+        background: transparent; border: 1.5px solid #ede4de;
+        color: var(--rust); font-size: 0.76rem; padding: 6px 18px; width: 100%;
+    }
+    .btn-delete-cv:hover { background: var(--rust); border-color: var(--rust); color: white; }
+
+    .card-divider { height: 1px; background: #f0ece4; margin: 18px 0; }
+
+    .cv-stats { display: flex; gap: 0; }
+    .stat-item {
+        text-align: center; flex: 1; padding: 0 12px;
+        border-right: 1px solid #f0ece4;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-item:first-child { padding-left: 0; }
+    .stat-num {
+        font-family: 'Lora', serif; font-size: 1.3rem;
+        font-weight: 600; color: var(--gold); line-height: 1;
+    }
+    .stat-label {
+        font-size: 0.68rem; color: var(--sage);
+        text-transform: uppercase; letter-spacing: 0.07em; margin-top: 3px;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center; padding: 60px 20px;
+        background: var(--card-bg); border: 2px dashed var(--border); border-radius: 16px;
+    }
+    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty-state h3 { font-family: 'Lora', serif; font-size: 1.2rem; color: var(--ink); margin-bottom: 8px; }
+    .empty-state p { color: var(--sage); font-size: 0.88rem; margin-bottom: 20px; font-weight: 300; }
+
+    .cv-count-badge {
+        display: inline-block; background: var(--gold-light); color: #7a6020;
+        font-size: 0.72rem; font-weight: 700; padding: 2px 9px;
+        border-radius: 12px; letter-spacing: 0.05em;
+        margin-left: 8px; vertical-align: middle;
+    }
+</style>
+
+<div class="manage-page">
+    <div class="page-header">
+        <div class="page-header-text">
+            <h2>Hồ sơ của tôi <span class="cv-count-badge">{{ cv_list|length }}</span></h2>
+            <p>Quản lý và cập nhật các CV của bạn</p>
+        </div>
+        <a href="{% url 'taocv' %}" class="btn-new-cv">Tạo CV mới</a>
+    </div>
+
+    {% if cv_list %}
+        {% for cv in cv_list %}
+        <div class="cv-manage-card">
+            <div class="cv-card-inner">
+                <div class="cv-avatar-wrap">
+                    {% if cv.avatar %}
+                        <img src="{{ cv.avatar.url }}" class="cv-avatar" alt="{{ cv.hoten }}">
+                    {% else %}
+                        <div class="cv-no-img">👤</div>
+                    {% endif %}
+                </div>
+
+                <div class="cv-info">
+                    <div class="cv-name">{{ cv.hoten|upper }}</div>
+                    <span class="cv-title-badge">{{ cv.tieude }}</span>
+                    <div class="cv-meta">
+                        {% if cv.email %}<div class="cv-meta-item">✉ {{ cv.email }}</div>{% endif %}
+                        {% if cv.sdt %}<div class="cv-meta-item">✆ {{ cv.sdt }}</div>{% endif %}
+                        {% if cv.diachi %}<div class="cv-meta-item">⌖ {{ cv.diachi }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="cv-actions">
+                    <a href="{% url 'xemcv' cv.id %}" class="btn-action btn-view">👁 Xem CV</a>
+                    <a href="{% url 'suacv' cv.id %}" class="btn-action btn-edit">✎ Sửa CV</a>
+                    <form action="{% url 'xoacv' cv.id %}" method="POST" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-action btn-delete-cv"
+                                onclick="return confirm('Xóa CV «{{ cv.tieude }}»?')">✕ Xóa</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card-divider"></div>
+
+            <div class="cv-stats">
+                <div class="stat-item">
+                    <div class="stat-num">{{ cv.kinhnghiem_set.count }}</div>
+                    <div class="stat-label">Kinh nghiệm</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">{{ cv.hocvan_set.count }}</div>
+                    <div class="stat-label">Học vấn</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">{% if cv.kynang %}✓{% else %}—{% endif %}</div>
+                    <div class="stat-label">Kỹ năng</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">{% if cv.muctieu %}✓{% else %}—{% endif %}</div>
+                    <div class="stat-label">Mục tiêu</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <h3>Chưa có hồ sơ nào</h3>
+            <p>Tạo CV đầu tiên của bạn để bắt đầu ứng tuyển</p>
+            <a href="{% url 'taocv' %}" class="btn-new-cv">Tạo CV ngay</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

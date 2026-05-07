@@ -1,0 +1,460 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --cream: #faf8f4;
+        --ink: #1c1a17;
+        --gold: #c9a84c;
+        --gold-light: #f0e0a8;
+        --rust: #b85c38;
+        --sage: #6b7c6a;
+        --border: #ddd8cc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--ink); }
+
+    /* ── Top bar ── */
+    .preview-page { padding: 32px 20px 80px; max-width: 960px; margin: auto; }
+
+    .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        background: transparent;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        color: var(--sage);
+        font-size: 0.82rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .btn-back::before { content: '←'; }
+    .btn-back:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-light); }
+
+    .top-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-dl {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 8px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.83rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    .btn-dl-pdf  { background: var(--ink); color: var(--gold-light); }
+    .btn-dl-pdf:hover  { background: #2e2a24; transform: translateY(-1px); }
+    .btn-dl-edit { background: transparent; border: 1.5px solid var(--border); color: var(--sage); }
+    .btn-dl-edit:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-light); }
+
+    /* ── CV Shell ── */
+    #CV {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 32px rgba(28,26,23,0.10);
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Header */
+    .cv-header {
+        background: var(--ink);
+        padding: 36px 44px;
+        display: flex;
+        gap: 28px;
+        align-items: center;
+        position: relative;
+    }
+    .cv-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    }
+
+    .cv-avatar-frame {
+        width: 86px; height: 86px;
+        border-radius: 50%;
+        border: 3px solid var(--gold);
+        object-fit: cover; flex-shrink: 0;
+    }
+    .cv-no-avatar {
+        width: 86px; height: 86px;
+        border-radius: 50%;
+        border: 2px dashed rgba(201,168,76,0.4);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.8rem; color: rgba(201,168,76,0.4); flex-shrink: 0;
+    }
+
+    .cv-header-info { flex: 1; }
+    .cv-header-name {
+        font-family: 'Lora', serif;
+        font-size: 1.7rem; font-weight: 600;
+        color: #fff; letter-spacing: -0.5px; margin-bottom: 3px;
+    }
+    .cv-header-title {
+        font-size: 0.87rem; color: var(--gold-light);
+        font-weight: 300; letter-spacing: 0.05em; margin-bottom: 14px;
+    }
+    .cv-contacts { display: flex; flex-wrap: wrap; gap: 12px; }
+    .cv-contact-item {
+        display: flex; align-items: center; gap: 5px;
+        font-size: 0.78rem; color: rgba(255,255,255,0.72);
+    }
+    .cv-contact-item .icon { color: var(--gold); }
+
+    /* Body 2-col */
+    .cv-body {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .cv-left {
+        width: 220px;
+        flex-shrink: 0;
+
+        background: #f7f4ef;
+        padding: 28px 24px;
+        border-right: 1px solid #ede8e0;
+
+        height: auto;
+        min-height: unset;
+    }
+
+    .cv-right {
+        flex: 1;
+        padding: 28px 36px;
+    }
+
+    /* Sections */
+    .cv-section { margin-bottom: 26px; }
+    .cv-section:last-child { margin-bottom: 0; }
+
+    .cv-section-title {
+        font-family: 'Lora', serif;
+        font-size: 0.7rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.14em;
+        color: var(--gold);
+        margin-bottom: 13px; padding-bottom: 7px;
+        border-bottom: 1.5px solid var(--gold-light);
+    }
+
+    /* Info block */
+    .cv-info-row { display: flex; flex-direction: column; gap: 10px; }
+    .cv-info-label {
+        font-size: 0.65rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.07em;
+        color: var(--sage); margin-bottom: 1px;
+    }
+    .cv-info-item { font-size: 0.82rem; color: #4a4640; line-height: 1.45; }
+
+    /* Rich content */
+    .cv-rich-content {
+        font-size: 0.83rem; color: #4a4640; line-height: 1.7;
+    }
+    .cv-rich-content ul, .cv-rich-content ol { padding-left: 16px; }
+
+    .cv-muctieu {
+        font-size: 0.87rem; color: #3a3730;
+        line-height: 1.8; font-style: italic;
+    }
+    .cv-muctieu ul, .cv-muctieu ol { padding-left: 16px; font-style: normal; }
+
+    /* Entries */
+    .cv-entry {
+        margin-bottom: 18px; padding-bottom: 18px;
+        border-bottom: 1px solid #ede8e0;
+    }
+    .cv-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    .cv-entry-header {
+        display: flex; justify-content: space-between;
+        align-items: flex-start; gap: 8px; margin-bottom: 3px;
+    }
+    .cv-entry-title { font-weight: 600; font-size: 0.9rem; color: var(--ink); }
+    .cv-entry-sub { font-size: 0.8rem; color: var(--sage); margin-bottom: 7px; }
+    .cv-entry-period {
+        font-size: 0.7rem; color: #fff;
+        background: var(--gold); padding: 2px 9px;
+        border-radius: 12px; white-space: nowrap;
+        flex-shrink: 0; font-weight: 600;
+    }
+    .cv-entry-desc { font-size: 0.82rem; color: #4a4640; line-height: 1.65; }
+    .cv-entry-desc ul, .cv-entry-desc ol { padding-left: 16px; }
+
+    .cv-empty { color: #c0b8b0; font-size: 0.82rem; font-style: italic; }
+
+    /* ===== FIX PDF EXPORT ===== */
+    @media print {
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff !important;
+        }
+
+        .preview-page {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        #CV {
+            width: 210mm !important;
+            min-height: auto !important;
+            height: auto !important;
+
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+
+            overflow: visible !important;
+        }
+
+        .cv-body {
+            align-items: flex-start !important;
+        }
+
+        .cv-left {
+            height: auto !important;
+            min-height: auto !important;
+        }
+    }
+</style>
+
+<div class="preview-page">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+        <a href="{% url 'quanlycv' %}" class="btn-back">Quay lại</a>
+        <div class="top-actions">
+            <a href="{% url 'suacv' cv.id %}" class="btn-dl btn-dl-edit">✎ Sửa CV</a>
+            <button class="btn-dl btn-dl-pdf" onclick="downloadPDF()">⬇ Tải PDF</button>
+        </div>
+    </div>
+
+    <!-- CV Preview -->
+    <div id="CV">
+
+        <!-- Header -->
+        <div class="cv-header">
+            {% if cv.avatar %}
+                <img src="{{ cv.avatar.url }}" class="cv-avatar-frame" alt="{{ cv.hoten }}">
+            {% else %}
+                <div class="cv-no-avatar">👤</div>
+            {% endif %}
+            <div class="cv-header-info">
+                <div class="cv-header-name">{{ cv.hoten }}</div>
+                <div class="cv-header-title">{{ cv.tieude }}</div>
+                <div class="cv-contacts">
+                    {% if cv.email %}
+                    <span class="cv-contact-item"><span class="icon">✉</span> {{ cv.email }}</span>
+                    {% endif %}
+                    {% if cv.sdt %}
+                    <span class="cv-contact-item"><span class="icon">✆</span> {{ cv.sdt }}</span>
+                    {% endif %}
+                    {% if cv.diachi %}
+                    <span class="cv-contact-item"><span class="icon">⌖</span> {{ cv.diachi }}</span>
+                    {% endif %}
+                    {% if cv.ngaysinh %}
+                    <span class="cv-contact-item"><span class="icon">◷</span> {{ cv.ngaysinh }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="cv-body">
+
+            <!-- Left -->
+            <div class="cv-left">
+
+                <div class="cv-section">
+                    <div class="cv-section-title">Thông tin</div>
+                    <div class="cv-info-row">
+                        {% if cv.gioitinh %}
+                        <div>
+                            <div class="cv-info-label">Giới tính</div>
+                            <div class="cv-info-item">{{ cv.gioitinh }}</div>
+                        </div>
+                        {% endif %}
+                        {% if cv.ngaysinh %}
+                        <div>
+                            <div class="cv-info-label">Ngày sinh</div>
+                            <div class="cv-info-item">{{ cv.ngaysinh }}</div>
+                        </div>
+                        {% endif %}
+                        {% if cv.diachi %}
+                        <div>
+                            <div class="cv-info-label">Địa chỉ</div>
+                            <div class="cv-info-item">{{ cv.diachi }}</div>
+                        </div>
+                        {% endif %}
+                        {% if cv.sdt %}
+                        <div>
+                            <div class="cv-info-label">Điện thoại</div>
+                            <div class="cv-info-item">{{ cv.sdt }}</div>
+                        </div>
+                        {% endif %}
+                        {% if cv.email %}
+                        <div>
+                            <div class="cv-info-label">Email</div>
+                            <div class="cv-info-item">{{ cv.email }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if cv.kynang %}
+                <div class="cv-section">
+                    <div class="cv-section-title">Kỹ năng</div>
+                    <div class="cv-rich-content">{{ cv.kynang|safe }}</div>
+                </div>
+                {% endif %}
+
+                {% if hocvan %}
+                <div class="cv-section">
+                    <div class="cv-section-title">Học vấn</div>
+                    {% for hv in hocvan %}
+                    <div class="cv-entry">
+                        <div class="cv-entry-header">
+                            <div class="cv-entry-title">{{ hv.truong }}</div>
+                            <span class="cv-entry-period">{{ hv.batdau }}–{{ hv.ketthuc }}</span>
+                        </div>
+                        <div class="cv-entry-sub">{{ hv.nganh }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Right -->
+            <div class="cv-right">
+
+                {% if cv.muctieu %}
+                <div class="cv-section">
+                    <div class="cv-section-title">Mục tiêu nghề nghiệp</div>
+                    <div class="cv-muctieu">{{ cv.muctieu|safe }}</div>
+                </div>
+                {% endif %}
+
+                <div class="cv-section">
+                    <div class="cv-section-title">Kinh nghiệm làm việc</div>
+                    {% if kinhnghiem %}
+                        {% for kn in kinhnghiem %}
+                        <div class="cv-entry">
+                            <div class="cv-entry-header">
+                                <div class="cv-entry-title">{{ kn.vitri }}</div>
+                                <span class="cv-entry-period">{{ kn.batdau }} – {{ kn.ketthuc }}</span>
+                            </div>
+                            <div class="cv-entry-sub">{{ kn.congty }}</div>
+                            {% if kn.mota %}
+                            <div class="cv-entry-desc">{{ kn.mota|safe }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="cv-empty">Chưa có kinh nghiệm làm việc.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function downloadPDF() {
+    const btn = document.querySelector('.btn-dl-pdf');
+    const originalText = btn.innerHTML;
+
+    btn.innerHTML = '⏳ Đang xuất...';
+    btn.disabled = true;
+
+    const source = document.getElementById('CV');
+
+    // Clone CV
+    const clone = source.cloneNode(true);
+
+    // Style riêng cho PDF
+    clone.style.width = '794px';
+    clone.style.margin = '0';
+    clone.style.padding = '0';
+    clone.style.border = 'none';
+    clone.style.borderRadius = '0';
+    clone.style.boxShadow = 'none';
+    clone.style.background = '#fff';
+    clone.style.position = 'absolute';
+    clone.style.left = '-99999px';
+    clone.style.top = '0';
+
+    // FIX CHÍNH
+    const body = clone.querySelector('.cv-body');
+    body.style.display = 'flex';
+    body.style.alignItems = 'flex-start';
+
+    const left = clone.querySelector('.cv-left');
+    left.style.height = 'auto';
+    left.style.alignSelf = 'flex-start';
+    left.style.minHeight = '0';
+
+    document.body.appendChild(clone);
+
+    const options = {
+        margin: 0,
+        filename: 'CV_{{ cv.hoten }}.pdf',
+
+        image: {
+            type: 'jpeg',
+            quality: 1
+        },
+
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            logging: false
+        },
+
+        jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+        }
+    };
+
+    try {
+        await html2pdf().set(options).from(clone).save();
+    } finally {
+        document.body.removeChild(clone);
+
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

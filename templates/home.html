@@ -1,0 +1,1018 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sàn Việc Làm Cho Sinh Viên{% endblock %}
+
+{% block content %}
+<!-- ===== HERO BANNER ===== -->
+<div class="hero-banner-wrap">
+    <div class="hero-banner-track" id="heroBannerTrack">
+        <div class="hero-banner-slide">
+            <img src="{% static 'images/hero.jpg' %}" alt="Banner 1" class="hero-banner-img">
+            <div class="hero-banner-overlay">
+                <div class="hero-banner-text">
+                    <p class="eyebrow">Nền tảng #1 cho sinh viên</p>
+                    <h2>Tìm việc làm phù hợp<br>với chuyên ngành của bạn</h2>
+                    <a href="#list_job" class="button">Khám phá ngay</a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-banner-slide">
+            <img src="{% static 'images/img.webp' %}" alt="Banner 2" class="hero-banner-img">
+            <div class="hero-banner-overlay">
+                <div class="hero-banner-text">
+                    <p class="eyebrow">Hàng nghìn cơ hội đang chờ</p>
+                    <h2>Kết nối sinh viên với<br>nhà tuyển dụng uy tín</h2>
+                    <a href="#list_job" class="button">Xem việc làm</a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-banner-slide">
+            <img src="{% static 'images/work.jpeg' %}" alt="Banner 3" class="hero-banner-img">
+            <div class="hero-banner-overlay">
+                <div class="hero-banner-text">
+                    <p class="eyebrow">Thực tập • Part-time • Fresher</p>
+                    <h2>Chạm tay vào công việc mơ ước<br>ngay khi còn là sinh viên</h2>
+                    <p class="lead-banner">Hàng trăm doanh nghiệp đang tìm kiếm bạn mỗi ngày.</p>
+                    <a href="#list_job" class="button scroll-smooth">Xem việc làm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dots -->
+    <div class="hero-banner-dots" id="heroBannerDots">
+        <button class="hb-dot active" data-idx="0"></button>
+        <button class="hb-dot" data-idx="1"></button>
+        <button class="hb-dot" data-idx="2"></button>
+    </div>
+
+    <!-- Arrows -->
+    <button class="hb-arrow hb-arrow-left" id="hbPrev">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="hb-arrow hb-arrow-right" id="hbNext">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
+<section class="hero hero-animated">
+    <div>
+        <p class="eyebrow">Nền tảng kết nối sinh viên làm việc</p>
+        <h1 class="hero-title">
+            <span class="hero-title-highlight">Tìm những công việc tốt nhất theo lĩnh vực chuyên môn</span>
+        </h1>
+        <p class="lead">Đăng việc, lọc ứng viên theo CV và tuyển đúng người cho đúng chuyên môn.</p>
+        <div class="hero-actions">
+            {% if user.is_authenticated and user.role != 'student' %}
+                <a href="{% url 'job_create' %}" class="button">Đăng bài tuyển dụng</a>
+            {% elif user.is_authenticated %}
+                <a href="#list_job" class="button">Tìm việc ngay</a>
+            {% endif %}
+            <a href="{% url 'application_list' %}" class="button button-ghost">Xem đơn ứng tuyển</a>
+        </div>
+    </div>
+    <div class="stat-grid">
+        <div class="stat-card"><strong>{{ stats.jobs }}</strong><span>Tổng việc làm</span></div>
+        <div class="stat-card"><strong>{{ stats.open_jobs }}</strong><span>Việc đang tuyển</span></div>
+        <div class="stat-card"><strong>{{ stats.students }}</strong><span>Sinh viên</span></div>
+        <div class="stat-card"><strong>{{ stats.employers }}</strong><span>Nhà tuyển dụng</span></div>
+    </div>
+</section>
+
+<section class="panel" id="list_job">
+    <form method="get" class="filters advanced-filters">
+        <input type="text" name="q" placeholder="Tìm kiếm..." value="{{ query }}">
+        <select name="category">
+            <option value="">Tất cả lĩnh vực</option>
+            {% for category in categories %}
+                <option value="{{ category.id }}" {% if category_id == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="mode">
+            <option value="">Tất cả hình thức</option>
+            {% for wm in work_modes %}
+                <option value="{{ wm.code }}" {% if mode == wm.code %}selected{% endif %}>{{ wm.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="employment">
+            <option value="">Tất cả loại việc</option>
+            {% for et in employment_types %}
+                <option value="{{ et.code }}" {% if employment == et.code %}selected{% endif %}>{{ et.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="salary_type">
+            <option value="">Tất cả mức lương</option>
+            <option value="negotiable" {% if salary_type == 'negotiable' %}selected{% endif %}>Thỏa thuận</option>
+            <option value="range" {% if salary_type == 'range' %}selected{% endif %}>Khoảng lương</option>
+            <option value="fixed" {% if salary_type == 'fixed' %}selected{% endif %}>Lương cố định</option>
+        </select>
+        <select name="city" id="homeCityFilter"><option value="">Tất cả Tỉnh/Thành phố</option></select>
+        <select name="status">
+            <option value="">Tất cả trạng thái</option>
+            <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
+            <option value="expired" {% if status == 'expired' %}selected{% endif %}>Hết hạn</option>
+        </select>
+        <div class="filter-btn-group">
+            <button class="button button-sm" type="submit">Tìm</button>
+            <a href="{% url 'home' %}" class="button button-sm btn-clear-filter">Xóa lọc</a>
+        </div>  
+    </form>
+</section>
+
+
+{% if is_searching %}
+<section class="job-section search-results-section" id="search_results">
+    <div class="job-section-header">
+        <h2>Kết quả tìm kiếm</h2>
+        <p>Tìm thấy {{ search_results.paginator.count }} công việc phù hợp</p>
+    </div>
+    <div class="job-carousel-nav">
+        <button type="button" class="job-slide-arrow left" data-target="searchGrid" aria-label="Lướt trái">‹</button>
+        <button type="button" class="job-slide-arrow right" data-target="searchGrid" aria-label="Lướt phải">›</button>
+    </div>
+    <div class="job-grid job-grid-home job-scroll-grid" id="searchGrid">
+        {% for job in search_results %}
+            <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
+                <div class="job-card-home-top">
+                    <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
+                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
+                    </a>
+                    <div class="job-card-home-head">
+                        <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
+                        <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
+                    </div>
+                </div>
+                <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+                <div class="job-card-top">
+                    <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                    {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+                    {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
+                </div>
+                <div class="tag-row">
+                    {% for category in job.categories.all %}
+                        <span class="tag">{{ category.name }}</span>
+                    {% empty %}
+                        <span class="tag">Chưa gắn lĩnh vực</span>
+                    {% endfor %}
+                </div>
+                <div class="job-foot">
+                    <span>Mức lương: {{ job.display_salary }}</span>
+                    <div class="job-foot-actions">
+                        <button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}">❤</button>
+                        <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <p class="empty">Không tìm thấy công việc nào phù hợp với yêu cầu của bạn.</p>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if search_results.has_previous %}
+            <a href="?page={{ search_results.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}#search_results">⬅</a>
+        {% endif %}
+        <span>Trang {{ search_results.number }} / {{ search_results.paginator.num_pages }}</span>
+        {% if search_results.has_next %}
+            <a href="?page={{ search_results.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}#search_results">➡</a>
+        {% endif %}
+    </div>
+</section>
+<hr class="section-divider">
+{% endif %}
+
+<section class="job-section">
+    <div class="job-section-header discovery-header">
+        <h2>Việc làm mới nhất 🔥</h2>
+        <a href="{% url 'job_list_all' %}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
+    </div>
+    <div class="job-grid job-grid-home job-scroll-grid" id="latestGrid">
+        {% for job in latest_jobs %}
+            <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
+                <div class="job-card-home-top">
+                    <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
+                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
+                    </a>
+                    <div class="job-card-home-head">
+                        <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
+                        <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
+                    </div>
+                </div>
+                <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+                <div class="job-card-top">
+                    <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                    {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+                    {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
+                </div>
+                <div class="tag-row">
+                    {% for category in job.categories.all %}
+                        <span class="tag">{{ category.name }}</span>
+                    {% empty %}
+                        <span class="tag">Chưa gắn lĩnh vực</span>
+                    {% endfor %}
+                </div>
+                <div class="job-foot">
+                    <span>Mức lương: {{ job.display_salary }}</span>
+                    <div class="job-foot-actions">
+                        <button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}" title="Lưu vào yêu thích">❤</button>
+                        <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+{% if user.is_authenticated and user.role == 'student' and recommended_major_jobs %}
+<section class="job-section">
+    <div class="job-section-header discovery-header">
+        <h2>Việc làm chuyên ngành liên quan</h2>
+        <a href="{% url 'job_list_all' %}?q={{ user.major|urlencode }}&category={{ major_category_id }}" 
+        class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
+    </div>
+    <div class="job-carousel-4" id="majorGrid">
+        {% for job in recommended_major_jobs %}
+            <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
+                <div class="job-card-home-top">
+                    <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
+                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
+                    </a>
+                    <div class="job-card-home-head">
+                        <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
+                        <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
+                    </div>
+                </div>
+                <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+                <div class="job-card-top">
+                    <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                    {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+                    {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
+                </div>
+                <div class="tag-row">
+                    {% for category in job.categories.all %}
+                        <span class="tag">{{ category.name }}</span>
+                    {% empty %}
+                        <span class="tag">Chưa gắn lĩnh vực</span>
+                    {% endfor %}
+                </div>
+                <div class="job-foot">
+                    <span>Mức lương: {{ job.display_salary }}</span>
+                    <div class="job-foot-actions"><button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}" title="Lưu vào yêu thích">❤</button><a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a></div>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+    <div class="job-carousel-nav">
+        <button type="button" class="job-slide-arrow left" data-target="majorGrid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+        <button type="button" class="job-slide-arrow right" data-target="majorGrid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+        </button>
+    </div>
+</section>
+{% endif %}
+
+{% if user.is_authenticated and user.role == 'student' and nearby_jobs %}
+<section class="job-section">
+    <div class="job-section-header discovery-header">
+        <h2>Việc làm gần bạn</h2>
+        <a href="{% url 'job_list_all' %}?city={{ user.province|urlencode }}" class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
+    </div>
+    <div class="job-carousel-4" id="nearbyGrid">
+        {% for job in nearby_jobs %}
+            <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
+                <div class="job-card-home-top">
+                    <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
+                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
+                    </a>
+                    <div class="job-card-home-head">
+                        <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
+                        <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
+                    </div>
+                </div>
+                <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+                <div class="job-card-top">
+                    <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                    {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+                    {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
+                </div>
+                <div class="tag-row">
+                    {% for category in job.categories.all %}
+                        <span class="tag">{{ category.name }}</span>
+                    {% empty %}
+                        <span class="tag">Chưa gắn lĩnh vực</span>
+                    {% endfor %}
+                </div>
+                <div class="job-foot">
+                    <span>Mức lương: {{ job.display_salary }}</span>
+                    <div class="job-foot-actions"><button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}" title="Lưu vào yêu thích">❤</button><a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a></div>
+                </div>
+                
+            </article>
+        {% endfor %}
+    </div>
+    <div class="job-carousel-nav">
+        <button type="button" class="job-slide-arrow left" data-target="nearbyGrid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+        <button type="button" class="job-slide-arrow right" data-target="nearbyGrid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+        </button>
+    </div>
+</section>
+{% endif %}
+
+<style>
+@keyframes heartPop {
+    0%   { transform: scale(1); }
+    20%  { transform: scale(1.7) rotate(-15deg); }
+    40%  { transform: scale(1.4) rotate(10deg); }
+    60%  { transform: scale(1.6) rotate(-5deg); }
+    80%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes heartRipple {
+    0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6), 0 0 0 0 rgba(251, 113, 133, 0.4); }
+    60%  { box-shadow: 0 0 0 14px rgba(220, 38, 38, 0), 0 0 0 28px rgba(251, 113, 133, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0), 0 0 0 0 rgba(251, 113, 133, 0); }
+}
+
+@keyframes heartParticle {
+    0%   { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0) rotate(var(--rot)); opacity: 0; }
+}
+
+@keyframes heartGlow {
+    0%   { filter: drop-shadow(0 0 0px rgba(220,38,38,0)); }
+    40%  { filter: drop-shadow(0 0 10px rgba(220,38,38,0.8)); }
+    100% { filter: drop-shadow(0 0 0px rgba(220,38,38,0)); }
+}
+
+.favorite-btn.heart-pop {
+    animation:
+        heartPop 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both,
+        heartRipple 0.55s ease-out both,
+        heartGlow 0.55s ease-out both;
+}
+
+.heart-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    animation: heartParticle 0.65s ease-out forwards;
+    transform-origin: center;
+    line-height: 1;
+}
+/* ===== HERO BANNER SLIDER ===== */
+.hero-banner-wrap {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    border-radius: 24px;
+    overflow: hidden;
+    margin-bottom: 28px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
+}
+
+.hero-banner-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.9s cubic-bezier(0.77, 0, 0.18, 1);
+    will-change: transform;
+}
+
+.hero-banner-slide {
+    position: relative;
+    flex: 0 0 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.hero-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    animation: bannerZoom 8s ease-in-out infinite alternate;
+    transform-origin: center center;
+}
+
+@keyframes bannerZoom {
+    0%   { transform: scale(1); }
+    100% { transform: scale(1.06); }
+}
+
+.hero-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to right,
+        rgba(10, 20, 40, 0.72) 0%,
+        rgba(10, 20, 40, 0.45) 50%,
+        rgba(10, 20, 40, 0.1) 100%
+    );
+    display: flex;
+    align-items: center;
+}
+
+.hero-banner-text {
+    padding: 0 60px;
+    color: #fff;
+    max-width: 600px;
+    animation: bannerTextIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bannerTextIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-banner-text .eyebrow {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+}
+
+.hero-banner-text h2 {
+    font-family: "Manrope", sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 24px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+.hero-banner-text .button {
+    background: #fff;
+    color: #0f172a;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    font-size: 0.95rem;
+}
+
+.hero-banner-text .button:hover {
+    background: #f0f9ff;
+    box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+}
+
+/* Dots */
+.hero-banner-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.hb-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.45);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+    padding: 0;
+}
+
+.hb-dot.active {
+    background: #fff;
+    width: 24px;
+}
+
+/* Arrows */
+.hb-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.hb-arrow:hover {
+    background: rgba(255,255,255,0.32);
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.hb-arrow-left  { left: 16px; }
+.hb-arrow-right { right: 16px; }
+
+@media (max-width: 768px) {
+    .hero-banner-wrap { height: 300px; border-radius: 16px; }
+    .hero-banner-text { padding: 0 28px; }
+    .hero-banner-text h2 { font-size: 1.5rem; }
+    .hb-arrow { display: none; }
+}
+/* ===== BUTTON PRO HOVER ===== */
+.button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translateY(0);
+}
+
+/* nâng lên + shadow */
+.button:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.25),
+        0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* hiệu ứng ánh sáng chạy */
+.button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.6),
+        transparent
+    );
+    transform: skewX(-25deg);
+}
+
+.button:hover::after {
+    left: 130%;
+    transition: 0.7s;
+}
+
+.stat-card {
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* hover nổi + glow */
+.stat-card:hover {
+    transform: translateY(-6px) scale(1.05);
+    box-shadow:
+        0 12px 30px rgba(59,130,246,0.25),
+        0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* hiệu ứng ánh sáng nhẹ */
+.stat-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(255,255,255,0.3), transparent 60%);
+    opacity: 0;
+    transition: 0.4s;
+}
+
+.stat-card:hover::after {
+    opacity: 1;
+}
+
+.favorite-btn {
+    transition: all 0.25s ease;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.25) rotate(-10deg);
+    filter: drop-shadow(0 4px 8px rgba(220,38,38,0.5));
+}
+/* ===== Hover underline cho tên job ===== */
+.job-card-home-head h3 a {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.25s ease;
+}
+
+.job-card-home-head h3 a:hover {
+    text-decoration: underline;
+}
+/* ===== Header Mới nhất ===== */
+.job-section {
+    margin-top: 30px;
+}
+
+.job-section-header {
+    margin-bottom: 10px;
+}
+
+.job-section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: inline-block;
+    position: relative;
+}
+
+/* gạch dưới xịn */
+.job-section-header h2::after {
+    content: "";
+    display: block;
+    width: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, #ff1900, transparent);
+    margin-top: 6px;
+    border-radius: 2px;
+}
+
+.job-section-header p {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.discovery-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.discovery-header h2 {
+    margin: 0;
+}
+
+.view-all-btn {
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .discovery-header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .view-all-btn {
+        margin-left: 0;
+    }
+}
+
+
+
+.job-section {
+    position: relative;
+}
+
+.job-scroll-grid {
+    overflow-x: auto;
+    scroll-behavior: smooth;
+}
+
+.job-scroll-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.job-carousel-nav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.job-slide-arrow {
+    width: 38px;
+    height: 38px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 50%;
+    background: #fff;
+    color: #334155;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    transition: all 0.18s ease;
+}
+.job-slide-arrow:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    transform: scale(1.1);
+}
+
+.clickable-job-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.clickable-job-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+}
+
+@media (max-width: 768px) {
+    .job-slide-arrow {
+        display: none;
+    }
+}
+.job-carousel-4 {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    align-items: stretch;
+}
+.job-carousel-4::-webkit-scrollbar { display: none; }
+.job-carousel-4 {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.job-carousel-4 .job-card-home {
+    flex: 0 0 calc(25% - 12px);
+    min-width: 240px;
+    box-sizing: border-box;
+    scroll-snap-align: start;
+    /* card đều chiều cao */
+    display: flex;
+    flex-direction: column;
+    height: auto; /* bỏ height cứng, để stretch tự căn */
+}
+
+/* đẩy phần lương + nút xuống đáy */
+.job-carousel-4 .job-card-home .job-foot {
+    margin-top: auto;
+}
+
+/* tag-row không co lại */
+.job-carousel-4 .job-card-home .tag-row {
+    flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+    .job-carousel-4 .job-card-home { flex: 0 0 calc(33.33% - 11px); min-width: 220px; }
+}
+@media (max-width: 768px) {
+    .job-carousel-4 .job-card-home { flex: 0 0 calc(50% - 8px); min-width: 200px; }
+}
+@media (max-width: 480px) {
+    .job-carousel-4 .job-card-home { flex: 0 0 85%; min-width: 0; }
+}
+.job-carousel-4::-webkit-scrollbar {
+    display: none;
+}
+.job-carousel-4 {
+    -ms-overflow-style: none;  
+    scrollbar-width: none;    
+}
+.btn-clear-filter {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: none;
+}
+
+.btn-clear-filter:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+.filter-btn-group {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    white-space: nowrap;
+}
+
+.filter-btn-group .button {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn-group .button[type="submit"] {
+    flex: 2;
+}
+
+.filter-btn-group .btn-clear-filter {
+    flex: 1;
+}
+</style>
+<script>
+(function () {
+    /* ===== Click card điều hướng ===== */
+    document.querySelectorAll('.clickable-job-card').forEach(function (card) {
+        const href = card.getAttribute('data-href');
+        if (!href) return;
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('a, button, input, select, textarea, label')) return;
+            window.location.href = href;
+        });
+        card.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                window.location.href = href;
+            }
+        });
+    });
+
+    /* ===== Cookie ===== */
+    function getCookie(name) {
+        const row = document.cookie.split('; ').find(r => r.startsWith(name + '='));
+        return row ? decodeURIComponent(row.split('=')[1]) : '';
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    /* ===== Particles ===== */
+    const PARTICLES = ['❤', '💖', '✨', '💗', '❤', '💕'];
+
+    function spawnParticles(btn) {
+        const rect = btn.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top  + rect.height / 2;
+
+        PARTICLES.forEach(function (emoji, i) {
+            const p = document.createElement('span');
+            p.className = 'heart-particle';
+            p.textContent = emoji;
+
+            const angle = (360 / PARTICLES.length) * i + (Math.random() * 30 - 15);
+            const dist  = 32 + Math.random() * 24;
+            const rad   = (angle * Math.PI) / 180;
+
+            p.style.setProperty('--tx', (Math.cos(rad) * dist) + 'px');
+            p.style.setProperty('--ty', (Math.sin(rad) * dist) + 'px');
+            p.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
+            p.style.left     = cx + 'px';
+            p.style.top      = cy + 'px';
+            p.style.fontSize = (0.7 + Math.random() * 0.5) + 'rem';
+            p.style.color    = `hsl(${335 + Math.random() * 25}, 90%, ${50 + Math.random() * 15}%)`;
+            p.style.animationDelay    = (i * 0.03) + 's';
+            p.style.animationDuration = (0.55 + Math.random() * 0.15) + 's';
+
+            document.body.appendChild(p);
+            p.addEventListener('animationend', () => p.remove());
+        });
+    }
+
+
+    /* ===== Home city filter ===== */
+    const homeCityFilter = document.getElementById('homeCityFilter');
+    if (homeCityFilter) {
+        const provincesUrl = "{% static 'data/xaphuong/provinces.json' %}";
+        const currentCity = "{{ city|default:''|escapejs }}";
+
+        fetch(provincesUrl)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Cannot load provinces');
+                }
+                return response.json();
+            })
+            .then((provinces) => {
+                const sortedProvinces = [...provinces].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+                homeCityFilter.innerHTML = '<option value="">Tất cả Tỉnh/Thành phố</option>';
+
+                sortedProvinces.forEach((province) => {
+                    const option = new Option(province.name, province.name);
+                    if (province.name === currentCity) {
+                        option.selected = true;
+                    }
+                    homeCityFilter.add(option);
+                });
+            })
+            .catch((error) => {
+                console.error('Error loading provinces for home city filter:', error);
+            });
+    }
+    /* ===== Toggle favorite ===== */
+    document.querySelectorAll('.favorite-btn').forEach(function (btn) {
+        btn.addEventListener('click', async function (e) {
+            e.stopPropagation();
+            const jobId = btn.getAttribute('data-job-id');
+            if (!jobId) return;
+
+            /* Hiệu ứng pop + ripple */
+            btn.classList.remove('heart-pop');
+            void btn.offsetWidth; /* restart animation */
+            btn.classList.add('heart-pop');
+            btn.addEventListener('animationend', () => btn.classList.remove('heart-pop'), { once: true });
+
+            /* Particles chỉ khi thêm vào yêu thích */
+            if (!btn.classList.contains('is-favorite')) {
+                spawnParticles(btn);
+            }
+
+            try {
+                const res = await fetch(`/jobs/${jobId}/favorite-toggle/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                if (res.status === 401 || res.status === 403 || res.status === 302) {
+                    window.location.href = '/accounts/login/?next=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                if (!res.ok) return;
+                const data = await res.json();
+                btn.classList.toggle('is-favorite', data.is_favorite);
+                const navCount = document.getElementById('favorite-count');
+                if (navCount && typeof data.total_favorites === 'number') {
+                    navCount.textContent = data.total_favorites;
+                }
+            } catch (err) {
+                console.error('Toggle favorite failed', err);
+            }
+        });
+    });
+
+
+    /* ===== Job section slide arrows ===== */
+    document.querySelectorAll('.job-slide-arrow').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const targetId = btn.getAttribute('data-target');
+            const grid = document.getElementById(targetId);
+            if (!grid) return;
+            const amount = Math.max(grid.clientWidth * 0.9, 280);
+            const dir = btn.classList.contains('right') ? 1 : -1;
+            grid.scrollBy({ left: dir * amount, behavior: 'smooth' });
+        });
+    });
+
+    /* ===== Hero Banner Slider ===== */
+    (function () {
+        const track  = document.getElementById('heroBannerTrack');
+        const dots   = document.querySelectorAll('.hb-dot');
+        const prev   = document.getElementById('hbPrev');
+        const next   = document.getElementById('hbNext');
+        const slides = document.querySelectorAll('.hero-banner-slide');
+        const total  = slides.length;
+        let current  = 0;
+        let timer;
+
+        function goTo(idx) {
+            current = (idx + total) % total;
+            track.style.transform = `translateX(-${current * 100}%)`;
+
+            /* restart zoom animation trên slide active */
+            slides.forEach((s, i) => {
+                const img = s.querySelector('.hero-banner-img');
+                img.style.animation = 'none';
+                if (i === current) {
+                    void img.offsetWidth;
+                    img.style.animation = 'bannerZoom 8s ease-in-out infinite alternate';
+                }
+                /* restart text animation */
+                const txt = s.querySelector('.hero-banner-text');
+                txt.style.animation = 'none';
+                if (i === current) {
+                    void txt.offsetWidth;
+                    txt.style.animation = 'bannerTextIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both';
+                }
+            });
+
+            dots.forEach((d, i) => d.classList.toggle('active', i === current));
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => goTo(current + 1), 5000);
+        }
+
+        prev.addEventListener('click', () => { goTo(current - 1); startTimer(); });
+        next.addEventListener('click', () => { goTo(current + 1); startTimer(); });
+        dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.idx); startTimer(); }));
+
+        startTimer();
+    })();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,373 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if mode == 'edit' %}Chỉnh sửa bài đăng tuyển{% else %}Đăng việc{% endif %}{% endblock %}
+{% block content %}
+<div style="margin-bottom: 16px; display:flex; align-items:center; gap:14px;">
+    {% if mode == 'edit' and job %}
+        <a href="{% url 'job_detail' job.pk %}" class="back-pill">← Quay lại</a>
+    {% else %}
+        <a href="{% url 'home' %}" class="back-pill">← Quay lại</a>
+    {% endif %}
+</div>
+
+<section class="panel" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+    <h1>{% if mode == 'edit' %}Chỉnh sửa bài đăng tuyển{% else %}Đăng việc mới{% endif %}</h1>
+
+    <form method="post" enctype="multipart/form-data" class="form-grid two-col" id="job-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="full field-block">
+            <p class="field-title">Ảnh thương hiệu / Công ty <span style="color:var(--muted); font-weight:400;">(không bắt buộc)</span></p>
+
+            {% if form.brand_image.value %}
+                <div class="brand-preview-wrap">
+                    <img src="{{ form.brand_image.value.url }}" alt="Ảnh hiện tại" class="brand-preview-img">
+                    <div class="brand-preview-actions">
+                        <span class="brand-preview-label">Xóa ảnh hiện tại</span>
+                        <label class="brand-clear-label">
+                            <input type="checkbox" name="brand_image-clear" id="brand_image-clear_id">
+                        </label>
+                    </div>
+                </div>
+
+                <div style="margin-top:10px;">Thay đổi ảnh mới
+                    <input type="file" name="brand_image" accept="image/*" id="id_brand_image">
+                </div>
+            {% else %}
+                <div>
+                    <input type="file" name="brand_image" accept="image/*" id="id_brand_image">
+                </div>
+            {% endif %}
+
+            {{ form.brand_image.errors }}
+        </div>
+
+        <label class="full">Tiêu đề {{ form.title }} {{ form.title.errors }}</label>
+
+        <div class="full field-block">
+            <p class="field-title">Mô tả chi tiết</p>
+            <div class="rich-editor" data-source-id="{{ form.description.id_for_label }}">
+                <div class="rich-toolbar">
+                    <button type="button" class="rich-btn" data-command="bold" title="In đậm"><strong>B</strong></button>
+                    <button type="button" class="rich-btn" data-command="italic" title="In nghiêng"><em>I</em></button>
+                    <button type="button" class="rich-btn" data-command="underline" title="Gạch chân"><u>U</u></button>
+                    <button type="button" class="rich-btn" data-command="insertUnorderedList" title="Danh sách chấm">• List</button>
+                    <button type="button" class="rich-btn" data-command="insertOrderedList" title="Danh sách số">1. List</button>
+                    <button type="button" class="rich-btn" data-command="removeFormat" title="Xóa định dạng">Clear</button>
+                </div>
+                <div class="rich-surface" contenteditable="true"></div>
+            </div>
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+
+        <div class="full field-block">
+            <p class="field-title">Các lĩnh vực liên quan</p>
+            <div style="margin-bottom: 10px;">
+                <input type="text" id="category-search" placeholder="Tìm kiếm lĩnh vực..." style="margin-bottom: 5px;">
+                {{ form.categories }}
+                {{ form.categories.errors }}
+            </div>
+        </div>
+
+        <div class="full field-block">
+            <p class="field-title">Yêu cầu ứng viên</p>
+            <div class="rich-editor" data-source-id="{{ form.required_skills.id_for_label }}">
+                <div class="rich-toolbar">
+                    <button type="button" class="rich-btn" data-command="bold" title="In đậm"><strong>B</strong></button>
+                    <button type="button" class="rich-btn" data-command="italic" title="In nghiêng"><em>I</em></button>
+                    <button type="button" class="rich-btn" data-command="underline" title="Gạch chân"><u>U</u></button>
+                    <button type="button" class="rich-btn" data-command="insertUnorderedList" title="Danh sách chấm">• List</button>
+                    <button type="button" class="rich-btn" data-command="insertOrderedList" title="Danh sách số">1. List</button>
+                    <button type="button" class="rich-btn" data-command="removeFormat" title="Xóa định dạng">Clear</button>
+                </div>
+                <div class="rich-surface" contenteditable="true"></div>
+            </div>
+            {{ form.required_skills }}
+            {{ form.required_skills.errors }}
+        </div>
+
+        <label>Loại việc {{ form.employment_type_obj }} {{ form.employment_type_obj.errors }}</label>
+        <label>Mức kinh nghiệm {{ form.experience_level_obj }} {{ form.experience_level_obj.errors }}</label>
+        <label>Hình thức làm việc {{ form.work_mode_obj }} {{ form.work_mode_obj.errors }}</label>
+        <label>Số lượng tuyển {{ form.vacancies }} {{ form.vacancies.errors }}</label>
+        <label>Tỉnh/Thành phố {{ form.city }} {{ form.city.errors }}</label>
+        <label>Địa chỉ làm việc {{ form.address }} {{ form.address.errors }}</label>
+
+        <label>Kiểu lương {{ form.salary_type }} {{ form.salary_type.errors }}</label>
+        <label>Lương tối thiểu {{ form.salary_min }} {{ form.salary_min.errors }}</label>
+        <label>Lương tối đa {{ form.salary_max }} {{ form.salary_max.errors }}</label>
+        <label>Hạn nhận hồ sơ {{ form.deadline }} {{ form.deadline.errors }}</label>
+        {% if mode == 'edit' %}
+            <label>Trạng thái {{ form.status }} {{ form.status.errors }}</label>
+        {% endif %}
+
+        <div class="full panel soft">
+            <strong>Lưu ý:</strong> Chọn "Thỏa thuận" nếu không muốn hiển thị lương cụ thể.
+            Nếu chọn "Lương cố định", hệ thống dùng giá trị ở ô "Lương tối thiểu".
+        </div>
+
+        <div class="full">
+            <button type="submit" class="button">
+                {% if mode == 'edit' %}Lưu thay đổi{% else %}Đăng việc{% endif %}
+            </button>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+    .brand-preview-wrap {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 12px;
+        border: 1px solid #dfe6f1;
+        border-radius: 12px;
+        background: #f8fbff;
+    }
+
+    .brand-preview-img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        object-position: center;
+        border-radius: 12px;
+        border: 1px solid #d7e2ef;
+        background: #ffffff;
+        padding: 8px;
+        flex: 0 0 120px;
+    }
+
+    .brand-preview-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #4b5563;
+        font-size: 0.9rem;
+    }
+
+    .brand-clear-label {
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
+    }
+
+    .brand-clear-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+    }
+
+    .rich-editor {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .rich-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px;
+        border-bottom: 1px solid var(--line);
+        background: #f8fbff;
+    }
+
+    .rich-btn {
+        border: 1px solid #d4dde9;
+        border-radius: 8px;
+        background: #fff;
+        color: #1f2937;
+        font-size: 0.85rem;
+        line-height: 1;
+        min-width: 36px;
+        height: 32px;
+        padding: 6px 10px;
+        cursor: pointer;
+    }
+
+    .rich-btn.is-active {
+        border-color: #0ea5b7;
+        background: #e6f8fa;
+    }
+
+    .rich-surface {
+        min-height: 180px;
+        max-height: 280px;
+        overflow-y: auto;
+        padding: 12px;
+        outline: none;
+        line-height: 1.6;
+    }
+
+    .rich-surface:empty::before {
+        content: attr(data-placeholder);
+        color: #8a98ac;
+    }
+
+    @media (max-width: 700px) {
+        .brand-preview-wrap {
+            align-items: flex-start;
+        }
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('category-search');
+        const categoriesContainer = document.getElementById('id_categories');
+        const jobForm = document.getElementById('job-form');
+        const citySelect = document.getElementById('id_city');
+
+        const removeAccents = (str) => {
+            return str
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'D');
+        };
+
+        if (searchInput && categoriesContainer) {
+            const labels = categoriesContainer.getElementsByTagName('label');
+            searchInput.addEventListener('input', function() {
+                const filter = removeAccents(searchInput.value.toLowerCase());
+
+                for (let i = 0; i < labels.length; i++) {
+                    const label = labels[i];
+                    const text = label.textContent || label.innerText;
+                    const normalizedText = removeAccents(text.toLowerCase());
+                    const listItem = label.closest('li') || label.closest('div');
+
+                    if (normalizedText.indexOf(filter) > -1) {
+                        if (listItem) listItem.style.display = '';
+                        else label.style.display = '';
+                    } else {
+                        if (listItem) listItem.style.display = 'none';
+                        else label.style.display = 'none';
+                    }
+                }
+            });
+        }
+        if (citySelect) {
+            const provincesUrl = "{% static 'data/xaphuong/provinces.json' %}";
+            const currentCity = "{{ form.city.value|default:''|escapejs }}";
+
+            fetch(provincesUrl)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Cannot load provinces');
+                    }
+                    return response.json();
+                })
+                .then((provinces) => {
+                    const sortedProvinces = [...provinces].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+                    citySelect.innerHTML = '<option value="">Ch?n T?nh/Th?nh ph?</option>';
+
+                    sortedProvinces.forEach((province) => {
+                        const option = new Option(province.name, province.name);
+                        if (province.name === currentCity) {
+                            option.selected = true;
+                        }
+                        citySelect.add(option);
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error loading provinces for job city select:', error);
+                });
+        }
+
+        const hasLikelyHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(value || '');
+        const escapeHtml = (value) => {
+            return (value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        };
+
+        const syncFromEditor = (source, editorSurface) => {
+            source.value = (editorSurface.innerHTML || '').trim();
+        };
+
+        const refreshToolbarState = (toolbar) => {
+            toolbar.querySelectorAll('[data-command]').forEach((btn) => {
+                const cmd = btn.getAttribute('data-command');
+                if (['bold', 'italic', 'underline'].includes(cmd)) {
+                    btn.classList.toggle('is-active', document.queryCommandState(cmd));
+                } else {
+                    btn.classList.remove('is-active');
+                }
+            });
+        };
+
+        document.querySelectorAll('.rich-editor').forEach((editor) => {
+            const sourceId = editor.getAttribute('data-source-id');
+            const source = document.getElementById(sourceId);
+            const toolbar = editor.querySelector('.rich-toolbar');
+            const surface = editor.querySelector('.rich-surface');
+
+            if (!source || !toolbar || !surface) return;
+            source.style.display = 'none';
+
+            const placeholder = source.getAttribute('data-placeholder') || 'Nhập nội dung...';
+            surface.setAttribute('data-placeholder', placeholder);
+
+            if (hasLikelyHtml(source.value)) {
+                surface.innerHTML = source.value;
+            } else {
+                surface.innerHTML = escapeHtml(source.value).replace(/\n/g, '<br>');
+            }
+
+            toolbar.querySelectorAll('[data-command]').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    const command = btn.getAttribute('data-command');
+                    surface.focus();
+                    document.execCommand(command, false, null);
+                    syncFromEditor(source, surface);
+                    refreshToolbarState(toolbar);
+                });
+            });
+
+            surface.addEventListener('input', function() {
+                syncFromEditor(source, surface);
+                refreshToolbarState(toolbar);
+            });
+
+            surface.addEventListener('keyup', function() {
+                refreshToolbarState(toolbar);
+            });
+
+            surface.addEventListener('mouseup', function() {
+                refreshToolbarState(toolbar);
+            });
+
+            syncFromEditor(source, surface);
+        });
+
+        if (jobForm) {
+            jobForm.addEventListener('submit', function() {
+                document.querySelectorAll('.rich-editor').forEach((editor) => {
+                    const sourceId = editor.getAttribute('data-source-id');
+                    const source = document.getElementById(sourceId);
+                    const surface = editor.querySelector('.rich-surface');
+                    if (source && surface) {
+                        syncFromEditor(source, surface);
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+

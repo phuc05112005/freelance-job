@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="error-container">
+    <h1 class="error-code">404</h1>
+    <h2 class="error-title">Rất tiếc! Trang bạn tìm kiếm không tồn tại.</h2>
+    <p class="error-text">Có vẻ như đường dẫn đã bị hỏng hoặc trang đã bị gỡ bỏ.</p>
+    
+    <a href="{% url 'home' %}" class="btn-back-home button">
+        Quay về trang chủ
+    </a>
+</div>
+{% endblock %}

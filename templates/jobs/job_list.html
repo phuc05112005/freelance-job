@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Tất cả việc làm{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Khám phá tất cả việc làm</h1>
+    <p>Tìm thấy {{ page_obj.paginator.count }} công việc phù hợp với bạn</p>
+</section>
+
+<section class="panel">
+    <form method="get" class="filters advanced-filters">
+        <input type="text" name="q" placeholder="Tìm kiếm..." value="{{ query }}">
+        <select name="category">
+            <option value="">Tất cả lĩnh vực</option>
+            {% for category in categories %}
+                <option value="{{ category.id }}" {% if category_id == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="mode">
+            <option value="">Tất cả hình thức</option>
+            {% for wm in work_modes %}
+                <option value="{{ wm.code }}" {% if mode == wm.code %}selected{% endif %}>{{ wm.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="employment">
+            <option value="">Tất cả loại việc</option>
+            {% for et in employment_types %}
+                <option value="{{ et.code }}" {% if employment == et.code %}selected{% endif %}>{{ et.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="salary_type">
+            <option value="">Tất cả mức lương</option>
+            <option value="negotiable" {% if salary_type == 'negotiable' %}selected{% endif %}>Thỏa thuận</option>
+            <option value="range" {% if salary_type == 'range' %}selected{% endif %}>Khoảng lương</option>
+            <option value="fixed" {% if salary_type == 'fixed' %}selected{% endif %}>Lương cố định</option>
+        </select>
+        <select name="city" id="cityFilter"><option value="">Tất cả Tỉnh/Thành phố</option></select>
+        <select name="status">
+            <option value="">Tất cả trạng thái</option>
+            <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
+            <option value="expired" {% if status == 'expired' %}selected{% endif %}>Hết hạn</option>
+        </select>
+        <div class="filter-btn-group">
+            <button class="button button-sm" type="submit">Tìm</button>
+            <a href="{% url 'job_list_all' %}" class="button button-sm btn-clear-filter">Xóa lọc</a>
+        </div>
+    </form>
+</section>
+
+<section class="job-section">
+    <div class="job-grid job-grid-home">
+        {% for job in page_obj %}
+            <article class="job-card job-card-home clickable-job-card" data-href="{% url 'job_detail' job.pk %}" role="link" tabindex="0" aria-label="Xem việc {{ job.title }}">
+                <div class="job-card-home-top">
+                    <a class="job-brand-link job-brand-link-square" href="{% url 'job_detail' job.pk %}" aria-label="Xem chi tiết {{ job.title }}">
+                        <img class="job-brand-image job-brand-image-square" src="{% if job.brand_image %}{{ job.brand_image.url }}{% else %}{% static 'images/job-default-company.svg' %}{% endif %}" alt="Ảnh thương hiệu {{ job.employer.username }}" loading="lazy">
+                    </a>
+                    <div class="job-card-home-head">
+                        <h3><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></h3>
+                        <p class="job-meta">Đăng bởi {{ job.employer.username }} - {{ job.created_at|date:"d M Y" }}</p>
+                    </div>
+                </div>
+                <p class="job-meta">Khu vực: {% if job.city %}{{ job.city }}{% else %}Chưa cập nhật{% endif %}</p>
+                <div class="job-card-top">
+                    <span class="badge status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+                    {% if job.work_mode_obj %}<span class="badge">{{ job.work_mode_obj.name }}</span>{% endif %}
+                    {% if job.employment_type_obj %}<span class="badge">{{ job.employment_type_obj.name }}</span>{% endif %}
+                </div>
+                <div class="tag-row">
+                    {% for category in job.categories.all %}
+                        <span class="tag">{{ category.name }}</span>
+                    {% empty %}
+                        <span class="tag">Chưa gắn lĩnh vực</span>
+                    {% endfor %}
+                </div>
+                <div class="job-foot">
+                    <span>Mức lương: {{ job.display_salary }}</span>
+                    <div class="job-foot-actions">
+                        <button type="button" class="favorite-btn {% if job.id in favorite_job_ids %}is-favorite{% endif %}" data-job-id="{{ job.id }}" aria-label="Lưu việc {{ job.title }}">❤</button>
+                        <a class="text-link apply-link" href="{% url 'job_detail' job.pk %}">Ứng tuyển</a>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <p>Không tìm thấy công việc nào phù hợp.</p>
+                <a href="{% url 'job_list_all' %}" class="button">Xem tất cả công việc</a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">⬅</a>
+        {% endif %}
+        <span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}">➡</a>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+.page-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 2px dashed #e2e8f0;
+}
+.empty-state p {
+    margin-bottom: 20px;
+    color: #64748b;
+}
+.filter-btn-group {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    white-space: nowrap;
+}
+
+.filter-btn-group .button {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn-group .button[type="submit"] {
+    flex: 2;
+}
+
+.filter-btn-group .btn-clear-filter {
+    flex: 1;
+}
+
+.btn-clear-filter {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: none;
+}
+
+.btn-clear-filter:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+</style>
+
+<script>
+(function () {
+    /* Click card logic */
+    document.querySelectorAll('.clickable-job-card').forEach(function (card) {
+        const href = card.getAttribute('data-href');
+        if (!href) return;
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('a, button')) return;
+            window.location.href = href;
+        });
+    });
+
+    /* CSRF Cookie helper */
+    function getCookie(name) {
+        const row = document.cookie.split('; ').find(r => r.startsWith(name + '='));
+        return row ? decodeURIComponent(row.split('=')[1]) : '';
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    /* Toggle favorite logic */
+    document.querySelectorAll('.favorite-btn').forEach(function (btn) {
+        btn.addEventListener('click', async function (e) {
+            e.stopPropagation();
+            const jobId = btn.getAttribute('data-job-id');
+            if (!jobId) return;
+
+            try {
+                const res = await fetch(`/jobs/${jobId}/favorite-toggle/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                btn.classList.toggle('is-favorite', data.is_favorite);
+                const navCount = document.getElementById('favorite-count');
+                if (navCount && typeof data.total_favorites === 'number') {
+                    navCount.textContent = data.total_favorites;
+                }
+            } catch (err) {
+                console.error('Toggle favorite failed', err);
+            }
+        });
+    });
+    /* ===== City filter dropdown ===== */
+    const cityFilter = document.getElementById('cityFilter');
+    if (cityFilter) {
+        const provincesUrl = "{% static 'data/xaphuong/provinces.json' %}";
+        const currentCity = "{{ city|default:''|escapejs }}";
+
+        fetch(provincesUrl)
+            .then((response) => {
+                if (!response.ok) throw new Error('Cannot load provinces');
+                return response.json();
+            })
+            .then((provinces) => {
+                const sorted = [...provinces].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+                cityFilter.innerHTML = '<option value="">Tất cả Tỉnh/Thành phố</option>';
+                sorted.forEach((province) => {
+                    const option = new Option(province.name, province.name);
+                    if (province.name === currentCity) option.selected = true;
+                    cityFilter.add(option);
+                });
+            })
+            .catch((error) => {
+                console.error('Error loading provinces:', error);
+            });
+    }
+})();
+</script>
+{% endblock %}

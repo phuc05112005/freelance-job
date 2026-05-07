@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý việc làm đã đăng{% endblock %}
+
+{% block content %}
+<section class="panel employer-list-header">
+    <div class="panel-head">
+        <div>
+            <h1 class="modern-h1">Tin của tôi</h1>
+            <p class="lead">Quản lý và theo dõi các tin tuyển dụng bạn đã đăng.</p>
+        </div>
+        <div class="header-actions">
+            <a class="button button-modern" href="{% url 'job_create' %}">
+                <span class="icon">+</span> Đăng tuyển mới
+            </a>
+            <a class="button button-modern-ghost" href="{% url 'application_list' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Quản lý ứng tuyển
+            </a>
+        </div>
+    </div>
+    
+    <div class="filter-bar-modern">
+        <form method="get" class="modern-filters">
+            <div class="search-input-wrap">
+                <input type="text" name="q" placeholder="Tìm theo tiêu đề..." value="{{ keyword }}">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+            <select name="status" class="modern-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="open" {% if status == 'open' %}selected{% endif %}>Đang tuyển</option>
+                <option value="expired" {% if status == 'expired' %}selected{% endif %}>Hết hạn</option>
+                <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>Đang thực hiện</option>
+                <option value="completed" {% if status == 'completed' %}selected{% endif %}>Đã hoàn thành</option>
+                <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Đã hủy</option>
+            </select>
+            <button class="button button-filter" type="submit">Lọc tin</button>
+        </form>
+    </div>
+</section>
+
+<section class="panel no-padding overflow-hidden">
+    <div class="table-container">
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th style="width: 40%;">Thông tin tin đăng</th>
+                    <th style="width: 15%;">Hình thức</th>
+                    <th style="width: 12%;">Hết hạn</th>
+                    <th style="width: 10%;">Ứng tuyển</th>
+                    <th style="width: 13%;">Trạng thái</th>
+                    <th style="width: 10%;" class="text-right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td class="job-info-cell">
+                            <a href="{% url 'job_detail' job.pk %}" class="job-title-link">{{ job.title }}</a>
+                            <div class="job-meta-mini">
+                                <span class="meta-item">{{ job.city|default:"Toàn quốc" }}</span>
+                                <span class="meta-dot">•</span>
+                                <span class="meta-item">Đăng {{ job.created_at|date:"d/m/Y" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="work-mode-label">
+                                {{ job.work_mode_obj.name|default:"-" }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if job.deadline %}
+                                <span class="deadline-text {% if job.is_expired %}expired{% endif %}">
+                                    {{ job.deadline|date:"d/m/Y" }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Vô thời hạn</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'application_list' %}?job={{ job.id }}" class="app-count-badge" title="Xem danh sách ứng tuyển">
+                                <span class="count">{{ job.total_applications }}</span>
+                                <span class="label">đơn</span>
+                            </a>
+                        </td>
+                        <td>
+                            <span class="status-pill status-{{ job.display_status_key }}">
+                                {{ job.display_status_label }}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <div class="action-buttons">
+                                <a class="action-btn edit" href="{% url 'job_edit' job.pk %}" title="Chỉnh sửa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </a>
+                                <a class="action-btn delete" href="{% url 'job_delete' job.pk %}?next={{ request.get_full_path|urlencode }}" title="Xóa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-content">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                                <p>Bạn chưa có tin tuyển dụng nào.</p>
+                                <a href="{% url 'job_create' %}" class="button button-sm">Đăng tin ngay</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<style>
+    /* Typography Override */
+    .modern-h1 { font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 1.8rem; margin: 0 0 4px; color: #0f172a; }
+    .job-title-link { font-family: "Be Vietnam Pro", sans-serif; display: block; font-weight: 700; font-size: 1.05rem; color: #1e293b; text-decoration: none; margin-bottom: 4px; transition: color 0.2s; line-height: 1.4; }
+    .job-title-link:hover { color: #2563eb; }
+
+    .no-padding { padding: 0; }
+    .overflow-hidden { overflow: hidden; }
+    .text-right { text-align: right; }
+    .employer-list-header { border-bottom: 0; margin-bottom: 24px; background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%); }
+    .header-actions { display: flex; gap: 10px; }
+    .button-modern { background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); padding: 10px 20px; border-radius: 12px; font-weight: 700; }
+    .button-modern-ghost { padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; border: 1px solid #cbd5e1; background: #fff; color: #1e293b; font-weight: 700; }
+    
+    .modern-filters { display: flex; gap: 12px; align-items: center; }
+    .search-input-wrap { position: relative; flex: 1; }
+    .search-input-wrap input { padding-left: 40px; background: #f8fafc; border-color: #e2e8f0; height: 42px; border-radius: 10px; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    .modern-select { width: 200px; background: #f8fafc; border-color: #e2e8f0; height: 42px; border-radius: 10px; }
+    
+    /* Table Styling */
+    .table-container { width: 100%; overflow-x: auto; }
+    .modern-table { width: 100%; border-collapse: collapse; min-width: 900px; table-layout: fixed; }
+    .modern-table th { background: #f8fafc; padding: 16px 20px; text-align: left; font-size: 0.82rem; font-weight: 700; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; }
+    .modern-table td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    
+    .status-pill { display: inline-flex; padding: 6px 12px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; }
+    .status-open { background: #dcfce7; color: #15803d; }
+    .status-expired { background: #fee2e2; color: #b91c1c; }
+    .status-in_progress { background: #fef3c7; color: #b45309; }
+    .status-completed { background: #e0f2fe; color: #0369a1; }
+    .status-cancelled { background: #f1f5f9; color: #475569; }
+    
+    .work-mode-label { font-weight: 600; color: #475569; background: #f1f5f9; padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; }
+    .deadline-text { font-weight: 600; color: #475569; }
+    .deadline-text.expired { color: #ef4444; }
+    .app-count-badge { display: inline-flex; align-items: center; gap: 4px; background: #eff6ff; color: #2563eb; padding: 6px 12px; border-radius: 999px; text-decoration: none; font-weight: 700; }
+    .action-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+    .action-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.2s; }
+</style>
+{% endblock %}
+

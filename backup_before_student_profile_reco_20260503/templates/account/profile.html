@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %} {% block title %}Thông tin tài khoản{% endblock %}
+
+{% block content %}
+<section class="panel account-shell">
+    <div class="account-header-bar">
+        <h1>Thông tin tài khoản</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="account-profile-form">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="profile">
+        {{ profile_form.non_field_errors }}
+
+        <div class="account-fields-panel compact-account-panel">
+            <div class="field-row avatar-inline-row">
+                <label>Ảnh đại diện</label>
+                <div class="avatar-inline-control">
+                    <div class="avatar-inline-preview">
+                        {% if user.avatar_url %}
+                            <img class="account-avatar" src="{{ user.avatar_url }}" alt="Ảnh đại diện">
+                        {% else %}
+                            <div class="account-avatar avatar-empty-default"></div>
+                        {% endif %}
+                    </div>
+                    <div class="avatar-inline-actions">
+                        {{ profile_form.avatar_upload }}
+                        {{ profile_form.avatar_upload.errors }}
+                        {% if user.avatar_url %}
+                            <label class="remove-avatar-option">
+                                {{ profile_form.remove_avatar }}
+                                Xóa ảnh hiện tại
+                            </label>
+                        {% endif %}
+                        <p class="upload-hint">Hỗ trợ JPG, PNG, WEBP, GIF. Tối đa 5MB.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="{{ profile_form.username.id_for_label }}">Tên đăng nhập</label>
+                <div class="field-control">
+                    {{ profile_form.username }}
+                    {{ profile_form.username.errors }}
+                </div>
+            </div>
+
+            <div class="field-row split-row">
+                <div>
+                    <label for="{{ profile_form.first_name.id_for_label }}">Họ</label>
+                    <div class="field-control">
+                        {{ profile_form.first_name }}
+                        {{ profile_form.first_name.errors }}
+                    </div>
+                </div>
+                <div>
+                    <label for="{{ profile_form.last_name.id_for_label }}">Tên</label>
+                    <div class="field-control">
+                        {{ profile_form.last_name }}
+                        {{ profile_form.last_name.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="{{ profile_form.phone.id_for_label }}">Số điện thoại</label>
+                <div class="field-control">
+                    {{ profile_form.phone }}
+                    {{ profile_form.phone.errors }}
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label for="{{ profile_form.email.id_for_label }}">Email</label>
+                <div class="field-control">
+                    {{ profile_form.email }}
+                    {{ profile_form.email.errors }}
+                </div>
+            </div>
+
+            {% if user.role == 'employer' %}
+                <div class="field-row">
+                    <label for="{{ profile_form.company_name.id_for_label }}">Tên công ty</label>
+                    <div class="field-control">
+                        {{ profile_form.company_name }}
+                        {{ profile_form.company_name.errors }}
+                    </div>
+                </div>
+                <div class="field-row">
+                    <label for="{{ profile_form.company_tax_code.id_for_label }}">Mã số thuế</label>
+                    <div class="field-control">
+                        {{ profile_form.company_tax_code }}
+                        {{ profile_form.company_tax_code.errors }}
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <label for="{{ profile_form.province.id_for_label }}">Tỉnh/Thành phố</label>
+                    <div class="field-control">
+                        {{ profile_form.province }}
+                        {{ profile_form.province.errors }}
+                    </div>
+                </div>
+                
+                <div class="field-row">
+                    <label for="{{ profile_form.ward.id_for_label }}">Phường/Xã</label>
+                    <div class="field-control">
+                        {{ profile_form.ward }}
+                        {{ profile_form.ward.errors }}
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <label for="{{ profile_form.company_address.id_for_label }}">Địa chỉ chi tiết</label>
+                    <div class="field-control">
+                        {{ profile_form.company_address }}
+                        {{ profile_form.company_address.errors }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="field-row">
+                <label>Loại tài khoản</label>
+                <div class="role-pills">
+                    <span class="role-pill active">
+                        {% if user.role == 'student' %}
+                            Sinh viên
+                        {% elif user.role == 'employer' %}
+                            Nhà tuyển dụng
+                        {% else %}
+                            Quản trị viên
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="save-row">
+                <button type="submit" class="save-btn">Lưu thông tin</button>
+            </div>
+        </div>
+    </form>
+
+    <hr class="account-divider">
+
+    <div class="password-block">
+        <h2>Đổi mật khẩu đăng nhập</h2>
+        <form method="post" class="password-form" >
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="password">
+            {{ password_form.non_field_errors }}
+
+            <div class="field-row">
+                <label for="{{ password_form.old_password.id_for_label }}">Mật khẩu hiện tại</label>
+                <div class="field-control">
+                    {{ password_form.old_password }}
+                    {{ password_form.old_password.errors }}
+                </div>
+            </div>
+
+            <div class="field-row split-row">
+                <div>
+                    <label for="{{ password_form.new_password1.id_for_label }}">Mật khẩu mới</label>
+                    <div class="field-control">
+                        {{ password_form.new_password1 }}
+                        {{ password_form.new_password1.errors }}
+                    </div>
+                </div>
+                <div>
+                    <label for="{{ password_form.new_password2.id_for_label }}">Nhập lại mật khẩu mới</label>
+                    <div class="field-control">
+                        {{ password_form.new_password2 }}
+                        {{ password_form.new_password2.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="save-row">
+                <button type="submit" class="save-btn">Cập nhật mật khẩu</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+    /* -------------------------------------
+       NÚT QUAY LẠI (ĐÃ LÀM ĐẸP)
+       ------------------------------------- */
+    .btn-back-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: #ffffff;
+        color: #475569;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    .btn-back-modern:hover {
+        background-color: #f8fafc;
+        color: #0f172a;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .btn-back-modern svg {
+        transition: transform 0.2s ease;
+    }
+    .btn-back-modern:hover svg {
+        transform: translateX(-4px); /* Hiệu ứng icon trượt nhẹ về sau */
+    }
+</style>
+
+{% if user.role == 'employer' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.querySelector('select[name="province"]');
+    const wardSelect = document.querySelector('select[name="ward"]');
+
+    // Lấy dữ liệu hiện tại của user từ Django template (escapejs để tránh lỗi chuỗi)
+    const currentProvince = "{{ user.province|escapejs }}";
+    const currentWard = "{{ user.ward|escapejs }}";
+
+    // Đường dẫn tới file JSON (giống bên form đăng ký)
+    const PROVINCES_URL = "{% static 'data/xaphuong/provinces.json' %}"; 
+    const WARDS_URL = "{% static 'data/xaphuong/wards.json' %}"; 
+
+    let allWardsData = [];
+
+    // Tải dữ liệu từ 2 file
+    Promise.all([
+        fetch(PROVINCES_URL).then(res => res.json()),
+        fetch(WARDS_URL).then(res => res.json())
+    ])
+    .then(([provincesData, wardsData]) => {
+        allWardsData = wardsData;
+        
+        // Sắp xếp Tỉnh/Thành
+        provincesData.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Đổ dữ liệu Tỉnh/Thành vào Select Box
+        provincesData.forEach(province => {
+            const option = new Option(province.name, province.name);
+            option.dataset.id = province.id; 
+            
+            // Nếu là Tỉnh user đã lưu thì chọn sẵn
+            if (province.name === currentProvince) {
+                option.selected = true;
+            }
+            
+            provinceSelect.add(option);
+        });
+
+        // Nếu user đã có Tỉnh, tải luôn danh sách Phường của Tỉnh đó
+        if (currentProvince) {
+            const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
+            if (selectedOption && selectedOption.dataset.id) {
+                loadWards(selectedOption.dataset.id, currentWard);
+            }
+        }
+    })
+    .catch(error => {
+        console.error("Lỗi khi tải file JSON:", error);
+    });
+
+    // Bắt sự kiện đổi Tỉnh/Thành
+    provinceSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const provinceId = selectedOption.dataset.id;
+        // Đổi tỉnh thì không chọn sẵn phường nào cả (truyền null)
+        loadWards(provinceId, null);
+    });
+
+    // Hàm load Phường/Xã
+    function loadWards(provinceId, selectedWard) {
+        wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+        if (!provinceId) return;
+
+        const provinceWards = allWardsData.filter(ward => ward.provinceId === provinceId);
+        provinceWards.sort((a, b) => a.name.localeCompare(b.name));
+        
+        const uniqueWards = new Set();
+        
+        provinceWards.forEach(w => {
+            if (!uniqueWards.has(w.name)) {
+                uniqueWards.add(w.name);
+                const option = new Option(w.name, w.name); 
+                
+                // Nếu là Phường user đã lưu thì chọn sẵn
+                if (w.name === selectedWard) {
+                    option.selected = true;
+                }
+                
+                wardSelect.add(option);
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,123 @@
+﻿{% extends 'admin_center/base_admin.html' %}
+{% block title %}Trung tâm quản trị{% endblock %}
+{% block admin_body %}
+<section class="admin-head">
+  <div>
+    <h1>Quản trị hệ thống</h1>
+    <p>Tổng quan dữ liệu trên ứng dụng hệ thống.</p>
+  </div>
+</section>
+
+
+<style>
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 1.5rem 0; }
+  .stat-box { background: #f8fafc; border-radius: 8px; padding: 1rem; }
+  .stat-box .num { font-size: 28px; font-weight: 600; line-height: 1.1; }
+  .stat-box .lbl { font-size: 14px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+  .stat-box .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px) { .panels { grid-template-columns: 1fr; } }
+
+  .panel-card { background: #fff; border: 0.5px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+  .panel-card-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 12px; border-bottom: 0.5px solid #e2e8f0; }
+  .panel-card-head h2 { font-size: 20px; font-weight: 800; margin: 0; }
+  .see-all { font-size: 15px; color: #64748b; text-decoration: none; white-space: nowrap; }
+  .see-all:hover { color: #1e293b; }
+
+  .job-row { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 16px; border-bottom: 0.5px solid #f1f5f9; gap: 12px; }
+  .job-row:last-child { border-bottom: none; }
+  .job-row:hover { background: #f8fafc; }
+  .job-info { min-width: 0; flex: 1; }
+  .job-name { font-size: 16px; font-weight: 600; color: #1e293b; text-decoration: none; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; margin-bottom: 4px; }
+  .job-name:hover { text-decoration: underline; }
+  .job-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .job-meta-item { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 3px; }
+  .job-meta-sep { color: #e2e8f0; font-size: 14px; }
+
+  .app-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 0.5px solid #f1f5f9; gap: 12px; }
+  .app-row:last-child { border-bottom: none; }
+  .app-row:hover { background: #f8fafc; }
+  .app-info { min-width: 0; flex: 1; }
+  .app-name { font-size: 15px; font-weight: 600; color: #1e293b; margin: 0 0 3px; }
+  .app-sub { font-size: 13px; color: #94a3b8; margin: 0; white-space: normal; word-break: break-word; line-height: 1.5; }
+
+  .pill { font-size: 13px; font-weight: 600; padding: 3px 9px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; }
+  .pill-green { background: #eaf3de; color: #3b6d11; }
+  .pill-amber { background: #faeeda; color: #854f0b; }
+  .pill-red { background: #fcebeb; color: #a32d2d; }
+  .status-open, .status-expired, .status-in_progress, .status-completed, .status-cancelled {
+    display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 13px; font-weight: 600; white-space: nowrap;
+  }
+
+  .empty-msg { padding: 24px 16px; font-size: 13px; color: #94a3b8; text-align: center; }
+</style>
+
+<div class="stat-grid">
+  <div class="stat-box">
+    <div class="num">{{ total_users }}</div>
+    <div class="lbl"><span class="dot" style="background:#378ADD"></span>Tài khoản</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ total_jobs }}</div>
+    <div class="lbl"><span class="dot" style="background:#639922"></span>Việc làm</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ open_jobs }}</div>
+    <div class="lbl"><span class="dot" style="background:#1D9E75"></span>Đang tuyển</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ total_categories }}</div>
+    <div class="lbl"><span class="dot" style="background:#7F77DD"></span>Lĩnh vực</div>
+  </div>
+</div>
+
+<div class="panels">
+  <div class="panel-card">
+    <div class="panel-card-head">
+      <h2>Việc mới đăng gần đây</h2>
+      <a class="see-all" href="{% url 'admin_jobs' %}">Xem tất cả →</a>
+    </div>
+    {% for job in latest_jobs %}
+    <div class="job-row">
+      <div class="job-info">
+        <a class="job-name" href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
+        <div class="job-meta">
+          <span class="job-meta-item">{{ job.employer.username }}</span>
+          <span class="job-meta-sep">·</span>
+          <span class="job-meta-item">{{ job.created_at|date:"d/m/Y" }}</span>
+          {% if job.work_mode_obj %}
+          <span class="job-meta-sep">·</span>
+          <span class="job-meta-item">{{ job.work_mode_obj.name }}</span>
+          {% endif %}
+        </div>
+      </div>
+      <span class="status-{{ job.display_status_key }}">{{ job.display_status_label }}</span>
+    </div>
+    {% empty %}
+    <p class="empty-msg">Chưa có dữ liệu việc làm.</p>
+    {% endfor %}
+  </div>
+
+  <div class="panel-card">
+    <div class="panel-card-head">
+      <h2>Đơn ứng tuyển mới</h2>
+      <a class="see-all" href="{% url 'admin_applications' %}">Xem tất cả →</a>
+    </div>
+    {% for app in latest_applications %}
+    <div class="app-row">
+      <div class="app-info">
+        <p class="app-name">{{ app.student.username }}</p>
+        <p class="app-sub">{{ app.job.title }} · {{ app.applied_at|date:"d/m/Y H:i" }}</p>
+      </div>
+      <span class="pill {% if app.status == 'accepted' %}pill-green{% elif app.status == 'rejected' %}pill-red{% else %}pill-amber{% endif %}">
+        {{ app.get_status_display }}
+      </span>
+    </div>
+    {% empty %}
+    <p class="empty-msg">Chưa có đơn ứng tuyển.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

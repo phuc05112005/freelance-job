@@ -1,0 +1,66 @@
+﻿{% extends 'admin_center/base_admin.html' %}
+{% block title %}Chi tiết - {{ target_user.username }}{% endblock %}
+{% block admin_body %}
+<div class="admin-center-page">
+
+
+{% if target_user.role == 'student' or target_user.role == 'employer' %}
+<section class="panel">
+    <h2>Thông tin cơ bản</h2>
+    <div class="table-wrap">
+        <table>
+            <tbody>
+                <tr><th>ID</th><td>{{ target_user.id }}</td></tr>
+                <tr><th>Username</th><td>{{ target_user.username }}</td></tr>
+                <tr><th>Email</th><td>{{ target_user.email|default:"-" }}</td></tr>
+                <tr><th>Họ tên</th><td>{{ target_user.get_full_name|default:"-" }}</td></tr>
+                <tr><th>Số điện thoại</th><td>{{ target_user.phone|default:"-" }}</td></tr>
+                <tr><th>Vai trò</th><td>{{ target_user.role }}</td></tr>
+                <tr><th>Trạng thái</th><td>{% if target_user.is_active %}Hoạt động{% else %}Bị khóa{% endif %}</td></tr>
+                {% if target_user.role == 'employer' %}
+                <tr><th>Tên công ty</th><td>{{ target_user.company_name|default:"-" }}</td></tr>
+                <tr><th>Mã số thuế</th><td>{{ target_user.company_tax_code|default:"-" }}</td></tr>
+                <tr><th>Tỉnh/Thành</th><td>{{ target_user.province|default:"-" }}</td></tr>
+                <tr><th>Phường/Xã</th><td>{{ target_user.ward|default:"-" }}</td></tr>
+                <tr><th>Địa chỉ công ty</th><td>{{ target_user.company_address|default:"-" }}</td></tr>
+                {% endif %}
+                <tr><th>Ngày tham gia</th><td>{{ target_user.date_joined|date:"d/m/Y H:i" }}</td></tr>
+                <tr><th>Đăng nhập lần cuối</th><td>{{ target_user.last_login|date:"d/m/Y H:i"|default:"Chưa đăng nhập" }}</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+
+{% if target_user.role == 'employer' %}
+<section class="panel">
+    <h2>Thống kê tuyển dụng</h2>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+        <div class="stat-card"><span class="stat-label">Tổng tin đăng: </span><span class="stat-number">{{ stats.total_jobs }}</span></div>
+        <div class="stat-card"><span class="stat-label">Đang mở: </span><span class="stat-number">{{ stats.open_jobs }}</span></div>
+        <div class="stat-card"><span class="stat-label">Đơn nhận được: </span><span class="stat-number">{{ stats.total_applications_received }}</span></div>
+    </div>
+    {% if stats.recent_jobs %}
+    <h3>Tin tuyển dụng gần đây</h3>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Tiêu đề</th><th>Trạng thái</th><th>Số đơn</th><th>Ngày đăng</th><th></th></tr></thead>
+            <tbody>
+                {% for job in stats.recent_jobs %}
+                <tr>
+                    <td>{{ job.title }}</td>
+                    <td>{{ job.get_status_display }}</td>
+                    <td>{{ job.total_applications }}</td>
+                    <td>{{ job.created_at|date:"d/m/Y" }}</td>
+                    <td><a class="button button-sm button-ghost" href="{% url 'job_detail' job.pk %}">Xem</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</section>
+{% endif %}
+
+</div>
+{% endblock %}
