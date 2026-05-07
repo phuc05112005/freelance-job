@@ -23,13 +23,13 @@ Dự án tận dụng sức mạnh của các công nghệ hiện đại:
 
 ## Tính năng chính
 
-### 👥 Quản lý người dùng (Role-based)
+### Quản lý người dùng (Role-based)
 
 - Phân quyền 3 vai trò: `Sinh viên`, `Nhà tuyển dụng`, `Quản trị viên`.
 - Luồng xác thực đầy đủ: Đăng ký, đăng nhập, đăng xuất và kích hoạt tài khoản qua email.
 - Hồ sơ cá nhân: Cập nhật thông tin, avatar, kỹ năng, kinh nghiệm và học vấn.
 
-### 💼 Quản lý công việc
+### Quản lý công việc
 
 - Đăng tin tuyển dụng với đầy đủ thông tin: Lương (thỏa thuận/khoảng/cố định), loại hình (toàn thời gian/bán thời gian), hình thức làm việc (trực tiếp/từ xa/hybrid).
 - Tìm kiếm và lọc công việc theo danh mục, địa điểm, mức lương và kỹ năng.
