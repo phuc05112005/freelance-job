@@ -1,5 +1,6 @@
 # Nền tảng Kết nối Tuyển dụng & Tìm kiếm việc làm cho Sinh viên và Nhà tuyển dụng
 
+👉 [⬇ Download](https://github.com/phuc05112005/freelance-job/releases/tag/v1.0.0)
 Dự án cuối khóa cho môn **Phát triển phần mềm mã nguồn mở**. Đây là một ứng dụng web đầy đủ tính năng (Full-stack) được xây dựng trên nền tảng Django, giúp kết nối sinh viên (freelancers) với các nhà tuyển dụng.
 
 ## Giới thiệu
