@@ -96,6 +96,14 @@
                 </div>
 
                 <div class="field-row">
+                    <label for="{{ profile_form.related_category.id_for_label }}">Lĩnh vực liên quan</label>
+                    <div class="field-control">
+                        {{ profile_form.related_category }}
+                        {{ profile_form.related_category.errors }}
+                    </div>
+                </div>
+
+                <div class="field-row">
                     <label for="{{ profile_form.province.id_for_label }}">Địa điểm mong muốn làm việc</label>
                     <div class="field-control">
                         {{ profile_form.province }}

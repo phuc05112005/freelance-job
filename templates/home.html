@@ -225,8 +225,8 @@
 {% if user.is_authenticated and user.role == 'student' and recommended_major_jobs %}
 <section class="job-section">
     <div class="job-section-header discovery-header">
-        <h2>Việc làm chuyên ngành liên quan</h2>
-        <a href="{% url 'job_list_all' %}?q={{ user.major|urlencode }}&category={{ major_category_id }}" 
+        <h2>Việc làm lĩnh vực liên quan</h2>
+        <a href="{% url 'job_list_all' %}?category={{ major_category_id }}" 
         class="button button-sm button-ghost view-all-btn">Xem tất cả</a>
     </div>
     <div class="job-carousel-4" id="majorGrid">

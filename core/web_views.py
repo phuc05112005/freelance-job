@@ -134,20 +134,23 @@ def home(request):
     recommended_major_jobs = Job.objects.none()
     nearby_jobs = Job.objects.none()
     major_category_id = ''
+    related_category_keyword = ''
     if request.user.is_authenticated and request.user.role == 'student':
         major = (request.user.major or '').strip()
         province = (request.user.province or '').strip()
-        major_category = JobCategory.objects.filter(name__icontains=major).first()
+        related_category = getattr(request.user, 'related_category', None)
+        major_category = related_category or JobCategory.objects.filter(name__icontains=major).first()
         major_category_id = major_category.id if major_category else ''
-        if major:
+        related_category_keyword = (major_category.name if major_category else major).strip()
+        if related_category_keyword:
             recommended_major_jobs = (
                 Job.objects.select_related('employer')
                 .prefetch_related('categories')
                 .filter(
-                    Q(title__icontains=major)
-                    | Q(description__icontains=major)
-                    | Q(required_skills__icontains=major)
-                    | Q(categories__name__icontains=major)
+                    Q(title__icontains=related_category_keyword)
+                    | Q(description__icontains=related_category_keyword)
+                    | Q(required_skills__icontains=related_category_keyword)
+                    | Q(categories__name__icontains=related_category_keyword)
                 )
                 .distinct()
                 .order_by('-created_at')[:8]
@@ -184,6 +187,7 @@ def home(request):
         'recommended_major_jobs': recommended_major_jobs,
         'nearby_jobs': nearby_jobs,
         'major_category_id': major_category_id,
+        'related_category_keyword': related_category_keyword,
     }
     if request.user.is_authenticated:
         favorite_job_ids = set(

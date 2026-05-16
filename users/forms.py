@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
+from jobs.models import JobCategory
 
 from .models import User
 
@@ -15,7 +16,7 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = (
             'username', 'email', 'first_name', 'last_name',
-            'phone', 'university', 'major', 'province', 'password1', 'password2',
+            'phone', 'university', 'major', 'related_category', 'province', 'password1', 'password2',
         )
 
     def __init__(self, *args, **kwargs):
@@ -23,6 +24,7 @@ class RegisterForm(UserCreationForm):
         self.fields['email'].required = True
         self.fields['university'].required = True
         self.fields['major'].required = True
+        self.fields['related_category'].required = True
         self.fields['province'].required = True
 
         self.fields['username'].widget.attrs.update({'placeholder': 'Nhập tên đăng nhập'})
@@ -32,6 +34,8 @@ class RegisterForm(UserCreationForm):
         self.fields['phone'].widget.attrs.update({'placeholder': 'Nhập số điện thoại'})
         self.fields['university'].widget.attrs.update({'placeholder': 'Ví dụ: Đại học Bách Khoa'})
         self.fields['major'].widget.attrs.update({'placeholder': 'Ví dụ: Công nghệ thông tin'})
+        self.fields['related_category'].queryset = JobCategory.objects.all()
+        self.fields['related_category'].empty_label = 'Chọn lĩnh vực liên quan'
         self.fields['province'].widget = forms.Select(choices=[('', 'Chọn Tỉnh/Thành phố')])
 
     def clean_email(self):
@@ -101,7 +105,7 @@ class ProfileUpdateForm(forms.ModelForm):
         model = User
         fields = (
             'username', 'first_name', 'last_name', 'email', 'phone', 'bio',
-            'university', 'major', 'academic_year', 'skills', 'default_cv',
+            'university', 'major', 'related_category', 'academic_year', 'skills', 'default_cv',
             'company_name', 'company_tax_code', 'company_website', 'company_address',
             'province', 'ward'
         )
@@ -115,6 +119,7 @@ class ProfileUpdateForm(forms.ModelForm):
             'skills': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Các kỹ năng, phân tách bằng dấu phẩy...'}),
             'university': forms.TextInput(attrs={'placeholder': 'Ví dụ: Đại học Khoa học Tự nhiên'}),
             'major': forms.TextInput(attrs={'placeholder': 'Ví dụ: Kỹ thuật phần mềm'}),
+            'related_category': forms.Select(),
             'province': forms.Select(choices=[('', 'Chọn Tỉnh/Thành phố')]),
             'ward': forms.Select(choices=[('', 'Chọn Phường/Xã')]),
         }
@@ -133,9 +138,11 @@ class ProfileUpdateForm(forms.ModelForm):
 
             self.fields['province'].label = 'Địa điểm mong muốn làm việc'
             self.fields['province'].widget = forms.Select(choices=[('', 'Chọn Tỉnh/Thành phố')])
+            self.fields['related_category'].queryset = JobCategory.objects.all()
+            self.fields['related_category'].empty_label = 'Chọn lĩnh vực liên quan'
 
         elif user and user.role == 'employer':
-            student_fields = ['university', 'major', 'academic_year', 'skills', 'default_cv']
+            student_fields = ['university', 'major', 'related_category', 'academic_year', 'skills', 'default_cv']
             for field in student_fields:
                 if field in self.fields:
                     self.fields[field].widget = forms.HiddenInput()
