@@ -1,0 +1,243 @@
+﻿================================================================================
+HƯỚNG DẪN CÀI ĐẶT VÀ SỬ DỤNG HỆ THỐNG "FREELANCE JOB"
+Nền tảng kết nối tuyển dụng và tìm kiếm việc làm cho Sinh viên và Nhà tuyển dụng
+================================================================================
+
+Tài liệu này được biên soạn để giảng viên hoặc người dùng mới có thể:
+1. Tải dự án về máy cá nhân.
+2. Cài đặt đúng môi trường chạy.
+3. Khởi động hệ thống thành công.
+4. Trải nghiệm đầy đủ các tính năng theo từng vai trò (Sinh viên, Nhà tuyển dụng, Quản trị viên).
+
+--------------------------------------------------------------------------------
+PHẦN 1. YÊU CẦU HỆ THỐNG
+--------------------------------------------------------------------------------
+
+1. Phần mềm bắt buộc
+- Git
+- Python (khuyến nghị Python 3.10 trở lên)
+- PostgreSQL (khuyến nghị PostgreSQL 14 trở lên)
+
+2. Kiểm tra nhanh sau khi cài
+Mở PowerShell (Windows) và chạy:
+- git --version
+- python --version
+- pip --version
+- psql --version
+
+Nếu các lệnh trên trả về phiên bản, môi trường cơ bản đã sẵn sàng.
+
+--------------------------------------------------------------------------------
+PHẦN 2. TẢI MÃ NGUỒN DỰ ÁN
+--------------------------------------------------------------------------------
+
+Bước 1: Chọn thư mục lưu dự án trên máy.
+
+Bước 2: Mở  tại thư mục đó và chạy:
+- git clone https://github.com/phuc05112005/freelance-job.git
+- cd freelance-job
+
+Bước 3: Kiểm tra đã vào đúng thư mục dự án (có file manage.py):
+- dir
+
+--------------------------------------------------------------------------------
+PHẦN 3. CÀI THƯ VIỆN PHỤ THUỘC
+--------------------------------------------------------------------------------
+
+Chạy lệnh sau trong thư mục gốc dự án:
+- pip install -r requirements.txt
+
+Lưu ý:
+- Tài liệu này không bắt buộc dùng môi trường ảo.
+- Nếu máy có nhiều dự án Python, bạn có thể tự tạo venv để tránh xung đột thư viện (không bắt buộc).
+
+--------------------------------------------------------------------------------
+PHẦN 4. CẤU HÌNH CƠ SỞ DỮ LIỆU POSTGRESQL
+--------------------------------------------------------------------------------
+
+Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính.
+
+Bước 1: Tạo database mới
+Đăng nhập PostgreSQL và tạo database:
+- CREATE DATABASE freelance_platform;
+
+Bước 2: Cấu hình thông tin kết nối DB
+Dự án đọc cấu hình DB từ biến môi trường hệ thống (os.getenv).
+Vì vậy, bạn cần thiết lập các biến môi trường trước khi chạy migrate/runserver.
+
+Thiết lập nhanh trong PowerShell hiện tại:
+- $env:DB_NAME="freelance_platform"
+- $env:DB_USER="<ten_user_postgres>"
+- $env:DB_PASSWORD="<mat_khau_postgres>"
+- $env:DB_HOST="localhost"
+- $env:DB_PORT="5432"
+
+Ví dụ:
+- $env:DB_NAME="freelance_platform"
+- $env:DB_USER="postgres"
+- $env:DB_PASSWORD="123456"
+- $env:DB_HOST="localhost"
+- $env:DB_PORT="5432"
+
+Gợi ý:
+- Dự án có file `.env.example` để tham khảo tên biến, nhưng hiện tại bạn vẫn cần export biến môi trường như trên để chắc chắn hệ thống nhận cấu hình.
+
+--------------------------------------------------------------------------------
+PHẦN 5. KHỞI TẠO DỮ LIỆU HỆ THỐNG
+--------------------------------------------------------------------------------
+
+Bước 1: Chạy migration để tạo bảng
+- python manage.py migrate
+
+Bước 2: Tạo tài khoản quản trị (superuser)
+- python manage.py createsuperuser
+
+Hệ thống sẽ yêu cầu nhập:
+- Username
+- Email
+- Password
+
+Hãy lưu lại tài khoản này để đăng nhập khu vực quản trị.
+
+--------------------------------------------------------------------------------
+PHẦN 6. CHẠY DỰ ÁN
+--------------------------------------------------------------------------------
+
+Khởi động server Django:
+- python manage.py runserver
+
+Nếu thành công, terminal sẽ hiển thị địa chỉ chạy local.
+Mặc định truy cập tại:
+- http://127.0.0.1:8000/
+
+--------------------------------------------------------------------------------
+PHẦN 7. TRUY CẬP VÀ KIỂM THỬ ĐẦY ĐỦ TÍNH NĂNG
+--------------------------------------------------------------------------------
+
+I. Luồng cho Sinh viên (Freelancer)
+1. Đăng ký tài khoản:
+- URL: /accounts/register/
+2. Đăng nhập:
+- URL: /accounts/login/
+3. Cập nhật hồ sơ cá nhân:
+- URL: /accounts/profile/
+4. Xem và tìm kiếm việc làm:
+- URL: /jobs/all/
+5. Lưu công việc yêu thích:
+- URL: /jobs/favorites/
+6. Ứng tuyển công việc:
+- Vào chi tiết job: /jobs/<id>/
+- Bấm ứng tuyển: /jobs/<id>/apply/
+7. Theo dõi trạng thái ứng tuyển:
+- URL: /applications/
+
+II. Luồng cho Nhà tuyển dụng (Employer)
+1. Vào trang dành cho nhà tuyển dụng:
+- URL: /employer/
+2. Đăng ký tài khoản nhà tuyển dụng:
+- URL: /accounts/register-employer/
+3. Cập nhật thông tin công ty tại hồ sơ cá nhân:
+- URL: /accounts/profile/
+4. Đăng tin tuyển dụng mới:
+- URL: /jobs/create/
+5. Quản lý danh sách job đã đăng:
+- URL: /jobs/my/
+6. Xem danh sách ứng viên và xử lý hồ sơ:
+- URL: /applications/
+7. Cập nhật trạng thái hồ sơ ứng tuyển (đã nhận/đang xem xét/chấp nhận/từ chối).
+
+III. Luồng cho Quản trị viên (Admin)
+1. Đăng nhập bằng tài khoản superuser đã tạo.
+2. Vào trang quản trị riêng:
+- URL: /admin-center/
+3. Quản lý người dùng:
+- URL: /admin-center/users/
+4. Quản lý việc làm:
+- URL: /admin-center/jobs/
+5. Quản lý đơn ứng tuyển:
+- URL: /admin-center/applications/
+6. Quản lý danh mục hệ thống:
+- Danh mục việc làm: /admin-center/categories/
+- Mức kinh nghiệm: /admin-center/experience-levels/
+- Hình thức làm việc: /admin-center/work-modes/
+- Loại hình làm việc: /admin-center/employment-types/
+
+--------------------------------------------------------------------------------
+PHẦN 8. PHỤC HỒI DỮ LIỆU TỪ FILE BACKUP (TÙY CHỌN)
+--------------------------------------------------------------------------------
+
+Dự án có sẵn file backup:
+- freelance_platform.backup
+
+Mục tiêu:
+- Giúp người dùng nạp sẵn dữ liệu để dùng ngay, không cần tự nhập tay dữ liệu ban đầu.
+
+Cách 1 (khuyến nghị): Restore bằng giao diện pgAdmin (không cần gõ lệnh)
+1. Mở pgAdmin và đăng nhập server PostgreSQL.
+2. Nếu chưa có DB, tạo trước database tên `freelance_platform`.
+3. Trong cây bên trái, chọn:
+   Servers -> PostgreSQL -> Databases -> freelance_platform
+4. Nhấp chuột phải vào `freelance_platform` -> chọn `Restore...`.
+5. Ở mục `Format`, chọn `Custom or tar`.
+6. Ở mục `Filename`, bấm chọn file `freelance_platform.backup` đã tải về.
+7. (Tùy chọn) Trong tab `Restore options`, có thể bật:
+   - Clean before restore (xóa dữ liệu cũ trước khi nạp lại)
+8. Bấm `Restore` và chờ pgAdmin báo `Process completed`.
+9. Mở `Schemas -> public -> Tables` và `Refresh` để kiểm tra dữ liệu đã vào.
+
+Cách 2: Restore bằng lệnh (nếu cần)
+- Dùng khi bạn quen terminal hoặc không dùng pgAdmin.
+- pg_restore -U <db_user> -d freelance_platform freelance_platform.backup
+
+Ví dụ:
+- pg_restore -U postgres -d freelance_platform freelance_platform.backup
+
+Lưu ý quan trọng:
+- Trong source hiện tại không có lệnh `python manage.py seed_demo`.
+- Nếu đã restore backup thành công thì không cần tự tạo dữ liệu mẫu thủ công.
+- Nếu restore vào DB đã có dữ liệu cũ, nên dùng tùy chọn `Clean before restore` để tránh trùng/lỗi dữ liệu.
+
+--------------------------------------------------------------------------------
+PHẦN 9. LỖI THƯỜNG GẶP VÀ CÁCH XỬ LÝ
+--------------------------------------------------------------------------------
+
+1. Lỗi không kết nối được PostgreSQL
+- Kiểm tra DB_USER, DB_PASSWORD, DB_HOST, DB_PORT.
+- Đảm bảo service PostgreSQL đang chạy.
+- Đảm bảo user PostgreSQL có quyền truy cập database `freelance_platform`.
+
+2. Lỗi "relation does not exist" hoặc thiếu bảng
+- Chưa migrate đầy đủ.
+- Chạy lại: python manage.py migrate
+
+3. Lỗi cổng 8000 đã được sử dụng
+- Chạy cổng khác:
+  python manage.py runserver 8001
+- Truy cập lại theo cổng mới: http://127.0.0.1:8001/
+
+4. Không đăng nhập được tài khoản admin-center
+- Đảm bảo tài khoản được tạo bằng `createsuperuser`.
+- Đăng nhập qua /accounts/login/ rồi vào /admin-center/.
+
+5. Không upload được ảnh/CV
+- Kiểm tra quyền ghi thư mục `media/`.
+- Kiểm tra dung lượng tệp upload.
+
+--------------------------------------------------------------------------------
+PHẦN 10. CHECKLIST BÀN GIAO NHANH
+--------------------------------------------------------------------------------
+
+Khi gửi dự án cho người khác, chỉ cần bảo họ làm đúng checklist sau:
+1. Clone dự án.
+2. Cài requirements.
+3. Tạo database PostgreSQL `freelance_platform`.
+4. Set 5 biến môi trường DB.
+5. Chạy migrate.
+6. Tạo superuser.
+7. Runserver.
+8. Đăng nhập và kiểm thử theo 3 vai trò.
+Thực hiện các bước trên để có thể sử dụng đầy đủ các trang và tính năng chính của hệ thống.
+
+================================================================================
+Kết thúc
+================================================================================
